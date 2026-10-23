@@ -14,7 +14,6 @@ import {
   LoaderCircle,
   LockKeyhole,
   MessageCircle,
-  Radio,
   RefreshCw,
   Users,
   WifiOff,
@@ -83,7 +82,7 @@ export function DemoNotice({ compact = false }: { compact?: boolean }) {
       <span>
         {compact
           ? "Sample feed, events, and online activity"
-          : "Accounts, gamer profiles, communities, and channel messaging use Supabase. Feed, events, and online activity are sample data; direct messages and voice are not connected."}
+          : "Accounts, gamer profiles, communities, and channel messaging use Supabase. Feed, events, and online activity are sample data; voice uses LiveKit when configured; direct messages are not connected."}
       </span>
     </div>
   );
@@ -454,22 +453,7 @@ export function NotificationBell() {
     </div>
   );
 }
-export function VoiceConnectionBar() {
-  return (
-    <div className="voice-connection" aria-label="Voice connection status">
-      <span className="voice-off-icon">
-        <Radio size={18} />
-      </span>
-      <div>
-        <strong>Voice disconnected</strong>
-        <span>Development preview</span>
-      </div>
-      <Link to="/voice" className="icon-button" aria-label="Open voice lounge">
-        <Headphones size={17} />
-      </Link>
-    </div>
-  );
-}
+export { PersistentVoiceBar as VoiceConnectionBar } from "./voice/VoiceControls";
 export function GameGlyph() {
   return <Gamepad2 size={18} />;
 }

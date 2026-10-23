@@ -123,3 +123,7 @@ npm run test:bundle
 ```
 
 `test:db` runs transaction-rolled-back PostgreSQL RLS/isolation assertions. It uses the isolated smaller-stack database when present; `TEST_DATABASE_URL` can select an explicit test database. `test:integration` refuses hosted URLs and uses real local services. Browser fixtures also refuse to mutate hosted accounts, create unique local test accounts, and clean up after each test. Missing local services produce explicit failures/skips, not claimed passes. Keep traces and `.local-stack/` out of version control because they may contain temporary test credentials.
+
+## Phase 6 voice authorization
+
+Apply `supabase/phase6-setup.sql` once after Phase 5, or the three ordered `202610250001`–`202610250003` migrations with the CLI. It adds RLS-protected room settings, private voice reservations/suspensions/budgets and service-only enforcement snapshots. Existing The Gathering communities receive initial real room definitions without fabricated participants. Voice media uses a separate LiveKit project, server-only credentials, and an always-on enforcement worker. Follow [VOICE.md](VOICE.md) before deploying; API keys alone cannot apply SQL migrations.

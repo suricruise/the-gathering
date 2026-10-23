@@ -2,6 +2,7 @@ import { requireUser } from "@/src/lib/auth/session";
 import { loadMyProfile } from "@/src/lib/profiles/data";
 import { AppShell } from "@/src/components/AppShell";
 import { MemberProvider } from "@/src/components/MemberContext";
+import { VoiceProvider } from "@/src/components/voice/VoiceProvider";
 export const dynamic = "force-dynamic";
 export default async function MemberLayout({
   children,
@@ -20,7 +21,9 @@ export default async function MemberLayout({
         avatarVersion: profile.avatar_path,
       }}
     >
-      <AppShell>{children}</AppShell>
+      <VoiceProvider>
+        <AppShell>{children}</AppShell>
+      </VoiceProvider>
     </MemberProvider>
   );
 }

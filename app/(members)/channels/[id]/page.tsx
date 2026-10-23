@@ -1,3 +1,5 @@
+import { VoiceRoomPanel } from "@/src/components/voice/VoiceControls";
+import { voiceConfig } from "@/src/lib/voice/server";
 import Link from "next/link";
 import { ChatWorkspace } from "@/src/components/chat/ChatWorkspace";
 import { publicConfig } from "@/src/lib/config";
@@ -64,6 +66,27 @@ export default async function ChannelPage({
       ? await client.rpc("chat_page", { p_channel: id })
       : null;
   const config = publicConfig();
+  const voiceSettings =
+    channel.kind === "voice"
+      ? await client
+          .from("voice_rooms")
+          .select("participant_limit,locked")
+          .eq("channel_id", id)
+          .maybeSingle()
+      : null;
+  const voiceRole =
+    channel.kind === "voice"
+      ? await client.rpc("community_my_role", {
+          p_community: channel.community_id,
+        })
+      : null;
+  let voiceConfigured = false;
+  try {
+    voiceConfig();
+    voiceConfigured = true;
+  } catch {
+    /* Missing infrastructure keeps joining disabled. */
+  }
   const shared = (await searchParams).message;
   return (
     <div className="page live-channel">
@@ -91,39 +114,35 @@ export default async function ChannelPage({
             publishableKey={config.key}
             sharedMessage={idSchemaForMessage(shared)}
           />
+        ) : channel.kind === "voice" ? (
+          <VoiceRoomPanel
+            channel={id}
+            name={channel.name}
+            description={channel.description}
+            role={voiceRole?.data}
+            limit={voiceSettings?.data?.participant_limit ?? 12}
+            locked={voiceSettings?.data?.locked ?? false}
+            configured={voiceConfigured && !voiceSettings?.error}
+          />
         ) : (
           <section className="panel padded">
             <EmptyState
-              title={
-                channel.kind === "text"
-                  ? "Messaging is unavailable"
-                  : "Your voice space is ready"
-              }
-              description={
-                channel.kind === "text"
-                  ? "Message history could not be loaded. Please retry; the site administrator may need to apply the messaging migrations."
-                  : "Channel access is connected. Voice transport is not connected yet."
-              }
+              title="Messaging is unavailable"
+              description="Message history could not be loaded. Please retry; the site administrator may need to apply the messaging migrations."
             />
-            {channel.kind === "text" ? (
-              <div>
-                <label className="field">
-                  Message
-                  <input placeholder="Messaging is not connected" disabled />
-                </label>
-                <button
-                  className="button secondary"
-                  disabled
-                  aria-label="Send message unavailable"
-                >
-                  Send
-                </button>
-              </div>
-            ) : (
-              <button className="button secondary" disabled>
-                Voice connection unavailable
+            <div>
+              <label className="field">
+                Message
+                <input placeholder="Messaging is not connected" disabled />
+              </label>
+              <button
+                className="button secondary"
+                disabled
+                aria-label="Send message unavailable"
+              >
+                Send
               </button>
-            )}
+            </div>
           </section>
         )}
       </div>

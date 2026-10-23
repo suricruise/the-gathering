@@ -165,14 +165,7 @@ export function Topbar({ onMenu }: { onMenu: () => void }) {
 export function MobileNavigation({ onMenu }: { onMenu: () => void }) {
   return (
     <>
-      <div className="mobile-voice-status">
-        <span className="tiny-dot" />
-        <span>Voice disconnected</span>
-        <Link to="/voice">
-          Open voice lounge
-          <ArrowUpRight size={11} />
-        </Link>
-      </div>
+      <VoiceConnectionBar mobile />
       <nav className="mobile-navigation" aria-label="Mobile navigation">
         {[
           { to: "/home", label: "Home", icon: House },

@@ -22,14 +22,21 @@
     "test:communities": "node scripts/test-communities.mjs",
     "test:messaging": "node scripts/test-messaging.mjs",
     "test:realtime": "node scripts/test-chat-realtime.mjs",
-    "chat:cleanup": "node scripts/cleanup-chat-files.mjs"
+    "chat:cleanup": "node scripts/cleanup-chat-files.mjs",
+    "voice:local": "node scripts/voice-local.mjs",
+    "voice:worker": "node scripts/voice-worker.mjs",
+    "test:voice": "node scripts/test-voice.mjs",
+    "test:voice:setup": "node scripts/test-voice-setup.mjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",
     "@fontsource/manrope": "^5.3.0",
+    "@livekit/components-react": "^2.9.24",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.118.0",
     "ipaddr.js": "^2.5.0",
+    "livekit-client": "^2.23.0",
+    "livekit-server-sdk": "^2.19.2",
     "lucide-react": "^0.468.0",
     "next": "^16.4.2",
     "react": "^19.0.0",

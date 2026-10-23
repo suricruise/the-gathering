@@ -1,6 +1,8 @@
 # The Gathering
 
-A premium dark gaming community interface with real Supabase authentication, gamer profiles, communities, memberships, invitations, channel permissions, and persistent realtime channel messaging. Phase 5 uses Next.js 16 App Router, React 19, TypeScript, and the current `@supabase/ssr` integration. The responsive interface remains behind authenticated routes. Voice, direct messages, feeds, squads, events, and platform administrative services still use explicitly labeled preview content and do not simulate successful connections.
+A premium dark gaming community interface with real Supabase authentication, gamer profiles, communities, memberships, invitations, channel permissions, persistent realtime channel messaging, and real LiveKit voice rooms. Phase 6 uses Next.js 16 App Router, React 19, TypeScript, and the current `@supabase/ssr` integration. The responsive interface remains behind authenticated routes. Direct messages, feeds, squad listings, events, and platform administrative services still use explicitly labeled preview content and do not simulate successful connections.
+
+Voice setup requires a LiveKit project and an always-on authorization worker; follow the [voice setup guide](docs/VOICE.md). Voice is unavailable until configured, and never simulates a connection.
 
 ## Develop
 
@@ -47,7 +49,7 @@ Run `npm run preview` after a production build. Hosting now requires a **Next.js
 
 ## Communities
 
-Discover and join public communities, accept invitations, manage roles and channels, and control private-channel access with server authorization and RLS. Community creation requires operator approval. See the [community setup and permission guide](docs/COMMUNITIES.md) for the Phase 4 migration, idempotent development seed, first-owner provisioning, role matrix, and operational limits. Text messaging is live; voice transport remains disconnected.
+Discover and join public communities, accept invitations, manage roles and channels, and control private-channel access with server authorization and RLS. Community creation requires operator approval. See the [community setup and permission guide](docs/COMMUNITIES.md) for the Phase 4 migration, idempotent development seed, first-owner provisioning, role matrix, and operational limits. Text messaging is live; Phase 6 connects voice through LiveKit with server authorization.
 
 ## Channel messaging
 
@@ -65,3 +67,7 @@ Text channels now persist before delivering private Broadcast invalidations. The
 Registration is 18+ with server and database enforcement of age self-attestation. Profiles default to private. Username checks are authenticated and throttled, and no public availability endpoint exists. All user data tables enable RLS. Normal users cannot directly write profile tables or upload arbitrary files.
 
 See [Supabase configuration and security](docs/SUPABASE.md), [screens](docs/SCREENS.md), [architecture](docs/ARCHITECTURE.md), and the [development log](DEVELOPMENT_LOG.md).
+
+## Phase 6 voice
+
+LiveKit rooms support real microphone audio, mute/deafen, device selection, live participants, speaking/quality indicators, reconnect states and persistent navigation. Moderators can remove lower-ranked members; owners/admins can lock rooms and change capacity. Follow [voice setup and acceptance testing](docs/VOICE.md), apply the [single-file Phase 6 SQL setup](supabase/phase6-setup.sql), and deploy the always-on enforcement worker before enabling production voice. No recording is requested by the application.

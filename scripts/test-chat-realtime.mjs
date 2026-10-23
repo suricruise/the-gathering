@@ -139,6 +139,16 @@ try {
   const topic = (await rpc(a, "chat_session", { p_channel: general })).topic;
   const events = [];
   const channel = await subscribe(b, topic, events);
+  // A cold real self-hosted tenant can acknowledge a subscription before its
+  // first WAL replication slot is ready. Require actual transport readiness.
+  await until(
+    async () =>
+      (
+        await db.query(
+          "select exists(select 1 from pg_replication_slots where slot_name like 'supabase_realtime_messages_replication_slot_%' and active) as ready",
+        )
+      ).rows[0].ready,
+  );
   let message = randomUUID();
   await check(
     "real private Broadcast delivers a committed persistent message ID",

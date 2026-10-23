@@ -5854,3 +5854,38 @@ select:focus-visible,
     padding-inline: 5px;
   }
 }
+
+/* Phase 6: genuine LiveKit audio, responsive controls and persistent status. */
+.voice-room-panel { min-width: 0; }
+.voice-room-panel h3 { margin-top: 24px; }
+.voice-privacy { color: var(--text-muted, #a5adc0); font-size: .85rem; margin-block: 16px; }
+.voice-actions { display:flex; gap:12px; flex-wrap:wrap; margin-block:20px; }
+.voice-actions button { min-height:44px; }
+.voice-devices { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.voice-devices select { width:100%; min-height:44px; }
+.voice-participants { list-style:none; padding:0; display:grid; gap:10px; }
+.voice-participant { display:flex; align-items:center; gap:12px; padding:14px; border:1px solid var(--border, #30364b); border-radius:14px; min-width:0; }
+.voice-participant > div { flex:1; min-width:0; overflow-wrap:anywhere; }
+.voice-participant small { display:block; color:var(--text-muted, #a5adc0); margin-top:4px; }
+.voice-participant.is-speaking { border-color:#67d9d4; box-shadow:inset 0 0 0 1px #67d9d433; }
+.voice-avatar { display:grid; place-items:center; background:#42356c; border-radius:50%; width:40px; height:40px; flex-shrink:0; font-weight:700; }
+.voice-settings { border-top:1px solid var(--border, #30364b); margin-top:24px; padding-top:20px; }
+.voice-settings summary { cursor:pointer; min-height:44px; font-weight:700; }
+.voice-settings .field { margin-block:12px; }
+.voice-live-state { color:#81e3dc; font-weight:700; }
+.voice-connection { flex-wrap:wrap; gap:8px; }
+.voice-connection > div { flex:1; min-width:85px; }
+.voice-connection strong { font-size:.75rem; }
+.voice-connection small { display:block; color:#a5adc0; overflow-wrap:anywhere; }
+.voice-autoplay { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:90; max-width:90vw; }
+@media(max-width:700px) {
+ .voice-devices { grid-template-columns:1fr; }
+ .voice-participant { flex-wrap:wrap; }
+ .voice-participant .button { min-height:44px; }
+ .mobile-voice-status { height:auto; min-height:40px; gap:6px; padding:4px 12px; }
+ .mobile-voice-status > div { flex:1; min-width:0; }
+ .mobile-voice-status strong { font-size:.7rem; }
+ .mobile-voice-status small { display:block; font-size:.65rem; }
+ .mobile-voice-status .icon-button { min-width:44px; min-height:44px; }
+ .voice-autoplay { bottom:132px; }
+}

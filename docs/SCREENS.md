@@ -75,3 +75,10 @@ Legacy `/channels/general` and other channel-name links resolve only through an 
 `/channels/:uuid` now renders a real persistent text workspace: live/connecting/offline/retry states, 40-row keyset history pages, root/thread replies and targets, emoji reactions, own editing/deletion, moderator deletion/reasons, member avatars with visibility-aware fallback, UTC timestamps, safe Markdown, current-channel search, unread dividers/counts, aggregate read indicators, and explicit mark-read.
 
 The composer stages up to four validated private photos/GIFs/files, preserves an unconfirmed send ID for retry, and only clears after a committed response. Message links load/highlight an authorized row; link-preview cards are generated on explicit request without third-party images/embeds. Voice channel definitions and direct-message previews retain unavailable send/join controls. See [MESSAGING.md](MESSAGING.md) for exact limits, access/cache behavior, setup, and verification.
+
+## Phase 6 connected voice screens
+
+- `/voice`: authenticated community voice room discovery, actual provider occupancy when available, room capacity/lock state, initial Lounge/Squad Up/game rooms, private room links, and honest missing-infrastructure/empty/error states.
+- `/channels/:id` for a voice channel: microphone or muted joining, real connection/reconnection status, microphone and output device selection, mute/deafen/leave, actual participant identities, speaking and connection quality indicators, moderator removal, and owner/admin room controls. Browser permission denial and autoplay recovery are explicit.
+- Persistent desktop/mobile voice bars use the same member-layout connection while navigating. Existing text threads, uploads, profiles, invitations, settings and sample service labels are retained.
+- See `VOICE.md` for production prerequisites and the required two-physical-device acceptance check. Automated browser media checks use actual LiveKit/WebRTC with deterministic microphone input.

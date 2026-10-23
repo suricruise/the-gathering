@@ -113,8 +113,7 @@ export function CommunityView({ data }: { data: CommunityDetailData }) {
                 />
               )}
               <p className="muted">
-                Text messaging is connected. Voice spaces are defined; voice
-                transport is not connected yet.
+                Text messaging is connected. Voice rooms use LiveKit when configured.
               </p>
             </section>
             <section className="panel padded">
@@ -397,7 +396,7 @@ export function CommunityView({ data }: { data: CommunityDetailData }) {
                   </label>
                   <label className="community-check">
                     <input type="checkbox" name="can_connect" defaultChecked />{" "}
-                    Allow future voice connection
+                    Allow voice connection
                   </label>
                   <label className="community-check">
                     <input type="checkbox" name="reset_override" /> Reset target

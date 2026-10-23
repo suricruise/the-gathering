@@ -44,7 +44,7 @@ Profile saves update profile, interests, favorite games, and platforms atomicall
 
 ## Retained service boundaries
 
-Community discovery, membership, roles, categories, channel definitions/permissions, invitations, and audit are now persisted. Home community cards use accessible database rows. Chat/voice, demo online friends, feeds, squads, events, and the platform admin shell remain development fixtures. Chat/voice controls remain unavailable, and the application never claims to send messages or establish a voice connection. No client-editable admin role was added; the admin shell grants no operational permissions.
+Community discovery, membership, roles, categories, channel definitions/permissions, invitations, and audit are now persisted. Home community cards use accessible database rows. Channel text messaging is connected in Phase 5. Voice, direct messages, demo online friends, feeds, squads, events, and the platform admin shell remain development fixtures. Voice/direct-message controls remain unavailable. Channel text sends only report delivery after a committed database response. No client-editable admin role was added; the admin shell grants no operational permissions.
 
 ## Deployment
 
@@ -53,3 +53,11 @@ Build with `npm run build`, run with `npm run preview`/`next start`, and supply 
 ## Community authorization
 
 All community reads/writes use the authenticated SSR client. Community RLS hides private communities from outsiders and channels from nonmembers or members without view permission. Direct writes are denied; the session-derived `community_command` RPC checks live adult verification, locks the community, validates role hierarchy and scoped references, and records changes. A trigger separately audits membership/role/status mutations. Approval lives in an operator-only private table; the public admin preview cannot grant it. Invitations store only random-token digests, expire, and are single-use under the same community lock. Composite foreign keys prevent cross-community category/override assignments. See `COMMUNITIES.md` for the full permission matrix, privacy projection, limits, deployment, and initial-owner procedure.
+
+## Persistent Broadcast messaging
+
+`src/lib/chat` implements strict input validation, session-constrained reads/commands, stable-ID/revision reconciliation, safe image/file processing, public-address-pinned preview fetches, and account file cleanup. `src/components/chat` renders safe Markdown, real message controls, thread/history/search state, and the in-memory authenticated Realtime transport.
+
+The `/api/chat/session` endpoint validates the live user/channel before returning only an access JWT and current private epoch topic. Refresh cookies stay HttpOnly. `/api/chat/upload` validates Origin, streams/limits/decodes bytes, stores a private object with the server-only client, and registers it through the authenticated RPC. `/api/chat/attachments/:id` rechecks current RLS and streams no-store bytes; it never issues public/signed URLs. `/api/chat/typing` sends authenticated server-derived ephemeral indicators independently of sequential Server Actions.
+
+PostgreSQL commits messages before WAL Broadcast delivery. Events invalidate stable IDs; no body/history is broadcast. Scoped RPCs and RLS enforce live channel permissions, per-user budgets, own edits, moderated deletion, and attachment claims. Reactions and previews revise the parent message; replies also revise their root. Channel write locks preserve commit ordering for catch-up cursors, and topic epochs rotate on access changes to address Realtime’s cached authorization. A private scheduled worker cleans staged/deleted/orphaned files through the Storage API. See `MESSAGING.md` for the complete trust/operational contract.

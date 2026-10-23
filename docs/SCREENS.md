@@ -69,3 +69,9 @@ The Phase 2 community/channel previews are superseded on their real routes:
 | `/channels/:uuid` | RLS-constrained channel definition, desktop navigation/mobile modal drawer, disconnected text composer or voice control |
 
 Legacy `/channels/general` and other channel-name links resolve only through an accessible channel in The Gathering; nonmembers see a join-community prompt. Private UUID routes return the same not-found state as missing channels. Covers are four bundled original SVG landscapes. There are no simulated messages, voice connections, membership counts, or member activity on connected community pages. See [COMMUNITIES.md](COMMUNITIES.md) for visibility and role semantics.
+
+## Phase 5 messaging screens
+
+`/channels/:uuid` now renders a real persistent text workspace: live/connecting/offline/retry states, 40-row keyset history pages, root/thread replies and targets, emoji reactions, own editing/deletion, moderator deletion/reasons, member avatars with visibility-aware fallback, UTC timestamps, safe Markdown, current-channel search, unread dividers/counts, aggregate read indicators, and explicit mark-read.
+
+The composer stages up to four validated private photos/GIFs/files, preserves an unconfirmed send ID for retry, and only clears after a committed response. Message links load/highlight an authorized row; link-preview cards are generated on explicit request without third-party images/embeds. Voice channel definitions and direct-message previews retain unavailable send/join controls. See [MESSAGING.md](MESSAGING.md) for exact limits, access/cache behavior, setup, and verification.

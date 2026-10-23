@@ -82,6 +82,8 @@ for (let i = 0; i < 30; i++) {
 }
 try {
   await db.query(`do $$ begin
+ if not exists(select 1 from pg_roles where rolname='supabase_admin') then create role supabase_admin nologin superuser; end if;
+ if not exists(select 1 from pg_roles where rolname='dashboard_user') then create role dashboard_user nologin; end if;
  if not exists(select 1 from pg_roles where rolname='anon') then create role anon nologin; end if;
  if not exists(select 1 from pg_roles where rolname='authenticated') then create role authenticated nologin; end if;
  if not exists(select 1 from pg_roles where rolname='service_role') then create role service_role nologin bypassrls; end if;
@@ -93,6 +95,8 @@ try {
  grant usage on schema public to anon,authenticated,service_role;
  create schema if not exists auth;
  alter schema auth owner to supabase_auth_admin;
+ create schema if not exists _realtime;
+ create schema if not exists realtime;
  create schema if not exists extensions;
  create extension if not exists pgcrypto with schema extensions;`);
   for (const role of [
@@ -109,7 +113,7 @@ try {
  create or replace function auth.role() returns text language sql stable as $$ select coalesce(nullif(current_setting('request.jwt.claim.role',true),''), (nullif(current_setting('request.jwt.claims',true),'')::jsonb ->> 'role')) $$;
  grant usage on schema auth to anon,authenticated,service_role;
  grant execute on all functions in schema auth to anon,authenticated,service_role;`);
-  compose("up", "-d", "auth", "rest", "storage");
+  compose("up", "-d", "auth", "rest", "storage", "realtime");
   for (const [url, label] of [
     ["http://127.0.0.1:54325/health", "Auth"],
     ["http://127.0.0.1:54327/status", "Storage"],
@@ -124,6 +128,28 @@ try {
       if (i === 59) throw new Error(`${label} did not become healthy`);
       await new Promise((resolve) => setTimeout(resolve, 500));
     }
+  }
+  // Realtime installs its own schema and send() helper; do not emulate it.
+  for (let i = 0; i < 120; i++) {
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:54328/api/tenants/realtime-dev/health",
+        { headers: { Authorization: `Bearer ${env.TEST_ANON_KEY}` } },
+      );
+      if (
+        response.ok &&
+        (
+          await db.query(
+            "select to_regprocedure('realtime.send(jsonb,text,text,boolean)') is not null and to_regclass('realtime.messages_'||to_char(current_date,'YYYY_MM_DD')) is not null as ready",
+          )
+        ).rows[0].ready
+      )
+        break;
+    } catch {
+      /* Real service migrations may still be starting. */
+    }
+    if (i === 119) throw new Error("Realtime did not become healthy.");
+    await new Promise((resolve) => setTimeout(resolve, 500));
   }
   await db.query(
     "create schema if not exists gathering_migrations; revoke all on schema gathering_migrations from public; create table if not exists gathering_migrations.applied(version text primary key, checksum text not null)",

@@ -1,5 +1,23 @@
 # Development log
 
+## 2026-10-23 — Phase 5: persistent real-time channel messaging
+
+### Delivered
+
+- Added PostgreSQL messages, threads/replies, reactions, private attachment metadata, read receipts, safe link previews, moderation metadata, and seven versioned migrations. Reads, writes, searches, downloads, and private Realtime subscriptions independently enforce live membership and channel permissions. Server-derived identities, restrictive RLS, mutation budgets, bounded queries, and indexed pagination protect access.
+- Implemented transactional, committed ID-only Supabase Realtime Broadcast delivery. Stable client message IDs and ordered revisions reconcile retries and reconnects without duplicates. Permission changes rotate private topic epochs; session refresh and authoritative catch-up recheck access. Offline sends retain an explicit retry state rather than claiming delivery.
+- Built responsive real chat with older history, separate thread pagination, replies, reactions, own edits/deletes, moderator deletion reasons, typing expiry, read/unread indicators, visible avatars, UTC timestamps, search, shareable message links, and safe Markdown. Photos and animated GIFs are decoded/re-encoded; PDF/text/CSV files are validated and downloaded through authenticated no-store routes. No public attachment URLs are issued.
+- Added opt-in HTTPS link previews with public-address DNS validation, pinned connections, redirect revalidation, strict response bounds, and text-only metadata. Added claimed/retryable Storage cleanup and integrated authored-file cleanup into account deletion. Voice, direct messages, feeds, and other sample features remain explicitly disconnected or labeled.
+- Verified current Supabase Broadcast/authorization/database-change guidance and the official self-hosted Realtime service. Extended the local stack with genuine Realtime WAL delivery and WebSocket routing. Documented setup, security boundaries, operational limits, cleanup scheduling, and completed screens in `docs/MESSAGING.md` and related guides.
+- Added `supabase/phase5-setup.sql`, a single transactional installer containing all seven migrations and CLI migration history. A fresh-schema test against real local services verified the installer and rolled back its test changes. Hosted Supabase was not modified: the operator must apply this installer and configure private-only Realtime before the new Vercel features work.
+
+### Validation
+
+- 111 unit/server/component tests passed. All 77 database checks passed (21 retained identity/access checks, 32 retained community checks, and 24 messaging checks). All 23 API/Realtime checks passed (13 retained and 10 new), including committed delivery, rollback silence, forged broadcasts, unauthorized subscriptions/mutations, stale topics, simultaneous retries, and reconnection reconciliation.
+- Both new desktop/mobile flows exchanged messages between two genuinely authenticated browser sessions, including threads, edits, reactions, private uploads/downloads, offline retry, search, shared links, and access revocation. Accessibility, responsive overflow, and browser-error checks were included.
+- The complete serial browser run passed 51 of 52 cases. The retained desktop community moderation flow exposed unstable conditional form identities; stable member-specific form keys corrected it, and its focused rerun passed with a database-persistence assertion. All 52 cases therefore passed across the full run and focused regression rerun. Earlier parallel accessibility timeouts passed in the serial run; no assertion was removed.
+- Lint, typecheck, unit tests, production build, and client-bundle secret scan were run for final verification. Local migration checksum verification and fresh installer validation passed. These checks establish functional behavior and access isolation, not a load-test or malware-scanning certification.
+
 ## 2026-10-23 — Phase 4: communities, channels, and membership
 
 ### Delivered

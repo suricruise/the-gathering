@@ -124,7 +124,7 @@ test("navigation, disconnected services, and keyboard skip link", async ({
     page.getByRole("heading", { name: "# introductions", exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByRole("button", { name: "Send message unavailable" }),
+    page.getByRole("button", { name: "Send message", exact:true }),
   ).toBeDisabled();
   await page.goto("/voice");
   for (const button of await page

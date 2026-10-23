@@ -3,6 +3,7 @@
 services:
   db:
     image: postgres:17-alpine
+    command: ["postgres", "-c", "wal_level=logical", "-c", "max_replication_slots=10"]
     ports: ["127.0.0.1:54322:5432"]
     environment:
       POSTGRES_PASSWORD: ${TEST_DB_PASSWORD}
@@ -46,6 +47,27 @@ services:
       PGRST_DB_ANON_ROLE: anon
       PGRST_JWT_SECRET: ${TEST_JWT_SECRET}
       PGRST_DB_MAX_ROWS: 1000
+  realtime:
+    image: supabase/realtime:v2.143.3
+    ports: ["127.0.0.1:54328:4000"]
+    environment:
+      PORT: 4000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: ${TEST_DB_PASSWORD}
+      DB_NAME: postgres
+      DB_AFTER_CONNECT_QUERY: SET search_path TO _realtime
+      DB_ENC_KEY: supabaserealtime
+      API_JWT_SECRET: ${TEST_JWT_SECRET}
+      METRICS_JWT_SECRET: ${TEST_JWT_SECRET}
+      SECRET_KEY_BASE: ${TEST_JWT_SECRET}${TEST_JWT_SECRET}
+      ERL_AFLAGS: -proto_dist inet_tcp
+      DNS_NODES: "''"
+      APP_NAME: realtime
+      SEED_SELF_HOST: "true"
+      RUN_JANITOR: "true"
+      DISABLE_HEALTHCHECK_LOGGING: "true"
   storage:
     image: ghcr.io/supabase/storage-api:v1.82.1
     ports: ["127.0.0.1:54327:5000"]
@@ -56,7 +78,7 @@ services:
       DATABASE_URL: postgres://supabase_storage_admin:${TEST_DB_PASSWORD}@db:5432/postgres
       POSTGREST_URL: http://rest:3000
       STORAGE_PUBLIC_URL: http://127.0.0.1:54321
-      FILE_SIZE_LIMIT: 2097152
+      FILE_SIZE_LIMIT: 3145728
       STORAGE_BACKEND: file
       FILE_STORAGE_BACKEND_PATH: /var/lib/storage
       TENANT_ID: gathering-test

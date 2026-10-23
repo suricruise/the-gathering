@@ -1,4 +1,5 @@
 "use server";
+import { removeAccountChatFiles } from "../chat/cleanup";
 import { randomUUID } from "node:crypto";
 import sharp from "sharp";
 import { revalidatePath } from "next/cache";
@@ -202,6 +203,11 @@ export async function deleteAccount(
           "Account cleanup could not finish. Your account has not been deleted; please contact support.",
       };
   }
+  if (!(await removeAccountChatFiles(identity.user.id)))
+    return {
+      error:
+        "Your message attachments could not be removed. Your account has not been deleted; please retry.",
+    };
   const { error } = await admin.auth.admin.deleteUser(identity.user.id);
   if (error)
     return {

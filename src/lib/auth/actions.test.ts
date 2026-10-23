@@ -17,8 +17,12 @@ const mocks = vi.hoisted(() => ({
   remove: vi.fn(),
   list: vi.fn(),
   deleteUser: vi.fn(),
+  removeChat: vi.fn(),
 }));
 vi.mock("server-only", () => ({}));
+vi.mock("../chat/cleanup", () => ({
+  removeAccountChatFiles: mocks.removeChat,
+}));
 vi.mock("next/navigation", () => ({ redirect: mocks.redirect }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("../supabase/server", () => ({ createClient: mocks.createClient }));
@@ -48,6 +52,7 @@ function form(values: Record<string, string | string[]>) {
 beforeEach(() => {
   vi.clearAllMocks();
   mocks.allow.mockResolvedValue(true);
+  mocks.removeChat.mockResolvedValue(true);
   mocks.rpc.mockResolvedValue({ data: true, error: null });
   mocks.signIn.mockResolvedValue({
     data: { user: { id: "owner-id", email_confirmed_at: "verified" } },
@@ -271,6 +276,20 @@ describe("Server actions and account isolation", () => {
       email: "owner@example.test",
       password: "correct-password",
     });
+  });
+  it("does not delete identity when private message file cleanup fails", async () => {
+    mocks.removeChat.mockResolvedValue(false);
+    const result = await deleteAccount(
+      {},
+      form({
+        confirmation: "DELETE",
+        currentPassword: "correct-password",
+        user_id: "victim-id",
+      }),
+    );
+    expect(result.error).toMatch(/not been deleted/);
+    expect(mocks.removeChat).toHaveBeenCalledWith("owner-id");
+    expect(mocks.deleteUser).not.toHaveBeenCalled();
   });
   it("does not delete identity when avatar cleanup fails", async () => {
     mocks.list.mockResolvedValue({ data: null, error: { message: "offline" } });

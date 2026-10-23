@@ -113,8 +113,8 @@ export function CommunityView({ data }: { data: CommunityDetailData }) {
                 />
               )}
               <p className="muted">
-                Text and voice spaces are defined. Messaging and voice
-                connections are not connected yet.
+                Text messaging is connected. Voice spaces are defined; voice
+                transport is not connected yet.
               </p>
             </section>
             <section className="panel padded">
@@ -146,6 +146,7 @@ export function CommunityView({ data }: { data: CommunityDetailData }) {
                           {admin && m.status === "active" && (
                             <CommandForm
                               communityId={c.id}
+                              key={`role-${m.user_id}`}
                               operation="role"
                               label="Update role"
                             >
@@ -172,7 +173,10 @@ export function CommunityView({ data }: { data: CommunityDetailData }) {
                               </label>
                             </CommandForm>
                           )}
-                          <CommandForm communityId={c.id}>
+                          <CommandForm
+                            key={`moderation-${m.user_id}`}
+                            communityId={c.id}
+                          >
                             <input
                               type="hidden"
                               name="user_id"
@@ -216,6 +220,7 @@ export function CommunityView({ data }: { data: CommunityDetailData }) {
                               </p>
                               <CommandForm
                                 communityId={c.id}
+                                key={`transfer-${m.user_id}`}
                                 operation="transfer"
                                 label="Confirm ownership transfer"
                               >

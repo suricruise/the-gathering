@@ -1,0 +1,317 @@
+import { test, expect, adminClient, userClient, signIn } from "./helpers";
+import { randomUUID } from "node:crypto";
+import { readFileSync } from "node:fs";
+import pg from "pg";
+import sharp from "sharp";
+import AxeBuilder from "@axe-core/playwright";
+test("two authenticated browsers exchange, thread, edit, react, attach, reconnect and enforce revocation", async ({
+  memberPage: page,
+  member,
+  browser,
+}) => {
+  test.setTimeout(150000);
+  const connectionString = readFileSync(
+    ".local-stack/database-url",
+    "utf8",
+  ).trim();
+  if (!["localhost", "127.0.0.1"].includes(new URL(connectionString).hostname))
+    throw Error("Local only");
+  const db = new pg.Client({ connectionString });
+  await db.connect();
+  const community = randomUUID(),
+    channel = randomUUID(),
+    otherChannel = randomUUID();
+  const suffix = randomUUID().slice(0, 8),
+    email = `chatbrowser-${suffix}@example.test`,
+    password = `Gathering-${randomUUID()}`;
+  let otherId: string | undefined;
+  const context = await browser.newContext({
+    viewport: page.viewportSize() ?? { width: 390, height: 844 },
+  });
+  const second = await context.newPage();
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  second.on("pageerror", (e) => errors.push(e.message));
+  try {
+    const created = await adminClient().auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { date_of_birth: "1990-01-01" },
+    });
+    expect(created.error).toBeNull();
+    otherId = created.data.user!.id;
+    const client = userClient();
+    await client.auth.signInWithPassword({ email, password });
+    expect(
+      (
+        await client.rpc("save_my_profile", {
+          p_username: `chat_${suffix}`,
+          p_display_name: "Taylor Lane",
+          p_bio: "",
+          p_visibility: "private",
+          p_interests: ["co-op"],
+          p_games: ["minecraft"],
+          p_platforms: ["pc"],
+          p_complete: true,
+        })
+      ).data,
+    ).toBe(true);
+    await db.query(
+      "insert into public.communities(id,slug,name,visibility) values($1,$2,'Browser chat','private')",
+      [community, `browserchat-${suffix}`],
+    );
+    await db.query(
+      "insert into public.community_members(community_id,user_id,role_id) values($1,$2,'owner'),($1,$3,'member')",
+      [community, member.id, otherId],
+    );
+    await db.query(
+      "insert into public.channels(id,community_id,name,is_private) values($1,$2,'real-chat',true),($3,$2,'restricted-chat',true)",
+      [channel, community, otherChannel],
+    );
+    await db.query(
+      "insert into public.channel_permission_overrides(community_id,channel_id,user_id,can_view) values($1,$2,$3,true)",
+      [community, channel, otherId],
+    );
+    await signIn(second, email, password);
+    await second.goto(`/channels/${otherChannel}`);
+    await expect(
+      second.getByRole("heading", { name: "A little off the map" }),
+    ).toBeVisible();
+    await Promise.all([
+      page.goto(`/channels/${channel}`),
+      second.goto(`/channels/${channel}`),
+    ]);
+    for (const p of [page, second])
+      await expect(p.locator(".chat-connection")).toHaveText("● Live", {
+        timeout: 20000,
+      });
+    const compose = page.getByRole("textbox", {
+      name: "Message real-chat",
+      exact: true,
+    });
+    const composeSecond = second.getByRole("textbox", {
+      name: "Message real-chat",
+      exact: true,
+    });
+    await compose.fill("Hello from Jordan, **live**.");
+    await expect(
+      second.getByText("Jordan Rivers is typing…", { exact: true }),
+    ).toBeVisible();
+    await page
+      .getByRole("button", { name: "Send message", exact: true })
+      .click();
+    await expect(
+      second
+        .locator(".chat-message")
+        .filter({ hasText: "Hello from Jordan, live." }),
+    ).toHaveCount(1, { timeout: 10000 });
+    let firstArticle = page
+      .locator(".chat-message")
+      .filter({ hasText: "Hello from Jordan, live." });
+    const firstId = await firstArticle.getAttribute("data-message-id");
+    expect(firstId).toBeTruthy();
+    firstArticle = page.locator(`[data-message-id="${firstId}"]`);
+    await composeSecond.fill("A live response from Taylor.");
+    await second
+      .getByRole("button", { name: "Send message", exact: true })
+      .click();
+    await expect(
+      page.getByText("A live response from Taylor.", { exact: true }),
+    ).toBeVisible();
+    const incoming = second.locator(`[data-message-id="${firstId}"]`);
+    await incoming.getByRole("button", { name: "Reply", exact: true }).click();
+    await second
+      .getByRole("textbox", { name: "Thread reply", exact: true })
+      .fill("Thread reply delivered live.");
+    await second
+      .getByRole("button", { name: "Send message", exact: true })
+      .click();
+    await expect(
+      second.getByRole("textbox", { name: "Thread reply", exact: true }),
+    ).toHaveValue("");
+    await expect(
+      second.getByText("Thread reply delivered live.", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      firstArticle.getByRole("button", { name: "Reply · 1", exact: true }),
+    ).toBeVisible();
+    await firstArticle
+      .getByRole("button", { name: "Reply · 1", exact: true })
+      .click();
+    await expect(
+      page.getByText("Thread reply delivered live.", { exact: true }),
+    ).toBeVisible();
+    for (const p of [page, second])
+      await p
+        .getByRole("button", { name: "Back to channel", exact: true })
+        .click();
+    await firstArticle
+      .getByRole("button", { name: "Edit", exact: true })
+      .click();
+    await firstArticle
+      .getByRole("textbox", { name: "Edit message", exact: true })
+      .fill("Edited message in real time.");
+    await firstArticle
+      .getByRole("button", { name: "Save edit", exact: true })
+      .click();
+    await expect(
+      incoming.getByText("Edited message in real time.", { exact: true }),
+    ).toBeVisible();
+    await incoming
+      .locator("summary")
+      .filter({ hasText: /^Add reaction$/ })
+      .click();
+    await incoming
+      .getByRole("button", { name: "React 👍", exact: true })
+      .click();
+    await expect(
+      firstArticle.getByRole("button", { name: "👍 reaction, 1", exact: true }),
+    ).toBeVisible();
+    await second
+      .getByRole("button", { name: "Mark read", exact: true })
+      .click();
+    await expect(
+      firstArticle.getByText("Read by 1", { exact: true }),
+    ).toBeVisible();
+    await page
+      .getByRole("textbox", { name: "Search this channel", exact: true })
+      .fill("Edited");
+    await page.getByRole("button", { name: "Search", exact: true }).click();
+    await expect(
+      page.getByRole("heading", { name: "Search results", exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByText("Edited message in real time.", { exact: true }),
+    ).toBeVisible();
+    await page
+      .getByRole("button", { name: "Close search", exact: true })
+      .click();
+    const image = await sharp({
+      create: { width: 32, height: 32, channels: 3, background: "#7350db" },
+    })
+      .png()
+      .toBuffer();
+    await page.getByLabel("Attach files", { exact: true }).setInputFiles({
+      name: "party.png",
+      mimeType: "image/png",
+      buffer: image,
+    });
+    await expect(page.locator(".chat-staged-files")).toContainText(
+      "party.webp",
+    );
+    await compose.fill("A photo for our party.");
+    await page
+      .getByRole("button", { name: "Send message", exact: true })
+      .click();
+    const photo = second.getByRole("img", { name: "party.webp", exact: true });
+    await expect(photo).toBeVisible();
+    const filePath = await photo.getAttribute("src");
+    expect(filePath).toMatch(/^\/api\/chat\/attachments\//);
+    expect((await context.request.get(filePath!)).status()).toBe(200);
+    await context.setOffline(true);
+    await expect(second.locator(".chat-connection")).toHaveText("Offline");
+    await compose.fill("Sent while Taylor was offline.");
+    await page
+      .getByRole("button", { name: "Send message", exact: true })
+      .click();
+    await composeSecond.fill("Retry this message once.");
+    await second
+      .getByRole("button", { name: "Send message", exact: true })
+      .click();
+    await expect(
+      second.getByRole("button", { name: "Retry message", exact: true }),
+    ).toBeVisible();
+    await context.setOffline(false);
+    await expect(second.locator(".chat-connection")).toHaveText("● Live", {
+      timeout: 15000,
+    });
+    await expect(
+      second.getByText("Sent while Taylor was offline.", { exact: true }),
+    ).toHaveCount(1);
+    await second
+      .getByRole("button", { name: "Retry message", exact: true })
+      .click();
+    await expect(
+      page.getByText("Retry this message once.", { exact: true }),
+    ).toHaveCount(1);
+    await second.reload();
+    await expect(
+      second.getByText("Retry this message once.", { exact: true }),
+    ).toHaveCount(1);
+    await second.goto(`/channels/${channel}?message=${firstId}`);
+    await expect(second.locator(`[data-message-id="${firstId}"]`)).toHaveClass(
+      /highlighted/,
+    );
+    await expect(
+      second.getByText("Edited message in real time.", { exact: true }),
+    ).toBeVisible();
+    const taylor = page
+      .locator(".chat-message")
+      .filter({ hasText: "A live response from Taylor." });
+    await taylor
+      .locator("summary")
+      .filter({ hasText: /^Delete message$/ })
+      .click();
+    await taylor
+      .getByRole("textbox", { name: "Moderation reason", exact: true })
+      .fill("Browser moderation check");
+    await taylor
+      .getByRole("button", { name: "Confirm delete", exact: true })
+      .click();
+    await expect(taylor).toHaveCount(0);
+    await expect(
+      second.getByText("A live response from Taylor.", { exact: true }),
+    ).toHaveCount(0);
+    const a11y = await new AxeBuilder({ page })
+      .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+      .analyze();
+    expect(
+      a11y.violations.map((v) => ({
+        id: v.id,
+        targets: v.nodes.map((n) => n.target),
+      })),
+    ).toEqual([]);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth > innerWidth,
+      ),
+    ).toBe(false);
+    await page.screenshot({
+      path: test.info().outputPath("live-chat.png"),
+      fullPage: true,
+    });
+    const ownerClient = userClient();
+    await ownerClient.auth.signInWithPassword({
+      email: member.email,
+      password: member.password,
+    });
+    expect(
+      (
+        await ownerClient.rpc("community_command", {
+          p_operation: "ban",
+          p_community: community,
+          p_data: { user_id: otherId },
+        })
+      ).error,
+    ).toBeNull();
+    await expect(
+      second.getByRole("heading", {
+        name: "Channel access is unavailable",
+        exact: true,
+      }),
+    ).toBeVisible({ timeout: 15000 });
+    expect((await context.request.get(filePath!)).status()).toBe(404);
+    expect(
+      (
+        await context.request.get(`/api/chat/session?channel=${channel}`)
+      ).status(),
+    ).toBe(403);
+    expect(errors).toEqual([]);
+  } finally {
+    await context.close();
+    await db.query("delete from public.communities where id=$1", [community]);
+    if (otherId) await adminClient().auth.admin.deleteUser(otherId);
+    await db.end();
+  }
+});

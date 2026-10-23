@@ -1,6 +1,6 @@
 # The Gathering
 
-A premium dark gaming community interface with real Supabase authentication, gamer profiles, communities, memberships, invitations, and channel permissions. Phase 4 uses Next.js 16 App Router, React 19, TypeScript, and the current `@supabase/ssr` integration. The responsive interface remains behind authenticated routes. Chat, voice, feeds, squads, events, and administrative services still use explicitly labeled preview content and do not simulate successful connections.
+A premium dark gaming community interface with real Supabase authentication, gamer profiles, communities, memberships, invitations, channel permissions, and persistent realtime channel messaging. Phase 5 uses Next.js 16 App Router, React 19, TypeScript, and the current `@supabase/ssr` integration. The responsive interface remains behind authenticated routes. Voice, direct messages, feeds, squads, events, and platform administrative services still use explicitly labeled preview content and do not simulate successful connections.
 
 ## Develop
 
@@ -23,7 +23,7 @@ npm run test:gateway
 npm run dev
 ```
 
-The smaller stack runs real Supabase Auth, REST, and Storage against PostgreSQL 17. Standard Supabase CLI setup is also documented in the guide. Local helpers generate only local development credentials and never copy credentials supplied in chat. Do not expose the test stack publicly.
+The smaller stack runs real Supabase Auth, REST, Storage, and Realtime against PostgreSQL 17. Standard Supabase CLI setup is also documented in the guide. Local helpers generate only local development credentials and never copy credentials supplied in chat. Do not expose the test stack publicly.
 
 ## Validate
 
@@ -33,7 +33,9 @@ npm run typecheck
 npm test
 npm run test:db
 npm run test:communities
+npm run test:messaging
 npm run test:integration
+npm run test:realtime
 npm run test:e2e
 npm run build
 npm run test:bundle
@@ -45,7 +47,11 @@ Run `npm run preview` after a production build. Hosting now requires a **Next.js
 
 ## Communities
 
-Discover and join public communities, accept invitations, manage roles and channels, and control private-channel access with server authorization and RLS. Community creation requires operator approval. See the [community setup and permission guide](docs/COMMUNITIES.md) for the Phase 4 migration, idempotent development seed, first-owner provisioning, role matrix, and operational limits. Text/voice channel definitions are real; message delivery and voice transport remain disconnected.
+Discover and join public communities, accept invitations, manage roles and channels, and control private-channel access with server authorization and RLS. Community creation requires operator approval. See the [community setup and permission guide](docs/COMMUNITIES.md) for the Phase 4 migration, idempotent development seed, first-owner provisioning, role matrix, and operational limits. Text messaging is live; voice transport remains disconnected.
+
+## Channel messaging
+
+Text channels now persist before delivering private Broadcast invalidations. They support paginated history, threads/replies, reactions, own edits/deletes, moderator deletion, typing/read indicators, private photos/GIFs/files, safe Markdown, accessible-channel search, and opt-in link previews. Stable IDs and server revisions reconcile retries and reconnect catch-up. See [messaging setup/security/verification](docs/MESSAGING.md) and the [single-file Phase 5 SQL setup](supabase/phase5-setup.sql). Apply the migration before promoting the new app deployment, disable public Realtime subscriptions, and schedule the private attachment cleanup worker.
 
 ## Account flows
 

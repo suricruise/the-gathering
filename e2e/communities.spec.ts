@@ -46,7 +46,7 @@ test("community join, accessible channel navigation, persistence, and leave", as
     page.getByRole("heading", { name: "# general", exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByRole("button", { name: "Send message unavailable" }),
+    page.getByRole("button", { name: "Send message", exact: true }),
   ).toBeDisabled();
   expect(
     (
@@ -78,6 +78,7 @@ test("approved host creates private community, invites, grants private access, a
   member,
   browser,
 }) => {
+  test.setTimeout(120000);
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   const db = await database();
@@ -138,6 +139,9 @@ test("approved host creates private community, invites, grants private access, a
     await channel
       .getByRole("button", { name: "Create channel", exact: true })
       .click();
+    await expect(channel.getByRole("status")).toContainText("saved", {
+      timeout: 15000,
+    });
     const secret = page
       .getByRole("navigation", { name: "Community channels", exact: true })
       .getByRole("link", { name: /secret-party/ });
@@ -250,6 +254,15 @@ test("approved host creates private community, invites, grants private access, a
     await roster
       .getByRole("button", { name: "Ban member", exact: true })
       .click();
+    await expect
+      .poll(async () => {
+        const result = await db.query(
+          "select status from public.community_members m join public.communities c on c.id=m.community_id where c.slug=$1 and m.user_id=$2",
+          [slug, otherId],
+        );
+        return result.rows[0]?.status;
+      })
+      .toBe("banned");
     await expect(roster).toContainText("Banned");
     await otherPage.reload();
     await expect(

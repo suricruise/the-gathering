@@ -15,7 +15,7 @@ Set these in secure deployment/environment settings:
 
 Use the actual deployed app origin for `APP_URL`, never an untrusted request header. Rebuild after changing `NEXT_PUBLIC_*` variables. Do not commit `.env.local` or put service-role keys in browser code. The cloud draft declares the required variables and a server-secret binding scoped to `klkwwieabhtayfxfdqec.supabase.co`; saving that draft does not supply values, apply migrations, or publish the environment.
 
-The normal app uses authenticated, RLS-constrained clients. The server-only privileged client is restricted in application code to abuse-limit accounting, transformed avatar Storage operations, and deleting the reauthenticated user. It is not used to bypass RLS for routine profile reads or edits.
+The normal app uses authenticated, RLS-constrained clients. The server-only privileged client is restricted in application code to abuse-limit accounting, transformed avatar/message-file Storage operations and cleanup, validated server-generated link previews, and deleting the reauthenticated user. It is not used to bypass RLS for routine profile reads or edits.
 
 ### Apply migrations
 
@@ -30,6 +30,7 @@ Alternatively, use the Supabase CLI with an authorized database connection, or r
 3. `supabase/migrations/202610220003_active_member_visibility.sql`
 4. `supabase/migrations/202610220004_avatar_policy_boundary.sql`
 5. `supabase/migrations/202610230001_communities.sql` — Phase 4 communities/channel permissions; see [COMMUNITIES.md](COMMUNITIES.md) for host approval and initial ownership.
+6. Phase 5: `202610240001_messaging.sql` through `202610240007_account_message_cleanup.sql`, in filename order. For a first messaging installation, use the atomic [phase5-setup.sql](../supabase/phase5-setup.sql) instead of copying seven queries. See [MESSAGING.md](MESSAGING.md) for private Realtime settings, file cleanup, access-token handling, and deployment.
 
 For a linked project, the standard CLI workflow is `supabase link --project-ref <your-project-ref>` followed by `supabase db push`. Use secure CLI authentication/database settings; do not paste credentials into command history or chat. A publishable key or service API key alone does not provide PostgreSQL migration access. The migrations are forward-only and must not be edited once applied.
 
@@ -78,7 +79,7 @@ The startup helper generates isolated local-only keys, creates test-service role
 
 Stop only this stack with `node scripts/test-stack.mjs --stop`. That command preserves its volumes. Processes must be restarted in a new cloud task; do not assume Docker volumes or running connections were included in a filesystem snapshot.
 
-Local ports: application 3000; browser-test app 4173; API gateway 54321; PostgreSQL 54322; Mailpit 54324; internal test Auth/REST/Storage endpoints 54325–54327. All service ports bind to loopback. Mailpit receives actual test emails without external delivery. Browser tests override `APP_URL` to the 4173 origin.
+Local ports: application 3000; browser-test app 4173; API gateway 54321; PostgreSQL 54322; Mailpit 54324; internal test Auth/REST/Storage endpoints 54325–54327 and Realtime 54328. All service ports bind to loopback. Mailpit receives actual test emails without external delivery. Browser tests override `APP_URL` to the 4173 origin.
 
 ## Identity, data, and access control
 
@@ -103,7 +104,7 @@ Object names use the verified user ID plus a server-generated random UUID. The p
 
 The member must type `DELETE` and reauthenticate using the current password against the email from the verified session. The server cleans that user’s avatar prefix through the Storage API, then deletes only the authenticated identity through Supabase Admin. Foreign keys cascade application records and age evidence; a trigger removes the raw-ID profile-rate record. HMAC-only auth abuse records expire by budget and are pruned when older than 24 hours on subsequent auth attempts; schedule housekeeping if the project requires strict wall-clock deletion of inactive technical records.
 
-Storage cleanup and identity deletion are separate service operations. A failure reports that deletion did not complete and leaves the identity available for retry; some already-removed avatar files may be gone. This phase has no live chat/feed records to retain or delete. Add explicit retention/deletion policies when those services are introduced.
+Storage cleanup and identity deletion are separate service operations. A failure reports that deletion did not complete and leaves the identity available for retry; some already-removed avatar files may be gone. Phase 5 removes the verified user’s private message files before identity deletion and tombstones authored channel text, preserving stable message/thread IDs with null identity references. Moderation metadata remains with nullable actors. Define operational moderation retention; feeds still have no live records.
 
 ## Validation commands
 
@@ -112,7 +113,10 @@ npm run lint
 npm run typecheck
 npm test
 npm run test:db
+npm run test:communities
+npm run test:messaging
 npm run test:integration
+npm run test:realtime
 npm run test:e2e
 npm run build
 npm run test:bundle

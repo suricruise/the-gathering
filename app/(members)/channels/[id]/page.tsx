@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { ChatWorkspace } from "@/src/components/chat/ChatWorkspace";
+import { publicConfig } from "@/src/lib/config";
+import type { ChatPage } from "@/src/lib/chat/types";
 import { z } from "zod";
 import { ChannelNavigation } from "@/src/components/communities/ChannelNavigation";
 import { notFound, redirect } from "next/navigation";
@@ -7,11 +10,13 @@ import { EmptyState, PageHeading } from "@/src/components/ui";
 import { communityDetail } from "@/src/lib/communities/data";
 export default async function ChannelPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ message?: string }>;
 }) {
   const { id } = await params;
-  const { client } = await requireUser(`/channels/${id}`);
+  const { client, user } = await requireUser(`/channels/${id}`);
   if (!z.uuid().safeParse(id).success) {
     const main = await communityDetail("the-gathering");
     const match = main?.channels.find((c) => c.name === id);
@@ -54,6 +59,12 @@ export default async function ChannelPage({
     .order("position")
     .order("name");
   if (listError) throw new Error("Channels could not be loaded.");
+  const history =
+    channel.kind === "text"
+      ? await client.rpc("chat_page", { p_channel: id })
+      : null;
+  const config = publicConfig();
+  const shared = (await searchParams).message;
   return (
     <div className="page live-channel">
       <Link className="back-link" href={`/communities/${community.slug}`}>
@@ -66,40 +77,61 @@ export default async function ChannelPage({
       />
       <div className="two-column">
         <ChannelNavigation channels={channels ?? []} active={id} />
-        <section className="panel padded">
-          <EmptyState
-            title={
-              channel.kind === "text"
-                ? "The conversation starts here"
-                : "Your voice space is ready"
-            }
-            description={
-              channel.kind === "text"
-                ? "Channel access is connected. Message delivery is not connected yet."
-                : "Channel access is connected. Voice transport is not connected yet."
-            }
+        {channel.kind === "text" &&
+        history?.data &&
+        !history.error &&
+        config ? (
+          <ChatWorkspace
+            key={id}
+            channelId={id}
+            channelName={channel.name}
+            userId={user.id}
+            initial={history.data as ChatPage}
+            url={config.url}
+            publishableKey={config.key}
+            sharedMessage={idSchemaForMessage(shared)}
           />
-          {channel.kind === "text" ? (
-            <div>
-              <label className="field">
-                Message
-                <input placeholder="Messaging is not connected" disabled />
-              </label>
-              <button
-                className="button secondary"
-                disabled
-                aria-label="Send message unavailable"
-              >
-                Send
+        ) : (
+          <section className="panel padded">
+            <EmptyState
+              title={
+                channel.kind === "text"
+                  ? "Messaging is unavailable"
+                  : "Your voice space is ready"
+              }
+              description={
+                channel.kind === "text"
+                  ? "Message history could not be loaded. Please retry; the site administrator may need to apply the messaging migrations."
+                  : "Channel access is connected. Voice transport is not connected yet."
+              }
+            />
+            {channel.kind === "text" ? (
+              <div>
+                <label className="field">
+                  Message
+                  <input placeholder="Messaging is not connected" disabled />
+                </label>
+                <button
+                  className="button secondary"
+                  disabled
+                  aria-label="Send message unavailable"
+                >
+                  Send
+                </button>
+              </div>
+            ) : (
+              <button className="button secondary" disabled>
+                Voice connection unavailable
               </button>
-            </div>
-          ) : (
-            <button className="button secondary" disabled>
-              Voice connection unavailable
-            </button>
-          )}
-        </section>
+            )}
+          </section>
+        )}
       </div>
     </div>
   );
+}
+
+function idSchemaForMessage(value: unknown) {
+  const parsed = z.uuid().safeParse(value);
+  return parsed.success ? parsed.data : undefined;
 }

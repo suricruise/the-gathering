@@ -19,17 +19,23 @@
     "test:gateway": "node scripts/test-gateway.mjs",
     "test:bundle": "node scripts/check-client-secrets.mjs",
     "db:seed:communities": "node scripts/seed-communities.mjs",
-    "test:communities": "node scripts/test-communities.mjs"
+    "test:communities": "node scripts/test-communities.mjs",
+    "test:messaging": "node scripts/test-messaging.mjs",
+    "test:realtime": "node scripts/test-chat-realtime.mjs",
+    "chat:cleanup": "node scripts/cleanup-chat-files.mjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",
     "@fontsource/manrope": "^5.3.0",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.118.0",
+    "ipaddr.js": "^2.5.0",
     "lucide-react": "^0.468.0",
     "next": "^16.4.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
     "server-only": "^0.0.1",
     "sharp": "^0.35.5",
     "zod": "^4.6.7"
@@ -45,6 +51,7 @@
     "@types/pg": "^8.23.1",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.7.0",
     "eslint": "^9.17.0",
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.16",
@@ -55,8 +62,7 @@
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.18.0",
     "vite": "^6.0.5",
-    "vitest": "^3.0.0",
-    "@vitejs/plugin-react": "^4.7.0"
+    "vitest": "^3.0.0"
   },
   "engines": {
     "node": ">=22.12.0"

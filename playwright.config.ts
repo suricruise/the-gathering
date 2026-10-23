@@ -3,6 +3,9 @@ import { defineConfig, devices } from "@playwright/test";
 if (existsSync(".env.local")) process.loadEnvFile(".env.local");
 export default defineConfig({
   timeout: 60000,
+  // Cold Next.js development compilation and real local service mutations can
+  // take longer than Playwright's default 5s; assertions still require success.
+  expect: { timeout: 15000 },
   testDir: "./e2e",
   fullyParallel: true,
   workers: 2,

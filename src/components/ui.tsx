@@ -83,7 +83,7 @@ export function DemoNotice({ compact = false }: { compact?: boolean }) {
       <span>
         {compact
           ? "Sample feed, events, and online activity"
-          : "Accounts, gamer profiles, and community memberships use Supabase. Feed, events, and online activity are sample data; chat and voice services are not connected."}
+          : "Accounts, gamer profiles, communities, and channel messaging use Supabase. Feed, events, and online activity are sample data; direct messages and voice are not connected."}
       </span>
     </div>
   );

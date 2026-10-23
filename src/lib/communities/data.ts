@@ -50,7 +50,7 @@ export type Audit = {
 };
 export async function communityIndex() {
   const { client, user } = await requireUser("/communities");
-  const [list, approval, memberships] = await Promise.all([
+  const [initialList, approval, memberships] = await Promise.all([
     client
       .from("communities")
       .select("id,slug,name,description,visibility,cover,community_headers(version)")
@@ -63,6 +63,10 @@ export async function communityIndex() {
       .select("community_id,role_id,status")
       .eq("user_id", user.id),
   ]);
+  // Deploy safely before the additive header migration: retain existing artwork.
+  const list = initialList.error?.code === "PGRST200"
+    ? await client.from("communities").select("id,slug,name,description,visibility,cover").order("name").limit(200).returns<Community[]>()
+    : initialList;
   if (list.error || approval.error || memberships.error) return null;
   return {
     communities: list.data as Community[],
@@ -76,11 +80,16 @@ export async function communityIndex() {
 }
 export async function communityDetail(slug: string) {
   const { client, user } = await requireUser("/communities");
-  const { data, error } = await client
+  let { data, error } = await client
     .from("communities")
     .select("id,slug,name,description,visibility,cover,community_headers(version)")
     .eq("slug", slug)
     .maybeSingle<Community>();
+  if (error?.code === "PGRST200") {
+    const fallback = await client.from("communities").select("id,slug,name,description,visibility,cover").eq("slug", slug).maybeSingle<Community>();
+    data = fallback.data;
+    error = fallback.error;
+  }
   if (error) throw new Error("Community services are unavailable.");
   if (!data) return null;
   const c = data as Community;

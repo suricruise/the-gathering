@@ -282,7 +282,7 @@ export function CommunityView({ data }: { data: CommunityDetailData }) {
           {admin && (
             <section className="panel padded community-section">
               <h2>Community settings</h2>
-              <CommunityHeaderUpload communityId={c.id} hasImage={!!c.community_headers} />
+              {c.community_headers !== undefined ? <CommunityHeaderUpload communityId={c.id} hasImage={!!c.community_headers} /> : <p role="status">Header uploads need the community-header database update. Existing cover artwork remains available.</p>}
               <details>
                 <summary>Edit community</summary>
                 <CommandForm communityId={c.id} operation="settings">

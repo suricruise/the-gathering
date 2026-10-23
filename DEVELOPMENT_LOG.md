@@ -1,5 +1,9 @@
 # Development log
 
+## 2026-10-23 — Community header release publication
+
+User approved publication and deployment of the header-image update. Hosted Supabase and Vercel endpoints are inaccessible from this workspace, and no hosted SQL connection or Vercel deployment credentials are available. Production migration execution and deployment completion cannot be verified here. Added an explicit pre-migration fallback: only the missing PostgREST relationship error retries the existing authorized community query; other database/authorization errors remain failures. Settings explain the pending database update instead of showing unusable upload controls. Two additional unit tests cover fallback and non-bypass behavior; all 217 unit tests pass, with lint/typecheck passing. The production build, client bundle and credential/history scans pass, and both desktop/mobile header upload scenarios pass on the final production build. Publication to the production-connected main branch was authorized; the live migration remains an operator step because hosted access is unavailable.
+
 ## 2026-10-23 — Custom community header uploads
 
 Added a header image uploader under each community's settings for active community owners and administrators. Supports replacing and removing custom images; headers display on community pages and Discover cards, with the existing chosen cover artwork as fallback. Input accepts JPEG, PNG and static WebP up to 3 MB; server decoding enforces a 20-megapixel cap, corrects orientation, strips metadata and produces a bounded WebP image. Pending, validation, permission and network errors remain visible and controls work on desktop/mobile.

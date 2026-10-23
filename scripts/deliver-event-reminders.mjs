@@ -1,3 +1,4 @@
+import {recordRun} from "./record-operational-run.mjs";
 // Private scheduler only. Never deploy a public unauthenticated cron endpoint.
 import { existsSync } from "node:fs";
 import { createClient } from "@supabase/supabase-js";
@@ -19,6 +20,7 @@ if (r.error)
   throw Error(
     "Reminder delivery failed. Check Phase 10 migrations and private service configuration.",
   );
+await recordRun(c,"event_reminders");
 console.log(
   `Reminder pass completed: ${Number(r.data?.scanned) || 0} eligible RSVPs checked; ${Number(r.data?.delivered) || 0} in-app reminders created. No email or push was sent.`,
 );

@@ -317,30 +317,6 @@ select:focus-visible,
   gap: 8px;
   margin: 18px 0 25px;
 }
-.demo-inline {
-  color: #9e91bb;
-  font-size: 10px;
-  font-weight: 500;
-}
-.demo-notice {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border-bottom: 1px solid #202338;
-  padding: 10px 30px;
-  font-size: 11px;
-  color: #8c94ad;
-  background: #10131f;
-}
-.demo-tag {
-  font-size: 8px;
-  letter-spacing: 1px;
-  font-weight: 700;
-  border: 1px solid #65518f;
-  padding: 1px 5px;
-  border-radius: 3px;
-  color: #bbaaed;
-}
 .service-notice {
   display: flex;
   align-items: flex-start;
@@ -2099,9 +2075,6 @@ select:focus-visible,
   font-size: 8px;
   color: #66758f;
 }
-.chat-message .demo-inline {
-  font-size: 8px;
-}
 .chat-message p {
   font-size: 12px;
   line-height: 1.9;
@@ -2798,14 +2771,6 @@ select:focus-visible,
   padding: 0 50px;
   margin: 0 auto;
 }
-.landing-main > .demo-notice {
-  display: inline-flex;
-  border: 1px solid #2e2940;
-  border-radius: 25px;
-  font-size: 10px;
-  padding: 7px 12px;
-  margin-top: 18px;
-}
 .welcome-hero {
   display: grid;
   grid-template-columns: 1.15fr 1fr;
@@ -3157,9 +3122,6 @@ select:focus-visible,
   .topbar {
     padding: 0 24px;
   }
-  .demo-notice {
-    padding-left: 24px;
-  }
   .voice-grid,
   .squad-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3443,14 +3405,6 @@ select:focus-visible,
   }
   .workspace-layout {
     min-height: calc(100dvh - 62px);
-  }
-  .demo-notice {
-    font-size: 9px;
-    padding: 9px 18px;
-    gap: 7px;
-  }
-  .demo-tag {
-    font-size: 7px;
   }
   .page {
     padding: 25px 18px 110px;
@@ -4157,11 +4111,6 @@ select:focus-visible,
   }
   .landing-main {
     padding: 0 23px;
-  }
-  .landing-main > .demo-notice {
-    font-size: 8px;
-    padding: 7px 10px;
-    margin-top: 14px;
   }
   .welcome-hero {
     grid-template-columns: 1fr;
@@ -6362,3 +6311,7 @@ select:focus-visible,
 .admin-feedback { padding: 1rem; border-radius: 12px; background: #143137; color: #91e7d8; }
 .admin-search { max-width: 420px; }
 @media(max-width:700px) { .admin-live .admin-scope { display: block; } .admin-live .admin-scope label { min-width: 0; } .admin-live .admin-tabs { flex-wrap: nowrap; overflow-x: auto; } .admin-live .admin-tabs button { flex-shrink: 0; } }
+
+.legal-page { max-width: 900px; margin-inline: auto; padding: 2rem 1.25rem; }
+.legal-page section { margin-block: 1rem; line-height: 1.8; }
+.legal-page nav { padding-block: 1.5rem; }

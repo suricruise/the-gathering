@@ -1,6 +1,6 @@
 # The Gathering
 
-A premium dark gaming community with real Supabase authentication, gamer profiles, communities, memberships, persistent Realtime messaging, social sharing, Squad Up reservations, friendships, private messages, faith spaces, events, notifications and actual LiveKit voice. It uses Next.js 16 App Router, React 19, TypeScript and `@supabase/ssr`. Member discovery, contact privacy, private Realtime DMs and friend notifications are real services. Faith spaces, events and opted-in in-app notifications use real community permissions. The platform administration shell retains explicitly labeled development boundaries.
+A premium dark gaming community with real Supabase authentication, gamer profiles, communities, memberships, persistent Realtime messaging, social sharing, Squad Up reservations, friendships, private messages, faith spaces, events, notifications and actual LiveKit voice. It uses Next.js 16 App Router, React 19, TypeScript and `@supabase/ssr`. Member discovery, contact privacy, private Realtime DMs and friend notifications are real services. Faith spaces, events and opted-in in-app notifications use real community permissions. Platform administration uses server-enforced roles, protected reports and audited controls. Phase 12 is a release candidate; hosted launch gates remain open.
 
 For Phase 9 setup and verification, see [Friends & private messages](docs/PEOPLE.md). The safe installer applies only pending Phase 9 migrations and skips recorded versions.
 
@@ -10,7 +10,7 @@ For Phase 10, follow [Faith, events and notifications](docs/FAITH_EVENTS_NOTIFIC
 
 ## Develop
 
-Use Node.js 22.12+ (validated with 24.19) and npm 10+.
+Use Node.js 24.x (validated with 24.19) and npm 10+.
 
 ```sh
 npm ci --cache /workspace/.npm-cache
@@ -95,3 +95,11 @@ The member feed now uses real persistent posts, photos/GIFs, validated MP4 clips
 Create and discover real gaming sessions with platform/cross-play rules, player reservations, host approval, scoped audiences, community game nights and isolated LiveKit group rooms. Follow the [Squad Up production and security guide](docs/SQUAD_UP.md), apply the [one-time Phase 8 SQL installer](supabase/phase8-setup.sql), and schedule private session cleanup. Existing community voice permissions remain intact.
 
 Phase 11 adds real scoped administration, protected reports, account/community/channel controls, appeals and audit history. See [administration setup](docs/ADMINISTRATION.md) for the safe pending-only installer, first platform-owner provisioning and evidence-retention job.
+
+## Phase 12 release candidate
+
+Start with the [launch readiness report](docs/LAUNCH_READINESS.md). Deliverables: [deployment checklist](docs/DEPLOYMENT.md), [administrator operations](docs/OPERATIONS.md), [user acceptance](docs/USER_ACCEPTANCE.md), [backup/recovery](docs/BACKUP_RECOVERY.md), [security findings](docs/SECURITY_REVIEW.md), and [known limitations](docs/KNOWN_LIMITATIONS.md). Terms, privacy and community rules are explicitly review drafts at `/terms`, `/privacy`, `/community-rules`.
+
+The pending-only [Phase 12 installer](supabase/phase12-setup.sql) requires Phase 11 and explicit production approval. Do not push/merge to the production-connected branch or change hosted databases before owner confirmation.
+
+Additional checks: `npm run test:launch`, `npm run test:launch:setup`, `npm run test:recovery`, `npm run test:security`, `npm audit`, and `npm run check:production`. Local recovery tests create only a uniquely named local restore database and refuse hosted URLs. Public `/api/health` is liveness only; private `/api/ops/health` needs a server-only bearer token and checks real dependencies.

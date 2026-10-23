@@ -1,5 +1,17 @@
 # Development log
 
+## 2026-10-23 — Phase 12: production readiness release candidate
+
+Completed repository/security/operations review and prepared a release candidate. Removed obsolete demo screens, sample content and the permissive catch-all route; real unknown routes now return HTTP 404. Protected account deletion with a verified-user preflight and a database Auth deletion trigger requiring community/platform ownership transfer. Added administrative member cursors, 53 missing foreign-key indexes, a root-message pagination index validated with a 5,000-message query plan, and protected operational freshness functions.
+
+Added public liveness and independently authenticated dependency health endpoints, redacted server/error-boundary instrumentation, actual maintenance-success recording, strict production environment checks, Node 24/Vercel configuration, and a non-deploying CI workflow. Upgraded Vitest to resolve development dependency advisories; npm audit now reports zero known advisories. Added legal review drafts and deployment, administrator operations, recovery, acceptance, security and limitations guides. See [launch readiness](docs/LAUNCH_READINESS.md) for the release decision and required evidence.
+
+Verification: lint, typecheck, production build, client bundle scan and credential/history scan pass; 208 unit tests pass. All existing database/service suites were rerun: identity 21, communities 32, messaging 24, social 29, squads 28 plus 10 concurrent joins, people 25, faith/events 26, administration 32, launch nine; Supabase API 13, database/LiveKit 18, worker diagnostics six, channel Realtime ten, people Realtime eight, notification Realtime six and administration API four. Installer rehearsals and an isolated full database dump/restore pass. Storage object-byte and hosted-provider recovery remain separate acceptance gates.
+
+All 72 desktop/mobile production-build browser scenarios passed, with no failures or skips. Account-deletion browser checks fill the deletion form specifically and assert its ownership error independently of Next.js's route announcer. No assertion or authorization guard was disabled.
+
+**Release status: not approved for unrestricted public launch.** Previously disclosed Supabase secret rotation, hosted SMTP/auth/access-control acceptance, physical two-device voice/moderation acceptance, configured monitoring/maintenance, provider and Storage recovery, legal approval and representative load testing remain explicit gates. Local synthetic microphone WebRTC tests do not certify physical devices. No production database mutation, main-branch publication or live deployment was performed; these require the user's requested confirmation.
+
 ## 2026-10-23 — Phase 11: central administration and moderation
 
 Replaced the administration shell with a real scoped `/admin` workspace: current database usage metrics, account search/status, separate platform/community roles, reported-item review, community create/edit/archive, channel creation/order/access/disable, community guidelines and feature settings, event visibility, voice removal, announcements, appeal review and audit history. Added `/reports` with prefilled message/member/session links, `/appeals`, and audience-authorized announcements on Home. Existing social and DM report forms enter the protected central queue. Removed the obsolete global “platform administration preview” banner; remaining individual sample content keeps its own labels.

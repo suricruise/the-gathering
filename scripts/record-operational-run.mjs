@@ -1,0 +1,1 @@
+export async function recordRun(client,name){const r=await client.rpc('record_operational_run',{p_name:name});if(r.error)throw Error('Could not record maintenance completion. Check Phase 12 migrations.');}

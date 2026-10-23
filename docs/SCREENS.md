@@ -113,3 +113,7 @@ The composer stages up to four validated private photos/GIFs/files, preserves an
 - `/reports`: server-authorized message/post/member/session reports; direct links prefill visible target identifiers. Existing social/DM reports join the central queue.
 - `/appeals`: own appeal submission, with an explicit operator route for restricted accounts unable to authenticate.
 - `/home`: real published, unexpired audience-scoped announcements.
+
+### Phase 12 — release preparation
+
+Removed development-only fallback screens and fabricated content. Unknown routes use the real 404 boundary. Home uses the device date; account deletion explains transfer/retention requirements. Added public review drafts at `/terms`, `/privacy`, `/community-rules`, public liveness `/api/health` and secret-authorized dependency health `/api/ops/health`. Administrative members now support sequence cursor pages.

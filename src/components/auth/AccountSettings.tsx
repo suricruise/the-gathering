@@ -148,6 +148,7 @@ export function AccountSettings({
           Delete your account, profile, preferences, favorite games, platforms,
           and uploaded avatars permanently. This cannot be undone.
         </p>
+        <p>Transfer community and platform ownership before deletion. Limited reported evidence and audit records may remain under the published retention policy.</p>
         {!deleting ? (
           <button className="button danger" onClick={() => setDeleting(true)}>
             Delete my account

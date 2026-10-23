@@ -643,8 +643,8 @@ export function AdminDashboard({ initial }: { initial: Context | null }) {
                   description="Try another community or username. No demonstration records are shown."
                 />
               )}
-              {["reports", "audit", "appeals", "events"].includes(view) &&
-                rows.length === 30 && (
+              {["reports", "audit", "appeals", "events", "members"].includes(view) &&
+                rows.length === (view === "members" ? 50 : 30) && (
                   <button
                     className="button secondary"
                     onClick={() =>

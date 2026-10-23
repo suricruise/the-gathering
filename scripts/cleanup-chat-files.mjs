@@ -1,3 +1,4 @@
+import {recordRun} from "./record-operational-run.mjs";
 // Run on a private scheduled worker, never in the browser.
 import { existsSync } from "node:fs";
 if (existsSync(".env.local")) process.loadEnvFile(".env.local");
@@ -32,4 +33,5 @@ for (let batch = 0; batch < 20; batch++) {
     throw Error("Cleanup metadata update failed");
   count += result.data.length;
 }
+await recordRun(admin,"chat_cleanup");
 console.log(`Removed ${count} expired staged/deleted-message files.`);

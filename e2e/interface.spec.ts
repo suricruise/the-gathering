@@ -1,6 +1,6 @@
 import { test, expect } from "./helpers";
 import AxeBuilder from "@axe-core/playwright";
-for (const route of ["/", "/login", "/register", "/forgot-password"])
+for (const route of ["/", "/login", "/register", "/forgot-password", "/terms", "/privacy", "/community-rules"])
   test(`public ${route} is responsive and accessible`, async ({ page }) => {
     await page.goto(route);
     await expect(page.locator("h1")).toBeVisible();

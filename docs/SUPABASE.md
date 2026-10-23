@@ -149,3 +149,7 @@ Event reminders require a private scheduler; the included workflow is disabled b
 ## Phase 11 administration
 
 Apply the five `202610300001`–`202610300005` migrations using `supabase/phase11-setup.sql`. The pending-only installer skips recorded versions and refuses ambiguous existing tables. [Administration setup](ADMINISTRATION.md) explains trusted first-owner provisioning, least-privilege roles, verification and the daily service-only `moderation:cleanup` job. Platform roles/evidence/audits remain private; normal administrative actions use authenticated RPCs with live transactional authorization.
+
+## Phase 12 operational migration
+
+After owner approval, apply pending `202610310001` with `supabase/phase12-setup.sql`. It adds owner-deletion protection, supporting indexes, member-directory pagination and service-only operational health/job completion. Review [deployment](DEPLOYMENT.md), [backup/recovery](BACKUP_RECOVERY.md) and [launch gates](LAUNCH_READINESS.md) before hosted execution. Normal user behavior remains Auth/RLS-authorized; operational RPCs are service-only. No production SQL is applied by the test commands.

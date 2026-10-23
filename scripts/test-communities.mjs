@@ -609,9 +609,13 @@ try {
     assert.ok(rows.rows.every((r) => r.relrowsecurity));
   });
   await check(
-    "account deletion preserves audit and removes owned membership",
+    "account deletion requires ownership transfer and preserves audit",
     async () => {
       await db.query("reset role");
+      await denied(()=>db.query("delete from auth.users where id=$1",[owner]));
+      const successor=randomUUID();await db.query(`insert into auth.users(id,email,email_confirmed_at,raw_user_meta_data) values($1,$2,now(),'{"date_of_birth":"1990-01-01"}')`,[successor,successor+'@example.test']);
+      const owned=(await db.query("select community_id from public.community_members where user_id=$1 and role_id='owner'",[owner])).rows;
+      for(const row of owned){await db.query("insert into public.community_members(community_id,user_id) values($1,$2)",[row.community_id,successor]);await command(owner,'transfer',row.community_id,{user_id:successor});await db.query('reset role');}
       await db.query("delete from auth.users where id=$1", [owner]);
       assert.equal(
         (

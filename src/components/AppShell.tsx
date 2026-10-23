@@ -20,11 +20,10 @@ import { useMember, MemberAvatar } from "./MemberContext";
 import { logout } from "../lib/auth/actions";
 import { LogOut } from "lucide-react";
 import { PeopleSidebar, PeopleBell, usePeople } from "./people/PeopleProvider";
-import { friends, navigation } from "../data";
+import { navigation } from "../data";
 import {
   Brand,
   NotificationBell,
-  ProfileAvatar,
   VoiceConnectionBar,
 } from "./ui";
 
@@ -199,25 +198,8 @@ function FriendsSidebar() {
         <span className="tiny-dot" />
       </div>
       <p className="rail-description">A few familiar faces.</p>
-      {!member && <span className="rail-label">SAMPLE ONLINE MEMBERS</span>}
       <div className="friend-list">
-        {member ? (
-          <PeopleSidebar />
-        ) : (
-          friends.map((friend) => (
-            <Link
-              to={`/messages/${friend.handle}`}
-              className="friend-row"
-              key={friend.name}
-            >
-              <ProfileAvatar {...friend} />
-              <span>
-                <strong>{friend.name}</strong>
-                <small>{friend.activity}</small>
-              </span>
-            </Link>
-          ))
-        )}
+        {member ? <PeopleSidebar /> : <p>Sign in to see your friends.</p>}
       </div>
       <Link className="text-link all-friends" to="/messages">
         All friends

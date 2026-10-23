@@ -1,3 +1,4 @@
+import {recordRun} from "./record-operational-run.mjs";
 // Private scheduled maintenance only. Request-time expiry does not depend on cron.
 import { existsSync } from "node:fs";
 import { createClient } from "@supabase/supabase-js";
@@ -19,6 +20,7 @@ if (r.error || !r.data)
   throw Error(
     "Squad cleanup failed. Check migrations and private service configuration.",
   );
+await recordRun(admin,"squad_cleanup");
 console.log(
   `Squad cleanup completed: ${Number(r.data.expired) || 0} expired, ${Number(r.data.deleted) || 0} removed by retention.`,
 );

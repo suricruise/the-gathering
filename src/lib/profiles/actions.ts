@@ -69,7 +69,7 @@ export async function savePreferences(
   revalidatePath("/settings");
   return {
     notice:
-      "Your account preferences have been saved. Notification delivery is not connected yet.",
+      "Your account preferences have been saved. Manage in-app delivery in notification preferences.",
   };
 }
 export async function uploadAvatar(
@@ -182,6 +182,9 @@ export async function deleteAccount(
       error:
         "We couldn’t verify your password. Your account has not been deleted.",
     };
+  const readiness = await identity.client.rpc("account_deletion_ready");
+  if(readiness.error) return {error:"Account deletion checks are unavailable. Your account has not been deleted; please retry."};
+  if(readiness.data!==true) return {error:"Transfer ownership of your communities and any platform ownership before deleting your account. Your account has not been deleted."};
   const admin = createAdminClient();
   // Storage objects are removed through the Storage API before deleting auth.users.
   // Do not mutate storage metadata with SQL or trust a submitted user ID.

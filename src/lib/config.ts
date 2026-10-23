@@ -2,7 +2,7 @@ import { z } from "zod";
 export function publicConfig() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-  if (!url || !key) return null;
+  if (!url || !key || key.startsWith("sb_secret_")) return null;
   const parsed = z.url().safeParse(url);
   if (!parsed.success) return null;
   const target = new URL(url);
@@ -28,6 +28,9 @@ export function appOrigin() {
   if (
     url.username ||
     url.password ||
+    url.pathname !== "/" ||
+    url.search ||
+    url.hash ||
     !["https:", "http:"].includes(url.protocol) ||
     (process.env.NODE_ENV === "production" &&
       url.protocol !== "https:" &&

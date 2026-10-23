@@ -1,4 +1,5 @@
 "use client";
+import { useEffect, useState } from "react";
 import { Announcements } from "../components/admin/MemberSafety";
 import {
   ArrowRight,
@@ -39,7 +40,7 @@ export function Home({
         </div>
         <span className="date-label">
           <CalendarDays size={15} />
-          Thursday, October 22<span>Demo day</span>
+          <CurrentDate />
         </span>
       </div>
       <section className="home-hero">
@@ -172,6 +173,10 @@ export function Home({
         </section>
       </div>
       <footer className="page-footer">
+        <nav aria-label="Policies">
+          <Link to="/terms">Terms</Link> · <Link to="/privacy">Privacy</Link> ·{" "}
+          <Link to="/community-rules">Community rules</Link>
+        </nav>
         <span>
           <Sparkles size={13} />
           You belong here. Just as you are.
@@ -278,7 +283,7 @@ export function Landing() {
           </article>
         </div>
       </main>
-      <footer className="landing-footer">
+      <footer className="landing-footer"><nav aria-label="Policies"><Link to="/terms">Terms</Link> · <Link to="/privacy">Privacy</Link> · <Link to="/community-rules">Community rules</Link></nav>
         <Brand />
         <span>Good games. Even better people.</span>
         <Link to="/home">
@@ -288,4 +293,18 @@ export function Landing() {
       </footer>
     </div>
   );
+}
+
+function CurrentDate() {
+  const [date, setDate] = useState("Today");
+  useEffect(() => {
+    setDate(
+      new Intl.DateTimeFormat(undefined, {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+      }).format(new Date()),
+    );
+  }, []);
+  return <>{date}</>;
 }

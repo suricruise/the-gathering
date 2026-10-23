@@ -26,3 +26,4 @@ jobs:
       - run: npm run moderation:cleanup -- --hosted
       - run: npm run chat:cleanup -- --hosted
       - run: npm run social:cleanup -- --hosted
+      - run: npm run squad:cleanup -- --hosted

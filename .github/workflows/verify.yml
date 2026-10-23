@@ -1,0 +1,28 @@
+name: Verify release candidate
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run test:security
+      - run: npm audit --audit-level=high
+      - name: Generate ephemeral build-only canary
+        run: node -e "require('fs').appendFileSync(process.env.GITHUB_ENV,'SUPABASE_SECRET_KEY='+require('crypto').randomBytes(32).toString('hex')+'\n')"
+      - run: npm run build
+      - run: npm run test:bundle

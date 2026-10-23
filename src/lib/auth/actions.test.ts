@@ -336,3 +336,5 @@ describe("Server actions and account isolation", () => {
     expect(mocks.update).not.toHaveBeenCalled();
   });
 });
+
+it("refuses owner deletion before removing any stored files",async()=>{mocks.rpc.mockResolvedValue({data:false,error:null});const r=await deleteAccount({},form({confirmation:"DELETE",currentPassword:"Correct-Password123!"}));expect(r.error).toMatch(/Transfer ownership/);expect(mocks.removeChat).not.toHaveBeenCalled();expect(mocks.list).not.toHaveBeenCalled();expect(mocks.deleteUser).not.toHaveBeenCalled();});

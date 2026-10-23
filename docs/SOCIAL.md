@@ -89,3 +89,9 @@ npm run test:bundle
 ```
 
 The authorization tests cover actor isolation, private/follower/community audiences, moderation hierarchy and report privacy, idempotency, media ownership, restrictive Storage policies, cursors, quotas and revoked access. Installer rehearsal is local-only and rolls back all DDL/storage metadata changes. The two-account Chromium flow covers actual persisted photos and playable MP4 ranges, follows, comments/edits, private-media rejection, community posting and report resolution on desktop/mobile. These checks do not replace acceptance testing on your hosted Supabase/Vercel deployment.
+
+## Troubleshooting rejected uploads
+
+Uploads enforce the canonical `APP_URL` before reading any file. A preview deployment address can display posts while its upload is rejected because it differs from that configured origin. Open `https://the-gathering3.vercel.app/feed` directly in a regular browser tab and sign in. In Vercel's **Production** environment, `APP_URL` should be `https://the-gathering3.vercel.app`; redeploy Production after changing it.
+
+Rejected uploads now show **This deployment expects …** and **Browser sent: …**. Compare those addresses. Missing or opaque/null origins require a regular browser tab; they are not accepted as trusted requests. Invalid headers are described without echoing credentials, paths or queries. This diagnostic update needs no SQL migration. If the error continues, share the complete updated error and the address in the browser bar.

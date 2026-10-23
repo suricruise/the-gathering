@@ -5,14 +5,34 @@ import { createAdminClient } from "@/src/lib/supabase/admin";
 import { appOrigin } from "@/src/lib/config";
 import { readUploadForm } from "@/src/lib/chat/files";
 import { prepareSocialMedia } from "@/src/lib/social/media";
+// Reflect only bounded canonical origins, never raw headers, credentials or paths.
+function originLabel(value: string | null) {
+  if (value === null) return "missing";
+  if (value === "null") return "opaque/null";
+  if (value.length <= 256) {
+    try {
+      const url = new URL(value);
+      if (["https:", "http:"].includes(url.protocol) && url.origin === value)
+        return url.origin;
+    } catch {
+      /* Invalid headers are described without echoing them. */
+    }
+  }
+  return "invalid";
+}
 export const runtime = "nodejs";
 export async function POST(request: Request) {
   const headers = { "Cache-Control": "private, no-store" };
   const fail = (error: string, status = 400) =>
     NextResponse.json({ error }, { status, headers });
   try {
-    if (request.headers.get("origin") !== appOrigin())
-      return fail("Open the production website before uploading.", 403);
+    const expectedOrigin = appOrigin();
+    const receivedOrigin = request.headers.get("origin");
+    if (receivedOrigin !== expectedOrigin)
+      return fail(
+        `Upload rejected. This deployment expects ${expectedOrigin}. Browser sent: ${originLabel(receivedOrigin)}. Open the expected website in a regular browser tab and sign in again. If the addresses differ, correct APP_URL in Vercel and redeploy Production.`,
+        403,
+      );
     const client = await createClient();
     const {
       data: { user },

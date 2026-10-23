@@ -1,5 +1,10 @@
 # Development log
 
+## 2026-10-23 — Diagnose rejected social upload origins
+
+- Replaced the generic upload-origin error with the deployment's configured canonical origin and a bounded safe browser-origin label, plus instructions to open the canonical site or correct Production `APP_URL` and redeploy. Missing, opaque and invalid values remain rejected before authentication, budgeting or file handling; raw credentials, paths and queries are never reflected. Added wrapping for long origin diagnostics on mobile and troubleshooting instructions. No SQL migration is needed.
+- All 150 unit/server/component tests passed, including eight new route checks for origin rejection/redaction, no file processing on rejection and continued authentication requirements for matching origins. Lint, typecheck, production build and client-secret scan passed. The exact hosted mismatch remains unverified pending the user's actual browser URL/updated diagnostic; hosted network access is still blocked.
+
 ## 2026-10-23 — Phase 7: real member social sharing
 
 Implemented the personalized member feed with real text posts, safe Markdown, photos/GIFs, rights-attested H.264 MP4 clips, safe external clip cards and opt-in link previews. Members can react, comment, edit/delete their own content, follow/unfollow, filter by communities/interests, and page older posts/comments. Added authorized permalinks and community-scoped feeds, private report status and ranked moderation queues. Replaced the dashboard's sample authored post with an entry to the real feed; no social posts or fabricated authors are seeded.

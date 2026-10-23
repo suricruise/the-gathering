@@ -41,6 +41,9 @@ export function AccountSettings({
                 Discovery, direct messages and online status privacy
               </Link>
             </p>
+            <p>
+              <Link href="/notifications">All notification preferences</Link>
+            </p>
             <p>Your verified email: {email}</p>
           </div>
         </div>
@@ -54,8 +57,7 @@ export function AccountSettings({
             <span>
               Event reminders
               <small>
-                Save your preference. Notification delivery is not connected
-                yet.
+                Receive in-app reminders for events you have RSVP’d Going to.
               </small>
             </span>
           </label>

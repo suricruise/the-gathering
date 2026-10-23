@@ -96,7 +96,8 @@ export function PeopleSidebar() {
 export function PeopleBell() {
   const p = usePeople();
   if (!p) return null;
-  const n = Number(p.home?.notification_unread) || 0;
+  const n =
+    Number(p.home?.all_notification_unread ?? p.home?.notification_unread) || 0;
   const dm =
     p.home?.conversations.reduce(
       (n, c) => n + (c.muted ? 0 : Number(c.unread)),
@@ -105,8 +106,8 @@ export function PeopleBell() {
   return (
     <Link
       className="icon-button"
-      href="/messages?tab=notifications"
-      aria-label={`Notifications: ${n} unread friend updates, ${dm} unread messages`}
+      href="/notifications"
+      aria-label={`Notifications: ${n} unread updates, ${dm} unread messages`}
     >
       <Bell size={20} aria-hidden="true" />
       {n + dm > 0 && <span className="badge">{n + dm}</span>}

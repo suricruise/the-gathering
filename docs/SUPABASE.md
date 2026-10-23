@@ -139,3 +139,9 @@ After Phase 7, apply the four `202610270001`–`202610270004` migrations in orde
 ### Phase 9: friends and private messages
 
 After Phase 8, follow [PEOPLE.md](PEOPLE.md). `supabase/phase9-setup.sql` applies only missing versions `202610280001`–`202610280003` in a transaction; recorded versions are safely skipped. Ordinary Vercel builds and GitHub pushes do not apply SQL. No new environment variables or public Storage buckets are needed. Retain authenticated private Realtime channels; never grant anonymous message access or browser execution of definer-only helpers.
+
+### Phase 10: faith, events and notifications
+
+After Phase 9, apply the pending versions in [`supabase/phase10-setup.sql`](../supabase/phase10-setup.sql) and follow [FAITH_EVENTS_NOTIFICATIONS.md](FAITH_EVENTS_NOTIFICATIONS.md). Expected history is `202610290001`–`202610290004`; recorded versions are skipped safely. No new public bucket is created. Personal notifications reuse authenticated private Realtime topics.
+
+Event reminders require a private scheduler; the included workflow is disabled by default and needs separately configured GitHub repository secrets/opt-in. Keep the reminder service key server-only. Neither email nor push delivery is enabled by this phase.

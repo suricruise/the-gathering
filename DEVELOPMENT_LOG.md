@@ -1,5 +1,26 @@
 # Development log
 
+## 2026-10-23 — Phase 10: Faith & Life, events and private notifications
+
+Implemented real `/faith`, `/faith/:id`, `/events`, `/events/:id` and `/notifications` screens. Prayer requests support community or author/current-moderator visibility, comments, encouragement, author editing/status and reason-required sensitive moderation. Guidelines emphasize kindness and respect. Optional daily content is explicitly curated public-domain KJV Scripture, never fabricated member activity.
+
+Community events support gaming nights, voice hangouts and discussions, descriptions, local banner designs, host/staff updates and cancellation, unique Going/Maybe RSVPs, community filters and cursor pagination. IANA time zones are validated in PostgreSQL; nonexistent daylight-saving wall times are rejected. Authorized linked gaming sessions/voice rooms retain their independent admission rules. Home now shows actual accessible upcoming events.
+
+Four versioned migrations add fourteen RLS tables, server-validated RPCs, bounded operation budgets, audit metadata, preferences and private future delivery infrastructure. Private prayer access requires active membership plus author/current unblocked staff status. Raw writes and private helpers are denied. Link identifiers are exposed only through authorized projections. Notifications contain generic kinds/resource identifiers, never prayer or message bodies; every read rechecks current permission, blocks and consent. Committed private personal-topic Broadcast invalidations carry no content/history. Reply/mention triggers, existing friend notifications, targeted invitations, recipient-only moderator notices and opt-in Going-event reminders share the unified inbox. Blocks permanently decline pending targeted invitations; accepting a squad invitation does not reserve a place or issue voice credentials. Existing account reminder preferences remain synchronized.
+
+Added a pending-only, rerunnable `supabase/phase10-setup.sql` installer and the activation/acceptance guide `docs/FAITH_EVENTS_NOTIFICATIONS.md`. Ambiguous unrecorded tables fail closed. A disabled-by-default GitHub scheduler and service-only CLI provide bounded, deduplicated in-app reminders; email/push delivery remains disabled with no providers configured.
+
+Validation completed:
+
+- 198 unit/server/component tests across 22 files passed; lint, typecheck, production build and client bundle secret scan passed.
+- All 62 production browser scenarios passed on desktop/mobile, including private prayers, event host controls, notification preferences and all previous authentication, chat, media, friendship, Squad Up and decoded two-way LiveKit audio flows.
+- 26 PostgreSQL authorization/privacy checks passed, including private raw/RPC access, role loss, blocks, event ownership, RSVP isolation, timezone/DST validation, generic notices, invitation consent, pagination, budgets, reminder deduplication and opted-in host reminders.
+- Six authenticated API/Realtime checks passed, including unauthorized subscriptions, committed-only generic delivery, rollback silence, opt-outs, reminders and immediate block enforcement.
+- Four exact installer rehearsals passed: fresh installation, safe rerun, pending-only completion and fail-closed ambiguous history. Rehearsal DDL rolled back.
+- Existing identity/community/message/social/squad/friend/voice database suites, concurrent squad checks, 13 Supabase API checks, six voice-worker diagnostics, eight people concurrency/Realtime checks and ten channel Realtime checks passed.
+
+Infrastructure boundary: verification used the local Supabase/PostgreSQL/Realtime and LiveKit test environment. Hosted Supabase migrations and Vercel deployment status could not be independently verified. Production needs the four pending migrations, the corresponding Vercel deployment, and separately configured/enabled reminder scheduling. No email or push notifications are enabled.
+
 ## 2026-10-23 — Phase 9: friendships, contact privacy and private messaging
 
 Implemented real friend requests (send/accept/decline/cancel), accepted friends/removal, opt-in username-prefix and shared-interest discovery, permission-based friend presence, one-to-one DMs, mute/unread counts, friend notifications and abusive-message reporting. `/messages` now has Friends, Discover, Conversations, Notifications, Privacy and Blocks views; `/messages/:conversationId` supplies real Markdown-safe messages, UTC timestamps, stable-ID retries, paginated history, live updates and offline/reconnection feedback. Shell friend lists/notification counts now use actual member data rather than sample people. Contact tabs update their URLs; settings link to contact privacy. No accounts, requests or messages are fabricated or seeded.

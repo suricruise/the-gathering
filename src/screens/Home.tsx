@@ -13,8 +13,8 @@ import {
 } from "lucide-react";
 import { Link } from "../compat/navigation";
 import { useMember } from "../components/MemberContext";
-import { events } from "../data";
-import { Brand, DemoNotice, EventCard, SectionHeading } from "../components/ui";
+import { UpcomingEvents } from "../components/spaces/Spaces";
+import { Brand, DemoNotice, SectionHeading } from "../components/ui";
 
 export function Home({
   featured = [],
@@ -148,9 +148,7 @@ export function Home({
             label="All events"
           />
           <div className="panel upcoming-events">
-            {events.slice(0, 2).map((event) => (
-              <EventCard key={event.id} event={event} compact />
-            ))}
+            <UpcomingEvents />
           </div>
         </section>
         <section>

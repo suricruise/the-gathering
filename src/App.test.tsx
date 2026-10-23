@@ -35,6 +35,11 @@ vi.mock("./lib/people/actions", () => ({
   getPeople: vi.fn(),
   peopleCommand: vi.fn(),
 }));
+vi.mock("./components/spaces/Spaces", () => ({
+  UpcomingEvents: () => (
+    <p>No community events in this isolated component fixture.</p>
+  ),
+}));
 import { WorkspacePage } from "./WorkspacePage";
 import { AppShell } from "./components/AppShell";
 import { MemberProvider } from "./components/MemberContext";

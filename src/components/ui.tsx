@@ -81,8 +81,8 @@ export function DemoNotice({ compact = false }: { compact?: boolean }) {
       <span className="demo-tag">DEMO</span>
       <span>
         {compact
-          ? "Sample events"
-          : "Accounts, profiles, communities, channel messages, social posts, Squad Up, friendships and private messages use Supabase. Online status is shared only by permission. Events are sample data; voice uses LiveKit when configured."}
+          ? "Platform administration preview"
+          : "Accounts, profiles, communities, channel messages, social posts, Squad Up, friendships and private messages use Supabase. Online status is shared only by permission. Faith spaces, events and in-app notifications use Supabase. Platform administration retains development previews; voice uses LiveKit when configured."}
       </span>
     </div>
   );

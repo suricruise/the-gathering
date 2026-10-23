@@ -97,3 +97,12 @@ The composer stages up to four validated private photos/GIFs/files, preserves an
 - `/messages/:conversationId`: participant-only Markdown-safe messages, timestamps, pagination, live updates, offline/reconnect/retry feedback, privacy rejection and abuse reports.
 - Shell: real friends with permission-based presence; notification bell links to real friend updates and suppresses muted conversation badges.
 - `/settings`: direct entry to discovery/contact privacy. Friends-only Squad Up now uses accepted friendships.
+
+## Phase 10 production screens
+
+- `/faith`: community-scoped prayer submission, explicit confidentiality guidelines, community/private-to-moderators visibility, optional curated daily KJV Scripture, permitted request listing and pagination.
+- `/faith/:id`: fresh-authorized request detail, comments, private encouragement, owner edits/status and scoped sensitive-request moderation.
+- `/events`: real community gatherings, category/community filters, locally rendered banner choices and event creation.
+- `/events/:id`: local/event-zone times, own RSVP, linked resources without access grants, host/staff updates and cancellation.
+- `/notifications`: recipient-only generic in-app updates, read controls, nine preference controls, opted-in friend/community/game invitations and separately authorized private moderator notices.
+- Home now shows real accessible upcoming community events. The notification bell merges permitted updates with unmuted DM counts; Settings reminder changes synchronize with notification preferences.

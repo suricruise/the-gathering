@@ -20,6 +20,7 @@ export type Conversation = {
   unread: number;
 };
 export type PeopleHome = {
+  all_notification_unread?: number;
   notification_unread: number;
   privacy: Privacy;
   friends: Person[];

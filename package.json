@@ -36,7 +36,11 @@
     "squad:cleanup": "node scripts/cleanup-squads.mjs",
     "test:people": "node scripts/test-people.mjs",
     "test:people:realtime": "node scripts/test-people-realtime.mjs",
-    "test:people:setup": "node scripts/test-people-setup.mjs"
+    "test:people:setup": "node scripts/test-people-setup.mjs",
+    "test:spaces": "node scripts/test-spaces.mjs",
+    "test:spaces:realtime": "node scripts/test-space-realtime.mjs",
+    "test:spaces:setup": "node scripts/test-spaces-setup.mjs",
+    "notifications:reminders": "node scripts/deliver-event-reminders.mjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",

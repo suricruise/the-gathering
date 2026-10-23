@@ -1,0 +1,26 @@
+name: In-app event reminders
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/5 * * * *'
+permissions:
+  contents: read
+concurrency:
+  group: gathering-event-reminders
+  cancel-in-progress: false
+jobs:
+  deliver:
+    if: github.event_name == 'workflow_dispatch' || vars.ENABLE_EVENT_REMINDERS == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run notifications:reminders -- --hosted
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.GATHERING_SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.GATHERING_SUPABASE_SECRET_KEY }}

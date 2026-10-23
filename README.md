@@ -1,6 +1,8 @@
 # The Gathering
 
-A premium dark gaming community with real Supabase authentication, gamer profiles, communities, memberships, persistent Realtime messaging, social sharing, Squad Up reservations and actual LiveKit voice. It uses Next.js 16 App Router, React 19, TypeScript and `@supabase/ssr`. Direct messages, sample online activity, events and the platform administration shell retain explicitly labeled development boundaries.
+A premium dark gaming community with real Supabase authentication, gamer profiles, communities, memberships, persistent Realtime messaging, social sharing, Squad Up reservations, friendships, private messages and actual LiveKit voice. It uses Next.js 16 App Router, React 19, TypeScript and `@supabase/ssr`. Member discovery, contact privacy, private Realtime DMs and friend notifications are real services. Events and the platform administration shell retain explicitly labeled development boundaries.
+
+For Phase 9 setup and verification, see [Friends & private messages](docs/PEOPLE.md). The safe installer applies only pending Phase 9 migrations and skips recorded versions.
 
 Voice setup requires a LiveKit project and an always-on authorization worker; follow the [voice setup guide](docs/VOICE.md). Voice is unavailable until configured, and never simulates a connection.
 
@@ -39,6 +41,9 @@ npm run test:messaging
 npm run test:social
 npm run test:social:setup
 npm run test:squads
+npm run test:people
+npm run test:people:realtime
+npm run test:people:setup
 npm run test:squads:setup
 npm run test:integration
 npm run test:realtime

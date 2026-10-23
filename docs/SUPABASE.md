@@ -135,3 +135,7 @@ After Phase 6, apply the [one-time Phase 7 installer](../supabase/phase7-setup.s
 ## Phase 8 Squad Up
 
 After Phase 7, apply the four `202610270001`–`202610270004` migrations in order, or the [one-time installer](../supabase/phase8-setup.sql). The migration preserves community voice behind private functions while adding scoped gaming-group admission and enforcement. Eight new tables use RLS; only the operator can alter expiry/retention settings and platform metadata. Schedule `npm run squad:cleanup -- --hosted` privately, and retain the existing always-on voice worker. See the [step-by-step setup guide](SQUAD_UP.md).
+
+### Phase 9: friends and private messages
+
+After Phase 8, follow [PEOPLE.md](PEOPLE.md). `supabase/phase9-setup.sql` applies only missing versions `202610280001`–`202610280003` in a transaction; recorded versions are safely skipped. Ordinary Vercel builds and GitHub pushes do not apply SQL. No new environment variables or public Storage buckets are needed. Retain authenticated private Realtime channels; never grant anonymous message access or browser execution of definer-only helpers.

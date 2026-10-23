@@ -31,6 +31,10 @@ vi.mock("./lib/profiles/actions", () => ({
   changePassword: vi.fn(async () => ({ error: "Password is incorrect." })),
   deleteAccount: vi.fn(async () => ({ error: "Password is incorrect." })),
 }));
+vi.mock("./lib/people/actions", () => ({
+  getPeople: vi.fn(),
+  peopleCommand: vi.fn(),
+}));
 import { WorkspacePage } from "./WorkspacePage";
 import { AppShell } from "./components/AppShell";
 import { MemberProvider } from "./components/MemberContext";

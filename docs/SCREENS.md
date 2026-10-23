@@ -5,7 +5,7 @@ All screens use deep navy surfaces, purple/indigo branding, cyan accents, locall
 | Screen                  | Route                                       | Completed interface and behavior                                                                                                           |
 | ----------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
 | Landing / welcome       | `/`                                         | Brand, welcome art, values, discover/faith links, and entry into the preview                                                               |
-| Home dashboard          | `/home`                                     | Welcome, illustrated hero, quick destinations, community cards, sample upcoming events, real-feed entry, optional sample online-friends rail                 |
+| Home dashboard          | `/home`                                     | Welcome, illustrated hero, quick destinations, community cards, sample upcoming events, real-feed entry, permission-based real friends rail                 |
 | Text channels           | `/channels`, `/channels/:channelId`         | Community navigation, five linked channels, sample general conversation, empty channels, pinned guidance, mobile drawer, disabled composer |
 | Voice lounge            | `/voice`                                    | Three demo rooms, sample participants, voice etiquette, disabled join controls, explicit disconnected status                               |
 | Communities / discovery | `/communities`, `/communities/:communityId` | Six sample communities, text search, category filter, clearable no-results state, community details and channel links                      |
@@ -13,7 +13,7 @@ All screens use deep navy surfaces, purple/indigo branding, cyan accents, locall
 | Social feed             | `/feed`                                     | Personalized real posts, private photos/clips, audiences, comments/reactions, follows and scoped reporting                                      |
 | Events                  | `/events`, `/events/:eventId`               | Category filters, three demo events, detail pages, America/New_York times, screen-local bookmark, disabled RSVP                            |
 | Faith & Life            | `/faith`                                    | Three selectable reflection topics, scripture, prayer-channel link, sample Sunday gathering link                                           |
-| Friends / messages      | `/messages`, `/messages/:friendId`          | Searchable sample friends, individual conversation layouts, empty and unknown-friend states, disabled messaging                            |
+| Friends / messages      | `/messages`, `/messages/:conversationId`          | Real friendships/requests, opt-in username and shared-interest discovery, private live DMs with paginated history, reports, mute/unread counts, friend notifications and contact privacy                            |
 | Member profile          | `/profile`                                  | Cover, demo identity, bio/interests, sample communities, validated local profile editor                                                    |
 | Settings                | `/settings`                                 | Appearance sample, notification/privacy preferences, unavailable account state, browser-only save/restore, storage failure feedback        |
 | Admin shell             | `/admin`                                    | Overview placeholders, Members/Moderation/Communities sections, no-data states, explicit authorization boundary, disabled admin actions    |
@@ -90,3 +90,10 @@ The composer stages up to four validated private photos/GIFs/files, preserves an
 ## Phase 8 Squad Up screens
 
 `/squad-up` now provides real gaming session cards and creation, discovery/My sessions/game-night filters and private block management. `/squad-up/:id` handles joining, approval, roster, withdrawal, host removal/cancellation, schedules/expiry and the group’s real voice room. Community details link to scoped game-night listings. The persistent voice bar returns to connected group rooms. Missing and unauthorized sessions share one unavailable screen. See [SQUAD_UP.md](SQUAD_UP.md).
+
+## Phase 9 production screens
+
+- `/messages`: Friends (pending, incoming and accepted relationships), Discover (opt-in usernames and shared interests), Conversations (muted and unread counts), Notifications, Privacy and Blocks.
+- `/messages/:conversationId`: participant-only Markdown-safe messages, timestamps, pagination, live updates, offline/reconnect/retry feedback, privacy rejection and abuse reports.
+- Shell: real friends with permission-based presence; notification bell links to real friend updates and suppresses muted conversation badges.
+- `/settings`: direct entry to discovery/contact privacy. Friends-only Squad Up now uses accepted friendships.

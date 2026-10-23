@@ -5,6 +5,7 @@ import {
   deleteAccount,
   savePreferences,
 } from "../../lib/profiles/actions";
+import Link from "next/link";
 import { ShieldCheck } from "lucide-react";
 export function AccountSettings({
   email,
@@ -35,6 +36,11 @@ export function AccountSettings({
           <ShieldCheck size={23} />
           <div>
             <h2>Account & privacy</h2>
+            <p>
+              <Link href="/messages?tab=privacy">
+                Discovery, direct messages and online status privacy
+              </Link>
+            </p>
             <p>Your verified email: {email}</p>
           </div>
         </div>
@@ -62,7 +68,8 @@ export function AccountSettings({
             <span>
               Show gaming activity
               <small>
-                Show your host identity on Squad Up discovery cards, subject to profile visibility. Joined groups can see your display name.
+                Show your host identity on Squad Up discovery cards, subject to
+                profile visibility. Joined groups can see your display name.
               </small>
             </span>
           </label>

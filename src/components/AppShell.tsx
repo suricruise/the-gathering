@@ -19,6 +19,7 @@ import {
 import { useMember, MemberAvatar } from "./MemberContext";
 import { logout } from "../lib/auth/actions";
 import { LogOut } from "lucide-react";
+import { PeopleSidebar, PeopleBell, usePeople } from "./people/PeopleProvider";
 import { friends, navigation } from "../data";
 import {
   Brand,
@@ -153,7 +154,7 @@ export function Topbar({ onMenu }: { onMenu: () => void }) {
           <span>Find your people</span>
           <span className="search-key">↗</span>
         </Link>
-        <NotificationBell />
+        <ShellNotifications />
         <span className="topbar-divider" />
         <Link to="/profile" aria-label="Open your profile">
           <MemberAvatar size="small" />
@@ -186,7 +187,12 @@ export function MobileNavigation({ onMenu }: { onMenu: () => void }) {
     </>
   );
 }
+function ShellNotifications() {
+  const people = usePeople();
+  return people ? <PeopleBell /> : <NotificationBell />;
+}
 function FriendsSidebar() {
+  const member = useMember();
   return (
     <aside className="friends-sidebar" aria-label="Community activity">
       <div className="section-heading">
@@ -194,21 +200,25 @@ function FriendsSidebar() {
         <span className="tiny-dot" />
       </div>
       <p className="rail-description">A few familiar faces.</p>
-      <span className="rail-label">SAMPLE ONLINE MEMBERS</span>
+      {!member && <span className="rail-label">SAMPLE ONLINE MEMBERS</span>}
       <div className="friend-list">
-        {friends.map((friend) => (
-          <Link
-            to={`/messages/${friend.handle}`}
-            className="friend-row"
-            key={friend.name}
-          >
-            <ProfileAvatar {...friend} />
-            <span>
-              <strong>{friend.name}</strong>
-              <small>{friend.activity}</small>
-            </span>
-          </Link>
-        ))}
+        {member ? (
+          <PeopleSidebar />
+        ) : (
+          friends.map((friend) => (
+            <Link
+              to={`/messages/${friend.handle}`}
+              className="friend-row"
+              key={friend.name}
+            >
+              <ProfileAvatar {...friend} />
+              <span>
+                <strong>{friend.name}</strong>
+                <small>{friend.activity}</small>
+              </span>
+            </Link>
+          ))
+        )}
       </div>
       <Link className="text-link all-friends" to="/messages">
         All friends

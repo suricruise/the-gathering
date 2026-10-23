@@ -108,7 +108,7 @@ export function SquadCard({ s }: { s: Squad }) {
         <p className="muted">
           {s.community_name ??
             (s.visibility === "friends"
-              ? "Friends · mutual follows"
+              ? "Friends · accepted friends"
               : "All verified members")}
           {s.requires_approval ? " · Host approval" : ""}
         </p>
@@ -292,7 +292,7 @@ function CreateSession({
                 onChange={(e) => setVisibility(e.target.value)}
               >
                 <option value="public">All verified members</option>
-                <option value="friends">Friends · mutual follows</option>
+                <option value="friends">Friends · accepted friends</option>
                 <option
                   value="community"
                   disabled={!options.communities.length}
@@ -551,8 +551,8 @@ export function SquadDirectory({
       </nav>
       <p className="squad-privacy-note">
         <ShieldCheck size={16} />
-        Friends-only means mutual follows.{" "}
-        <Link href="/feed">Meet and follow members in the feed.</Link> Counts
+        Friends-only means accepted friendships.{" "}
+        <Link href="/messages?tab=discover">Find and add friends.</Link> Counts
         update on refresh; joining always rechecks space.
       </p>
       {view === "create" ? (
@@ -835,7 +835,7 @@ export function SquadDetail({
           <span className="pill">
             {s.community_name ??
               (s.visibility === "friends"
-                ? "Friends · mutual follows"
+                ? "Friends · accepted friends"
                 : "Verified members")}
           </span>
         </div>

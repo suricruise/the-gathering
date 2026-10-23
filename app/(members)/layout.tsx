@@ -3,6 +3,8 @@ import { loadMyProfile } from "@/src/lib/profiles/data";
 import { AppShell } from "@/src/components/AppShell";
 import { MemberProvider } from "@/src/components/MemberContext";
 import { VoiceProvider } from "@/src/components/voice/VoiceProvider";
+import { PeopleProvider } from "@/src/components/people/PeopleProvider";
+import { publicConfig } from "@/src/lib/config";
 export const dynamic = "force-dynamic";
 export default async function MemberLayout({
   children,
@@ -22,7 +24,9 @@ export default async function MemberLayout({
       }}
     >
       <VoiceProvider>
-        <AppShell>{children}</AppShell>
+        <PeopleProvider config={publicConfig()!}>
+          <AppShell>{children}</AppShell>
+        </PeopleProvider>
       </VoiceProvider>
     </MemberProvider>
   );

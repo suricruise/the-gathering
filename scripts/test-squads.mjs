@@ -179,7 +179,7 @@ try {
     },
   );
   await check(
-    "friends-only requires reciprocal follows; one-way follow is insufficient",
+    "friends-only requires accepted friendships; reciprocal follows are insufficient",
     async () => {
       friendSession = (await make(a, { visibility: "friends" })).id;
       await admin();
@@ -187,6 +187,12 @@ try {
       assert.equal(await detail(b, friendSession), null);
       await admin();
       await db.query("insert into public.follows values($1,$2,now())", [a, b]);
+      assert.equal(await detail(b, friendSession), null);
+      await admin();
+      await db.query(
+        "insert into public.friendships(low_id,high_id,requested_by,status) values(least($1::uuid,$2::uuid),greatest($1::uuid,$2::uuid),$1,'accepted')",
+        [a, b],
+      );
       assert.ok(await detail(b, friendSession));
       assert.equal(await detail(c, friendSession), null);
     },
@@ -447,6 +453,13 @@ try {
         0,
       );
       await cmd(b, "unblock", { target: a });
+      assert.equal(await detail(b, friendSession), null);
+      // Phase 9 blocks remove friendship too; unblocking never restores it.
+      await admin();
+      await db.query(
+        "insert into public.friendships(low_id,high_id,requested_by,status) values(least($1::uuid,$2::uuid),greatest($1::uuid,$2::uuid),$1,'accepted')",
+        [a, b],
+      );
       assert.equal((await detail(b, friendSession)).my_status, "withdrawn");
     },
   );

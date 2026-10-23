@@ -33,7 +33,10 @@
     "social:cleanup": "node scripts/cleanup-social-files.mjs",
     "test:squads": "node scripts/test-squads.mjs && node scripts/test-squad-concurrency.mjs",
     "test:squads:setup": "node scripts/test-squad-setup.mjs",
-    "squad:cleanup": "node scripts/cleanup-squads.mjs"
+    "squad:cleanup": "node scripts/cleanup-squads.mjs",
+    "test:people": "node scripts/test-people.mjs",
+    "test:people:realtime": "node scripts/test-people-realtime.mjs",
+    "test:people:setup": "node scripts/test-people-setup.mjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",

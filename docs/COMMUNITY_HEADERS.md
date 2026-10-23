@@ -6,7 +6,7 @@ Community owners and administrators can upload, replace or remove custom header 
 
 1. Open **Discover** and select your community.
 2. Scroll to **Community settings → Community header image**.
-3. Choose a JPEG, PNG or WebP image up to 3 MB. A wide image around 1920 × 640 works best; smaller screens crop the center.
+3. Choose a JPEG, PNG or WebP image up to 5 MB. A wide image around 1920 × 640 works best; smaller screens crop the center.
 4. Click **Upload header image** and wait for the saved notice.
 5. To restore the built-in artwork, click **Remove header image**.
 
@@ -34,6 +34,11 @@ Verification results are recorded in `DEVELOPMENT_LOG.md`. Local tests do not ce
 
 ## Upload troubleshooting
 
-Use the canonical production website and a JPEG, PNG or static WebP image up to 3 MB. Oversized files are rejected before upload, with the same validation enforced on the server. A missing database update, missing server configuration and unavailable Storage now produce distinct errors. Unexpected failures report a safe stage; restricted server logs contain only that stage and allowlisted provider code/status, never uploaded contents or credentials. A failed old-image cleanup does not report an already committed header change as failed; scheduled cleanup handles it.
+Use the canonical production website and a JPEG, PNG or static WebP image up to 5 MB. Oversized files are rejected before upload, with the same validation enforced on the server. A missing database update, missing server configuration and unavailable Storage now produce distinct errors. Unexpected failures report a safe stage; restricted server logs contain only that stage and allowlisted provider code/status, never uploaded contents or credentials. A failed old-image cleanup does not report an already committed header change as failed; scheduled cleanup handles it.
 
 If an upload still fails, record the exact displayed message/stage and check the matching `[community-header]` entry in Vercel runtime logs. Do not paste secret values or raw provider responses into support conversations.
+
+
+### Five-megabyte source images
+
+The header picker accepts source images up to 5 MiB (5 × 1024 × 1024 bytes). Sources larger than 3 MiB are resized in the browser before upload so the multipart request stays below Vercel’s 4.5 MB request limit. The server independently validates and sanitizes the image again. Stored headers remain bounded to 3 MiB, so this change does not need a database migration or a larger Storage bucket allowance. Chat, social and avatar upload limits are unchanged. Older browsers without image preparation support show an actionable resize error.

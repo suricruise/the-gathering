@@ -2,7 +2,7 @@ import { test, expect } from "./helpers";
 import pg from "pg";
 import sharp from "sharp";
 import { readFileSync } from "node:fs";
-import { randomUUID } from "node:crypto";
+import { randomBytes, randomUUID } from "node:crypto";
 test("community owners upload and remove private headers without exposing them", async ({ memberPage: page, member, browser }) => {
   const db = new pg.Client({ connectionString: readFileSync(".local-stack/database-url", "utf8").trim() });
   await db.connect(); const id = randomUUID(), slug = "header-"+id.slice(0,8);
@@ -12,10 +12,17 @@ test("community owners upload and remove private headers without exposing them",
     await db.query("insert into public.community_members(community_id,user_id,role_id) values($1,$2,'owner')", [id,member.id]);
     await page.goto(`/communities/${slug}`);
     await expect(page.getByRole("heading", { name: "Community header image" })).toBeVisible();
-    const image = await sharp({ create: { width: 2000, height: 800, channels: 3, background: "#32246f" } }).png().toBuffer();
+    // A real source PNG over 3 MiB exercises local resizing before the Vercel upload.
+    const image = await sharp(randomBytes(1600*900*3), { raw: { width: 1600, height: 900, channels: 3 } }).png().toBuffer();
+    expect(image.length).toBeGreaterThan(3*1024*1024);
+    expect(image.length).toBeLessThanOrEqual(5*1024*1024);
+    const uploaded = page.waitForRequest((request) => request.method() === "POST" && request.url().includes(`/api/communities/${id}/header`));
     await page.getByLabel("Header image", { exact: true }).setInputFiles({ name: "header.png", mimeType: "image/png", buffer: image });
     await page.getByRole("button", { name: "Upload header image" }).click();
     await expect(page.getByText("Community header updated.", { exact: true })).toBeVisible();
+    const sentBytes = Number(await (await uploaded).headerValue("content-length"));
+    expect(sentBytes).toBeGreaterThan(0);
+    expect(sentBytes).toBeLessThan(3*1024*1024+64*1024);
     const header = page.getByRole("img", { name: "Custom header test community header" });
     await expect(header).toHaveCSS("background-image", /api\/communities/);
     await page.goto("/communities");
@@ -26,9 +33,9 @@ test("community owners upload and remove private headers without exposing them",
     expect(response.headers()["cache-control"]).toContain("no-store");
     expect((await other.request.get(`http://127.0.0.1:4173/api/communities/${id}/header`)).status()).toBe(404);
     expect((await page.request.post(`/api/communities/${id}/header`, { headers: { Origin: "https://untrusted.invalid" } })).status()).toBe(403);
-    await page.getByLabel("Header image", { exact: true }).setInputFiles({ name: "oversized.png", mimeType: "image/png", buffer: Buffer.alloc(4*1024*1024) });
+    await page.getByLabel("Header image", { exact: true }).setInputFiles({ name: "oversized.png", mimeType: "image/png", buffer: Buffer.alloc(6*1024*1024) });
     await page.getByRole("button", { name: "Upload header image" }).click();
-    await expect(page.getByRole("alert").filter({ hasText: "3 MB" })).toBeVisible();
+    await expect(page.getByRole("alert").filter({ hasText: "5 MB" })).toBeVisible();
     await page.getByLabel("Header image", { exact: true }).setInputFiles({ name: "fake.png", mimeType: "image/png", buffer: Buffer.from("<svg/>") });
     await page.getByRole("button", { name: "Upload header image" }).click();
     await expect(page.getByRole("alert").filter({ hasText: "could not be read" })).toBeVisible();

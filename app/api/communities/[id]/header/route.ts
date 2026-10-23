@@ -5,6 +5,7 @@ import { createClient } from "@/src/lib/supabase/server";
 import { createAdminClient } from "@/src/lib/supabase/admin";
 import { appOrigin } from "@/src/lib/config";
 import { readUploadForm } from "@/src/lib/chat/files";
+import { HEADER_SOURCE_BYTES } from "@/src/lib/communities/header-limits";
 import { prepareCommunityHeader } from "@/src/lib/communities/header-image";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -61,10 +62,10 @@ async function change(request: Request, context: Context, remove: boolean) {
     if (!remove) {
       stage = "upload-body";
       let form: FormData;
-      try { form = await readUploadForm(request); }
+      try { form = await readUploadForm(request, HEADER_SOURCE_BYTES); }
       catch (error) {
-        if (error instanceof Error && error.message === "Choose a file up to 3 MB.")
-          return fail("Choose an image up to 3 MB. Resize or compress this image and try again.", 413);
+        if (error instanceof Error && error.message === "Choose a file up to 5 MB.")
+          return fail("Choose an image up to 5 MB. Resize or compress this image and try again.", 413);
         return fail("The upload could not be read. Choose your image again and retry.");
       }
       const file = form.get("file");

@@ -1,5 +1,11 @@
 # Development log
 
+## 2026-10-23 — Accept community header source images up to 5 MiB
+
+Raised the community header source-image limit from 3 MiB to 5 MiB in the picker, server validation and bounded multipart reader. Other uploads retain their existing limits. Vercel's request-body limit prevents sending a raw 5 MiB file directly, so larger source images are decoded and resized in the browser before upload; the server independently revalidates and sanitizes the result. Prepared/stored headers remain under 3 MiB, preserving the existing private bucket, provenance checks and database limits without a migration. Browser preparation failures are actionable and do not bypass server validation.
+
+All 222 unit/server/component tests, lint, typecheck, production build and client-secret bundle scan pass. Added a real valid source fixture at the exact 5 MiB boundary. Desktop/mobile browser scenarios use an actual noisy PNG larger than 3 MiB and assert its multipart upload stays below 3 MiB plus bounded form overhead; inputs above 5 MiB are rejected before upload. No production database changes are required. Hosted deployment completion remains externally unverified.
+
 ## 2026-10-23 — Diagnose community header upload failures
 
 Investigated the reported generic "Header services are unavailable" response during upload. Reproduced a path where multipart bodies above the 3 MB budget were incorrectly caught as service failures. Added an early client size check and a server 413 validation response for that case. The user's actual file size and hosted failure cause are not confirmed; do not claim that every reported production failure was caused by size.

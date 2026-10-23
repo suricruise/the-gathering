@@ -1,6 +1,8 @@
 "use client";
 import { useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { prepareHeaderUpload } from "../../lib/communities/prepare-header-upload";
+import { HEADER_SOURCE_BYTES } from "../../lib/communities/header-limits";
 export function CommunityHeaderUpload({ communityId, hasImage }: { communityId: string; hasImage: boolean }) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
@@ -12,13 +14,20 @@ export function CommunityHeaderUpload({ communityId, hasImage }: { communityId: 
     if (pending) return;
     const form = event ? new FormData(event.currentTarget) : undefined;
     const file = form?.get("file");
-    if (file instanceof File && file.size > 3 * 1024 * 1024) {
-      setError("Choose an image up to 3 MB. Resize or compress this image and try again.");
+    if (file instanceof File && file.size > HEADER_SOURCE_BYTES) {
+      setError("Choose an image up to 5 MB. Resize or compress this image and try again.");
       setNotice("");
       return;
     }
     setPending(true); setError(""); setNotice("");
     try {
+      if (form && file instanceof File) {
+        try { form.set("file", await prepareHeaderUpload(file)); }
+        catch (error) {
+          setError(error instanceof Error ? error.message : "This image could not be prepared.");
+          return;
+        }
+      }
       const response = await fetch(`/api/communities/${communityId}/header`, {
         method: event ? "POST" : "DELETE",
         ...(form ? { body: form } : {}),
@@ -32,7 +41,7 @@ export function CommunityHeaderUpload({ communityId, hasImage }: { communityId: 
   return (
     <section className="community-form" aria-labelledby="header-upload-heading">
       <h3 id="header-upload-heading">Community header image</h3>
-      <p className="muted">Upload a JPEG, PNG or WebP image up to 3 MB. A wide image around 1920 × 640 works best; the center is cropped to fit. Private community headers are visible only to authorized members.</p>
+      <p className="muted">Upload a JPEG, PNG or WebP image up to 5 MB. A wide image around 1920 × 640 works best; the center is cropped to fit. Private community headers are visible only to authorized members.</p>
       <form ref={formRef} onSubmit={save}>
         <fieldset disabled={pending}>
           <label className="field">Header image<input type="file" name="file" accept="image/jpeg,image/png,image/webp" required /></label>

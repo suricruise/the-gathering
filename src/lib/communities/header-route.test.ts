@@ -42,11 +42,11 @@ it("uses caller RLS to conceal private images before privileged download", async
 it("reports oversized multipart bodies as validation errors rather than unavailable services", async () => {
  mocks.rpc.mockResolvedValue({ data: "allowed", error: null }); mocks.admin.mockReturnValue({});
  const form = new FormData();
- form.set("file", new File([new Uint8Array(4*1024*1024)], "large.png", { type: "image/png" }));
+ form.set("file", new File([new Uint8Array(6*1024*1024)], "large.png", { type: "image/png" }));
  const encoded = new Request("https://gathering.test/api/communities/header", { method: "POST", body: form });
  const bytes = await encoded.arrayBuffer();
  const result = await POST(new Request(encoded.url, { method: "POST", headers: { origin: "https://gathering.test", "content-type": encoded.headers.get("content-type")! }, body: bytes }), context);
- expect(result.status).toBe(413); expect((await result.json()).error).toContain("3 MB");
+ expect(result.status).toBe(413); expect((await result.json()).error).toContain("5 MB");
  expect(mocks.rpc).toHaveBeenCalledTimes(1);
 });
 it("explains a missing header migration without touching privileged storage", async () => {

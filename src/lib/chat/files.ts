@@ -100,7 +100,7 @@ export async function prepareAttachment(file: File) {
   );
 }
 
-export async function readUploadForm(request: Request) {
+export async function readUploadForm(request: Request, maxFileBytes = MAX_FILE_BYTES) {
   const reader = request.body?.getReader();
   if (!reader) throw Error("Choose a file.");
   const chunks: Uint8Array[] = [];
@@ -110,9 +110,9 @@ export async function readUploadForm(request: Request) {
       const { done, value } = await reader.read();
       if (done) break;
       size += value.byteLength;
-      if (size > MAX_FILE_BYTES + 64 * 1024) {
+      if (size > maxFileBytes + 64 * 1024) {
         await reader.cancel();
-        throw Error("Choose a file up to 3 MB.");
+        throw Error(`Choose a file up to ${Math.ceil(maxFileBytes / (1024 * 1024))} MB.`);
       }
       chunks.push(value);
     }

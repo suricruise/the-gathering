@@ -1,5 +1,12 @@
 # Development log
 
+## 2026-10-23 — Voice deployment origin diagnosis
+
+- Origin-mismatch errors now identify the public canonical origin actually loaded by the running deployment, with instructions to open it or correct `APP_URL` and redeploy. Origin checks remain strict, rejected requests still stop before authentication/admission, and no keys or caller-supplied origins are included in the message.
+- Retained the cross-origin security test and added assertions for the actionable canonical address and absence of reflected attacker origins. Hosted verification was unavailable because this execution environment's outbound proxy rejected the connection to the Vercel site; no live origin/configuration value was inferred from that rejection.
+
+- Validation: lint, all 124 unit/server/component tests, typecheck and production build passed. Hosted configuration and successful live voice joining remain unverified.
+
 ## 2026-10-23 — Phase 6: actual LiveKit voice rooms
 
 ### Delivered

@@ -26,8 +26,11 @@ export async function POST(
       headers: { "Cache-Control": "private, no-store", Vary: "Cookie" },
     });
   try {
-    if (request.headers.get("origin") !== appOrigin())
-      return reply(403, { error: "Voice request rejected." });
+    const expectedOrigin = appOrigin();
+    if (request.headers.get("origin") !== expectedOrigin)
+      return reply(403, {
+        error: `Voice request rejected. This deployment expects ${expectedOrigin}. Open that website, or correct APP_URL in Vercel and redeploy Production.`,
+      });
     // Bound the actual body, including chunked requests, before JSON parsing.
     const reader = request.body?.getReader();
     let text = "";

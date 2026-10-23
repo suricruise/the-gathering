@@ -61,9 +61,11 @@ beforeEach(() => {
   });
 });
 it("rejects cross-origin and oversized requests before authentication", async () => {
-  expect(
-    (await request("token", { channel: id }, "https://evil.invalid")).status,
-  ).toBe(403);
+  const rejected = await request("token", { channel: id }, "https://evil.invalid");
+  expect(rejected.status).toBe(403);
+  const message = (await rejected.json()).error;
+  expect(message).toContain("This deployment expects https://app.example.test");
+  expect(message).not.toContain("evil.invalid");
   expect(
     (await request("token", { channel: id, padding: "x".repeat(1500) })).status,
   ).toBe(400);

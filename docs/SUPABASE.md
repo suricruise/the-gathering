@@ -19,7 +19,11 @@ The normal app uses authenticated, RLS-constrained clients. The server-only priv
 
 ### Apply migrations
 
-Use the Supabase CLI with an authorized database connection, or run the SQL in the Supabase SQL editor in version order:
+For a **fresh hosted project**, open [supabase/initial-setup.sql](../supabase/initial-setup.sql), copy the entire file into Dashboard → SQL Editor → New query, and click **Run** as the project owner. It applies all four migrations in one transaction and records their versions for future CLI updates. It refuses to run when application tables already exist; for an existing installation, apply only pending migrations. Do not rerun the initial setup over an installed app.
+
+Missing migrations prevent authentication: the app requires `consume_auth_rate_limit` before calling Supabase Auth. A real exhausted budget produces “Please wait”; an unavailable function/service produces an authentication-unavailable response and a server log containing only a diagnostic code. Never bypass the limiter to work around missing setup.
+
+Alternatively, use the Supabase CLI with an authorized database connection, or run the SQL in the Supabase SQL editor in version order:
 
 1. `supabase/migrations/202610220001_profiles.sql`
 2. `supabase/migrations/202610220002_avatars.sql`

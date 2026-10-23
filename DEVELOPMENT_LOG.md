@@ -1,5 +1,12 @@
 # Development log
 
+## 2026-10-23 — Hosted signup setup and error handling
+
+- Read-only hosted checks confirmed email signup is enabled, while the application tables and auth-limiter RPC are absent from the exposed API schema. Registration stops before account creation; a missing RPC previously appeared as an exhausted rate budget. No hosted accounts or database records were modified.
+- Auth limiter now distinguishes a genuine denial from dependency/configuration failures, continues to fail closed, and logs only sanitized diagnostic codes. Added regression coverage for limiter responses, missing configuration/RPC, transport failures, and signup dependency failure.
+- Added `supabase/initial-setup.sql` for a fresh project SQL Editor setup, using all four existing migrations in a transaction with a pre-existing-table guard and CLI migration history. Documented hosted installation and failure diagnosis.
+- Validation: 71 tests, 21 database access-control assertions, lint, typecheck, production build, and client-bundle secret check passed. Validated the setup SQL against real local PostgreSQL/Auth/Storage schemas inside a rolled-back transaction, including four history records, six RLS tables, private avatars, and the auth limiter. Hosted SQL application still requires the project owner’s SQL Editor or database credentials.
+
 ## 2026-10-22 — Phase 3: authentication and gamer profiles
 
 ### Delivered

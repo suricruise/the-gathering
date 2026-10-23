@@ -152,6 +152,23 @@ describe("Server actions and account isolation", () => {
     expect(result.error).toBeTruthy();
     expect(mocks.signIn).not.toHaveBeenCalled();
   });
+  it("shows an unavailable service instead of asking users to wait when migrations are missing", async () => {
+    mocks.allow.mockRejectedValueOnce(
+      new Error("Authentication limiter is unavailable"),
+    );
+    const result = await register(
+      {},
+      form({
+        email: "member@example.test",
+        password: "long-test-passphrase",
+        dateOfBirth: "1990-01-01",
+        adultConsent: "on",
+      }),
+    );
+    expect(result.error).toMatch(/Authentication is unavailable/);
+    expect(result.error).not.toMatch(/wait/);
+    expect(mocks.signUp).not.toHaveBeenCalled();
+  });
   it("does not establish a successful unverified login", async () => {
     mocks.signIn.mockResolvedValue({
       data: { user: { id: "unverified", email_confirmed_at: null } },

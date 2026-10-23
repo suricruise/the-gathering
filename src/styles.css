@@ -6340,3 +6340,25 @@ select:focus-visible,
     font-size: 0.8rem;
   }
 }
+
+/* Phase 11: scoped administration, real records and explicit action reasons. */
+.admin-live .admin-tabs { flex-wrap: wrap; gap: .4rem; }
+.admin-live .admin-tabs button { display: inline-flex; align-items: center; gap: .45rem; min-height: 44px; }
+.admin-live .admin-scope { display: flex; align-items: center; gap: 2rem; margin-bottom: 1.25rem; }
+.admin-live .admin-scope label { min-width: 240px; }
+.admin-live label { display: grid; gap: .5rem; margin: .8rem 0; }
+.admin-live input:not([type=checkbox]), .admin-live textarea, .admin-live select { width: 100%; min-height: 44px; background: var(--bg, #0c1020); border: 1px solid #38394f; color: #e8e7f4; border-radius: 10px; padding: .75rem; font: inherit; }
+.admin-live textarea { min-height: 100px; resize: vertical; }
+.admin-live .admin-check { display: flex; align-items: center; min-height: 44px; gap: .75rem; }
+.admin-live .admin-check input { width: 20px; height: 20px; }
+.admin-records { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,360px),1fr)); gap: 1rem; margin-block: 1.5rem; }
+.admin-live .admin-record { min-width: 0; }
+.admin-live summary { padding: .8rem 0; cursor: pointer; min-height: 44px; color: #c5b8fa; }
+.admin-live .admin-control { border-top: 1px solid #323044; margin-top: 1rem; }
+.admin-live .admin-control form { padding: .5rem 0 1rem; }
+.admin-live .admin-evidence { white-space: pre-wrap; overflow-wrap: anywhere; border-left: 3px solid #9a82e4; padding: 1rem; background: #101320; margin: .75rem 0; }
+.admin-wrap { white-space: pre-wrap; overflow-wrap: anywhere; }
+.admin-live code { overflow-wrap: anywhere; }
+.admin-feedback { padding: 1rem; border-radius: 12px; background: #143137; color: #91e7d8; }
+.admin-search { max-width: 420px; }
+@media(max-width:700px) { .admin-live .admin-scope { display: block; } .admin-live .admin-scope label { min-width: 0; } .admin-live .admin-tabs { flex-wrap: nowrap; overflow-x: auto; } .admin-live .admin-tabs button { flex-shrink: 0; } }

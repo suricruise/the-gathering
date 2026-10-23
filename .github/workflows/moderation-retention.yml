@@ -1,0 +1,28 @@
+name: Moderation evidence retention
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 8 * * *'
+permissions:
+  contents: read
+concurrency:
+  group: gathering-moderation-retention
+  cancel-in-progress: false
+jobs:
+  cleanup:
+    if: github.event_name == 'workflow_dispatch' || vars.ENABLE_MODERATION_CLEANUP == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.GATHERING_SUPABASE_URL }}
+      SUPABASE_SECRET_KEY: ${{ secrets.GATHERING_SUPABASE_SECRET_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run moderation:cleanup -- --hosted
+      - run: npm run chat:cleanup -- --hosted
+      - run: npm run social:cleanup -- --hosted

@@ -40,7 +40,11 @@
     "test:spaces": "node scripts/test-spaces.mjs",
     "test:spaces:realtime": "node scripts/test-space-realtime.mjs",
     "test:spaces:setup": "node scripts/test-spaces-setup.mjs",
-    "notifications:reminders": "node scripts/deliver-event-reminders.mjs"
+    "notifications:reminders": "node scripts/deliver-event-reminders.mjs",
+    "test:admin": "node scripts/test-admin.mjs",
+    "test:admin:setup": "node scripts/test-admin-setup.mjs",
+    "moderation:cleanup": "node scripts/cleanup-moderation.mjs",
+    "test:admin:api": "node scripts/test-admin-api.mjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",

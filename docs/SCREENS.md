@@ -106,3 +106,10 @@ The composer stages up to four validated private photos/GIFs/files, preserves an
 - `/events/:id`: local/event-zone times, own RSVP, linked resources without access grants, host/staff updates and cancellation.
 - `/notifications`: recipient-only generic in-app updates, read controls, nine preference controls, opted-in friend/community/game invitations and separately authorized private moderator notices.
 - Home now shows real accessible upcoming community events. The notification bell merges permitted updates with unmuted DM counts; Settings reminder changes synchronize with notification preferences.
+
+### Phase 11 — live administration and safety
+
+- `/admin`: real scoped overview, member status/roles, protected reports, communities/settings, channel order/access/disable, voice removal, event visibility, announcements, appeals and audited history. Ordinary members receive a staff-access empty state.
+- `/reports`: server-authorized message/post/member/session reports; direct links prefill visible target identifiers. Existing social/DM reports join the central queue.
+- `/appeals`: own appeal submission, with an explicit operator route for restricted accounts unable to authenticate.
+- `/home`: real published, unexpired audience-scoped announcements.

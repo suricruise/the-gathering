@@ -1,4 +1,5 @@
 "use client";
+import { Announcements } from "../components/admin/MemberSafety";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -14,7 +15,7 @@ import {
 import { Link } from "../compat/navigation";
 import { useMember } from "../components/MemberContext";
 import { UpcomingEvents } from "../components/spaces/Spaces";
-import { Brand, DemoNotice, SectionHeading } from "../components/ui";
+import { Brand, SectionHeading } from "../components/ui";
 
 export function Home({
   featured = [],
@@ -24,6 +25,7 @@ export function Home({
   const member = useMember();
   return (
     <div className="page home-page">
+      <Announcements />
       <div className="page-heading">
         <div>
           <p className="eyebrow">YOUR NEXT CHAPTER STARTS HERE</p>
@@ -200,7 +202,6 @@ export function Landing() {
         </nav>
       </header>
       <main id="welcome-content" className="landing-main">
-        <DemoNotice compact />
         <div className="welcome-hero">
           <div className="welcome-copy">
             <span className="hero-eyebrow">

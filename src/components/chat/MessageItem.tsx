@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useState } from "react";
 import { ProfileAvatar } from "../ui";
 import { changeMessage, reactToMessage } from "../../lib/chat/actions";
@@ -282,6 +283,7 @@ export function MessageItem({
               >
                 Copy link
               </button>
+              <Link href={`/reports?type=message&target=${m.id}`} className="chat-text-button">Report message</Link>
               {messageLinks(m.body).length > m.previews.length && (
                 <button
                   type="button"

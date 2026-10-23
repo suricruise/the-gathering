@@ -93,3 +93,5 @@ The member feed now uses real persistent posts, photos/GIFs, validated MP4 clips
 ## Phase 8 Squad Up
 
 Create and discover real gaming sessions with platform/cross-play rules, player reservations, host approval, scoped audiences, community game nights and isolated LiveKit group rooms. Follow the [Squad Up production and security guide](docs/SQUAD_UP.md), apply the [one-time Phase 8 SQL installer](supabase/phase8-setup.sql), and schedule private session cleanup. Existing community voice permissions remain intact.
+
+Phase 11 adds real scoped administration, protected reports, account/community/channel controls, appeals and audit history. See [administration setup](docs/ADMINISTRATION.md) for the safe pending-only installer, first platform-owner provisioning and evidence-retention job.

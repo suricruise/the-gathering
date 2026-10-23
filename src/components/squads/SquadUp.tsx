@@ -825,6 +825,7 @@ export function SquadDetail({
           {s.game_name} · {s.game_night ? "COMMUNITY GAME NIGHT" : "SQUAD UP"}
         </span>
         <h1>{s.title}</h1>
+        <Link href={`/reports?type=session&target=${s.id}`}>Report session</Link>
         <div className="squad-tags">
           <span className="pill">{current}</span>
           <span className="pill">{s.play_style}</span>

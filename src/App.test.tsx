@@ -1,3 +1,10 @@
+vi.mock("./lib/admin/actions", () => ({
+  memberAnnouncements: async () => ({ data: [] }),
+  adminRead: async () => ({ data: {rank:0,communities:[],retention_days:null} }),
+  adminCommand: async () => ({error:"Denied"}),
+  submitReport: async () => ({error:"Denied"}),
+  submitAppeal: async () => ({error:"Denied"}),
+}));
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -100,7 +107,7 @@ describe("Next.js interface foundation", () => {
     ["/events", "Something to look forward to."],
     ["/faith", "A little space for your soul."],
     ["/messages", "Friends & messages"],
-    ["/admin", "Admin workspace"],
+    ["/admin", "Administration"],
   ])("renders %s", (path, title) => {
     renderPage(path);
     expect(

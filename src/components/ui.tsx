@@ -75,18 +75,6 @@ export function ProfileAvatar({
     </span>
   );
 }
-export function DemoNotice({ compact = false }: { compact?: boolean }) {
-  return (
-    <div className={`demo-notice ${compact ? "compact" : ""}`}>
-      <span className="demo-tag">DEMO</span>
-      <span>
-        {compact
-          ? "Platform administration preview"
-          : "Accounts, profiles, communities, channel messages, social posts, Squad Up, friendships and private messages use Supabase. Online status is shared only by permission. Faith spaces, events and in-app notifications use Supabase. Platform administration retains development previews; voice uses LiveKit when configured."}
-      </span>
-    </div>
-  );
-}
 export function PageHeading({
   eyebrow,
   title,

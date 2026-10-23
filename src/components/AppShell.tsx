@@ -23,7 +23,6 @@ import { PeopleSidebar, PeopleBell, usePeople } from "./people/PeopleProvider";
 import { friends, navigation } from "../data";
 import {
   Brand,
-  DemoNotice,
   NotificationBell,
   ProfileAvatar,
   VoiceConnectionBar,
@@ -314,7 +313,6 @@ export function AppShell({ children }: { children: ReactNode }) {
         <Topbar onMenu={openDrawer} />
         <div className="workspace-layout">
           <main id="main-content" ref={mainRef} tabIndex={-1}>
-            <DemoNotice compact />
             {children}
           </main>
           <FriendsSidebar />

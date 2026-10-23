@@ -145,3 +145,7 @@ After Phase 8, follow [PEOPLE.md](PEOPLE.md). `supabase/phase9-setup.sql` applie
 After Phase 9, apply the pending versions in [`supabase/phase10-setup.sql`](../supabase/phase10-setup.sql) and follow [FAITH_EVENTS_NOTIFICATIONS.md](FAITH_EVENTS_NOTIFICATIONS.md). Expected history is `202610290001`–`202610290004`; recorded versions are skipped safely. No new public bucket is created. Personal notifications reuse authenticated private Realtime topics.
 
 Event reminders require a private scheduler; the included workflow is disabled by default and needs separately configured GitHub repository secrets/opt-in. Keep the reminder service key server-only. Neither email nor push delivery is enabled by this phase.
+
+## Phase 11 administration
+
+Apply the five `202610300001`–`202610300005` migrations using `supabase/phase11-setup.sql`. The pending-only installer skips recorded versions and refuses ambiguous existing tables. [Administration setup](ADMINISTRATION.md) explains trusted first-owner provisioning, least-privilege roles, verification and the daily service-only `moderation:cleanup` job. Platform roles/evidence/audits remain private; normal administrative actions use authenticated RPCs with live transactional authorization.

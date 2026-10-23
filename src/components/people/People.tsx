@@ -158,6 +158,7 @@ export function PeoplePage({ tab: initial = "friends" }: { tab?: string }) {
           >
             Block
           </button>
+          <Link href={`/reports?type=user&target=${p.id}`}>Report member</Link>
         </div>
       </article>
     );

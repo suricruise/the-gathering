@@ -1,5 +1,10 @@
 # Development log
 
+## 2026-10-23 — Safe voice worker failure diagnostics
+
+- Replaced the generic enforcement failure log with an explicit Supabase snapshot/heartbeat or LiveKit operation stage, allowlisted error code/status, and configuration guidance. Provider error text, credentials, URLs, room names and member identities are never logged. A recovery message now confirms a complete successful enforcement pass.
+- Retained fail-closed admission and heartbeat sequencing. Six diagnostic/security tests passed, including error/unknown-code redaction and no heartbeat after provider failure; all 18 real database/LiveKit checks and lint passed. Hosted worker credentials/connectivity remain unverified until the new deployment's stage-specific logs are available.
+
 ## 2026-10-23 — Voice deployment origin diagnosis
 
 - Origin-mismatch errors now identify the public canonical origin actually loaded by the running deployment, with instructions to open it or correct `APP_URL` and redeploy. Origin checks remain strict, rejected requests still stop before authentication/admission, and no keys or caller-supplied origins are included in the message.

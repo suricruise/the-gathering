@@ -26,7 +26,8 @@
     "voice:local": "node scripts/voice-local.mjs",
     "voice:worker": "node scripts/voice-worker.mjs",
     "test:voice": "node scripts/test-voice.mjs",
-    "test:voice:setup": "node scripts/test-voice-setup.mjs"
+    "test:voice:setup": "node scripts/test-voice-setup.mjs",
+    "test:voice:worker": "node --test scripts/test-voice-enforcement.mjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",

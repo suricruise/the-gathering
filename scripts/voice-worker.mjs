@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { RoomServiceClient } from "livekit-server-sdk";
-import { enforceVoice } from "./voice-enforcement.mjs";
+import { enforceVoice, enforcementDiagnostic } from "./voice-enforcement.mjs";
 // Environment must be injected explicitly; never silently load hosted credentials.
 const {
   NEXT_PUBLIC_SUPABASE_URL: dbUrl,
@@ -32,13 +32,18 @@ for (const signal of ["SIGINT", "SIGTERM"])
 console.log(
   "Voice enforcement worker started. Interval: 2 seconds. No media is recorded.",
 );
+let healthy = false;
 while (!stopping) {
   try {
     await enforceVoice(admin, service);
-  } catch {
-    console.error(
-      "Voice enforcement failed. New admissions expire closed after 15 seconds; check private service logs and connectivity.",
-    );
+    if (!healthy)
+      console.log(
+        "Voice enforcement healthy. Authorization, LiveKit access and database heartbeat succeeded.",
+      );
+    healthy = true;
+  } catch (error) {
+    healthy = false;
+    console.error(enforcementDiagnostic(error));
   }
   await new Promise((resolve) => setTimeout(resolve, 2000));
 }

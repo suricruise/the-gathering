@@ -29,6 +29,8 @@ FROM private.voice_worker;
 -- Expect healthy = true while the worker is running successfully.
 ```
 
+New worker logs identify `stage=supabase-snapshot`, `stage=livekit-list-rooms` (or another LiveKit operation), or `stage=supabase-heartbeat`, with only allowlisted codes/statuses. Supabase failures require checking the worker's project URL, current server-only key and migrations. LiveKit authentication failures require matching the URL/key/secret to the same project. A **Voice enforcement healthy** recovery message confirms a complete pass. In Render, select live/recent logs after redeploying; a fixed older time range will not show the new diagnostics.
+
 A startup log alone does not prove enforcement is healthy. If `healthy` is false, fix the worker's credentials/connectivity/migrations before joining rooms. If a session is abandoned without a leave acknowledgement, its reservation expires after 120 seconds; repeated joining does not bypass that reservation.
 
 ### Example: a Render background worker

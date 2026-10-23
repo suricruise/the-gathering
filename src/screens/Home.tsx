@@ -14,13 +14,7 @@ import {
 import { Link } from "../compat/navigation";
 import { useMember } from "../components/MemberContext";
 import { events } from "../data";
-import {
-  Brand,
-  DemoNotice,
-  EventCard,
-  FeedPost,
-  SectionHeading,
-} from "../components/ui";
+import { Brand, DemoNotice, EventCard, SectionHeading } from "../components/ui";
 
 export function Home({
   featured = [],
@@ -165,14 +159,16 @@ export function Home({
             to="/feed"
             label="Open feed"
           />
-          <FeedPost
-            text="Just a reminder: you don’t have to be the best player in the lobby to be the best teammate. Show up. Be kind. That’s the win. 💜"
-            name="Noah"
-            initials="NK"
-            color="purple"
-            category="Community"
-            likes={18}
-          />
+          <div className="panel padded">
+            <h3>Your people. Your stories.</h3>
+            <p className="muted">
+              See what members are sharing, or start a conversation of your own.
+            </p>
+            <Link className="button secondary" to="/feed">
+              Visit your feed
+              <ArrowRight size={16} />
+            </Link>
+          </div>
         </section>
       </div>
       <footer className="page-footer">

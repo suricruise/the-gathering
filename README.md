@@ -36,6 +36,8 @@ npm test
 npm run test:db
 npm run test:communities
 npm run test:messaging
+npm run test:social
+npm run test:social:setup
 npm run test:integration
 npm run test:realtime
 npm run test:e2e
@@ -71,3 +73,7 @@ See [Supabase configuration and security](docs/SUPABASE.md), [screens](docs/SCRE
 ## Phase 6 voice
 
 LiveKit rooms support real microphone audio, mute/deafen, device selection, live participants, speaking/quality indicators, reconnect states and persistent navigation. Moderators can remove lower-ranked members; owners/admins can lock rooms and change capacity. Follow [voice setup and acceptance testing](docs/VOICE.md), apply the [single-file Phase 6 SQL setup](supabase/phase6-setup.sql), and deploy the always-on enforcement worker before enabling production voice. No recording is requested by the application.
+
+## Phase 7 social sharing
+
+The member feed now uses real persistent posts, photos/GIFs, validated MP4 clips, safe link cards/previews, reactions, comments, follows, audience filters and scoped reporting/moderation. No fabricated social posts are seeded. Apply the [one-time Phase 7 SQL installer](supabase/phase7-setup.sql) before using the new feed, then follow the [production setup and security guide](docs/SOCIAL.md). Keep the private social-media cleanup job scheduled.

@@ -1,4 +1,5 @@
 "use server";
+import { removeAccountSocialFiles } from "../social/cleanup";
 import { removeAccountChatFiles } from "../chat/cleanup";
 import { randomUUID } from "node:crypto";
 import sharp from "sharp";
@@ -207,6 +208,11 @@ export async function deleteAccount(
     return {
       error:
         "Your message attachments could not be removed. Your account has not been deleted; please retry.",
+    };
+  if (!(await removeAccountSocialFiles(identity.user.id)))
+    return {
+      error:
+        "Your social media files could not be removed. Your account has not been deleted; please retry.",
     };
   const { error } = await admin.auth.admin.deleteUser(identity.user.id);
   if (error)

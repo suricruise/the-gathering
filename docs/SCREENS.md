@@ -5,12 +5,12 @@ All screens use deep navy surfaces, purple/indigo branding, cyan accents, locall
 | Screen                  | Route                                       | Completed interface and behavior                                                                                                           |
 | ----------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
 | Landing / welcome       | `/`                                         | Brand, welcome art, values, discover/faith links, and entry into the preview                                                               |
-| Home dashboard          | `/home`                                     | Welcome, illustrated hero, quick destinations, community cards, upcoming events, sample feed, optional online-friends rail                 |
+| Home dashboard          | `/home`                                     | Welcome, illustrated hero, quick destinations, community cards, sample upcoming events, real-feed entry, optional sample online-friends rail                 |
 | Text channels           | `/channels`, `/channels/:channelId`         | Community navigation, five linked channels, sample general conversation, empty channels, pinned guidance, mobile drawer, disabled composer |
 | Voice lounge            | `/voice`                                    | Three demo rooms, sample participants, voice etiquette, disabled join controls, explicit disconnected status                               |
 | Communities / discovery | `/communities`, `/communities/:communityId` | Six sample communities, text search, category filter, clearable no-results state, community details and channel links                      |
 | Squad Up                | `/squad-up`                                 | Game/platform filters, optional sample listings, empty state, disabled live posting and requests                                           |
-| Social feed             | `/feed`                                     | Topic filtering, sample posts, reversible local reactions, disabled publishing, no fabricated replies                                      |
+| Social feed             | `/feed`                                     | Personalized real posts, private photos/clips, audiences, comments/reactions, follows and scoped reporting                                      |
 | Events                  | `/events`, `/events/:eventId`               | Category filters, three demo events, detail pages, America/New_York times, screen-local bookmark, disabled RSVP                            |
 | Faith & Life            | `/faith`                                    | Three selectable reflection topics, scripture, prayer-channel link, sample Sunday gathering link                                           |
 | Friends / messages      | `/messages`, `/messages/:friendId`          | Searchable sample friends, individual conversation layouts, empty and unknown-friend states, disabled messaging                            |
@@ -60,7 +60,7 @@ The Phase 2 community/channel previews are superseded on their real routes:
 
 | Route | Connected behavior |
 | --- | --- |
-| `/home` | Real accessible community cards; sample feed/events remain labeled |
+| `/home` | Real accessible community cards, a link to the member feed, and labeled sample events |
 | `/communities` | Database-backed discovery, text search, joined filter, approved-host creation, empty/unavailable states |
 | `/communities/:slug` | Cover artwork and descriptions, join/leave, ordered categories/text/voice definitions, explicit roster |
 | `/communities/:slug` host settings | Community settings, category/channel editing and ordering, individual/role overrides, role changes, ownership transfer, member moderation, invitation issue/revoke, security activity |
@@ -82,3 +82,7 @@ The composer stages up to four validated private photos/GIFs/files, preserves an
 - `/channels/:id` for a voice channel: microphone or muted joining, real connection/reconnection status, microphone and output device selection, mute/deafen/leave, actual participant identities, speaking and connection quality indicators, moderator removal, and owner/admin room controls. Browser permission denial and autoplay recovery are explicit.
 - Persistent desktop/mobile voice bars use the same member-layout connection while navigating. Existing text threads, uploads, profiles, invitations, settings and sample service labels are retained.
 - See `VOICE.md` for production prerequisites and the required two-physical-device acceptance check. Automated browser media checks use actual LiveKit/WebRTC with deterministic microphone input.
+
+## Phase 7 social screens
+
+`/feed` is the real personalized feed and composer, with audience/community/interest filters, private media, reactions/comments, follows, report status and scoped moderation. `/feed/:id` opens an authorized permalink. `/communities/:slug/posts` opens a membership-only community feed. All three provide explicit loading, empty and error states, keyboard controls and responsive layouts. See [social setup and behavior](SOCIAL.md).

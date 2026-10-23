@@ -127,3 +127,7 @@ npm run test:bundle
 ## Phase 6 voice authorization
 
 Apply `supabase/phase6-setup.sql` once after Phase 5, or the three ordered `202610250001`–`202610250003` migrations with the CLI. It adds RLS-protected room settings, private voice reservations/suspensions/budgets and service-only enforcement snapshots. Existing The Gathering communities receive initial real room definitions without fabricated participants. Voice media uses a separate LiveKit project, server-only credentials, and an always-on enforcement worker. Follow [VOICE.md](VOICE.md) before deploying; API keys alone cannot apply SQL migrations.
+
+## Phase 7 social sharing
+
+After Phase 6, apply the [one-time Phase 7 installer](../supabase/phase7-setup.sql), or the four `202610260001`–`202610260004` migrations in order through the CLI. Never rerun an installer over existing social tables. The `social-media` bucket must remain private; no ordinary Storage uploads or reads are granted. Schedule `npm run social:cleanup -- --hosted` privately using existing server credentials. Platform social moderators need explicit operator approval; community roles stay scoped. See the [step-by-step social guide](SOCIAL.md).

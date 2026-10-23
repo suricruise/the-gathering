@@ -81,8 +81,8 @@ export function DemoNotice({ compact = false }: { compact?: boolean }) {
       <span className="demo-tag">DEMO</span>
       <span>
         {compact
-          ? "Sample feed, events, and online activity"
-          : "Accounts, gamer profiles, communities, and channel messaging use Supabase. Feed, events, and online activity are sample data; voice uses LiveKit when configured; direct messages are not connected."}
+          ? "Sample events and online activity"
+          : "Accounts, gamer profiles, communities, and channel messaging use Supabase. Posts and social interactions use Supabase. Events and online activity are sample data; voice uses LiveKit when configured; direct messages are not connected."}
       </span>
     </div>
   );

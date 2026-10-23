@@ -1,5 +1,26 @@
 # Development log
 
+## 2026-10-23 — Phase 7: real member social sharing
+
+Implemented the personalized member feed with real text posts, safe Markdown, photos/GIFs, rights-attested H.264 MP4 clips, safe external clip cards and opt-in link previews. Members can react, comment, edit/delete their own content, follow/unfollow, filter by communities/interests, and page older posts/comments. Added authorized permalinks and community-scoped feeds, private report status and ranked moderation queues. Replaced the dashboard's sample authored post with an entry to the real feed; no social posts or fabricated authors are seeded.
+
+Four immutable migrations add seven public social tables and three private operational tables, all with RLS, identity-derived commands, audience and community isolation, request/mutation budgets, stable IDs/cursors, private audit and media ownership checks. Restricted Storage policies block ordinary object access; authenticated media routes stream current-authorized no-store bytes and video ranges. Uploads re-encode images and inspect bounded MP4 containers/tracks/sample ranges in a time/memory-limited Node worker. Cleanup claims prevent staged publication races; account deletion and scheduled cleanup use the Storage API.
+
+Added the transactional one-time `supabase/phase7-setup.sql` installer, a local rollback rehearsal, cleanup command, `docs/SOCIAL.md` production steps and updated architecture/screens/Supabase/README documentation. The Next.js upload trace includes the worker/parser. Browser verification caught and fixed typed worker data being altered by Next's worker packaging; plain-object worker data now preserves the bytes in both development and production.
+
+Validation:
+
+- Lint, full Next route generation/typecheck, production build and client-secret scan passed; configured Supabase/LiveKit server secrets are absent from client artifacts.
+- All 142 unit/server/component tests passed, including social input/media/preview/identity checks and deletion cleanup failure coverage.
+- All 29 social database authorization checks passed. The installer rehearsal passed with four history records, ten RLS tables and a private bucket; every rehearsal change was rolled back.
+- Preserved verification passed: 21 identity DB, 32 community, 24 messaging DB, 13 real Supabase API, 10 private Realtime/API, 18 database/LiveKit service checks and six worker diagnostic tests.
+- Ran all 56 desktop/mobile browser scenarios. The initial full run passed 55; one mobile assertion checked media access before unfollow had finished. Fixed that asynchronous expectation without relaxing authorization, then all four targeted desktop/mobile home/social scenarios passed. Every distinct scenario now has a passing result. The same four scenarios also passed against the built production server, including actual image decoding, MP4 metadata/ranges, private-media rejection and report resolution. Both social flows include axe checks, overflow checks and browser-error assertions. Desktop/mobile screenshots were visually inspected.
+- Actual local scheduled cleanup completed through Storage API after the browser fixtures were removed.
+
+Operational boundaries: the feed uses explicit refresh, not a simulated real-time social transport. MP4 limits are 3 MB, 90 seconds, 1080p H.264 with optional stereo AAC; no transcoder, malware scanner or automatic third-party embed is claimed. Production needs the Phase 7 migration, a private hourly social-media cleanup job, and optional explicit platform-moderator approval. Existing community staff remain scoped to their communities. The user reported that production voice worked before this phase; physical-device audio was not independently retested here.
+
+Release access: GitHub publishing is available through Git. This environment's outbound proxy rejects the live Vercel site (HTTP 403), and hosted Supabase connectivity is unavailable. No hosted SQL migration or live acceptance result is claimed; the new installer must be run in the project's SQL Editor, and Vercel's automatic production deployment must be confirmed in its dashboard.
+
 ## 2026-10-23 — Distinguish received voice request origins
 
 - Extended rejected voice request diagnostics to show the browser's canonical HTTP origin, or an explicit missing/opaque/invalid classification. Only bounded, canonical HTTP origins can appear; raw headers, credentials, paths and queries are never echoed. This addresses repeated configuration troubleshooting without inferring an unobserved live header or relaxing CSRF protection.

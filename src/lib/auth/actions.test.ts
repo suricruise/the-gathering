@@ -18,10 +18,14 @@ const mocks = vi.hoisted(() => ({
   list: vi.fn(),
   deleteUser: vi.fn(),
   removeChat: vi.fn(),
+  removeSocial: vi.fn(),
 }));
 vi.mock("server-only", () => ({}));
 vi.mock("../chat/cleanup", () => ({
   removeAccountChatFiles: mocks.removeChat,
+}));
+vi.mock("../social/cleanup", () => ({
+  removeAccountSocialFiles: mocks.removeSocial,
 }));
 vi.mock("next/navigation", () => ({ redirect: mocks.redirect }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
@@ -53,6 +57,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   mocks.allow.mockResolvedValue(true);
   mocks.removeChat.mockResolvedValue(true);
+  mocks.removeSocial.mockResolvedValue(true);
   mocks.rpc.mockResolvedValue({ data: true, error: null });
   mocks.signIn.mockResolvedValue({
     data: { user: { id: "owner-id", email_confirmed_at: "verified" } },
@@ -289,6 +294,20 @@ describe("Server actions and account isolation", () => {
     );
     expect(result.error).toMatch(/not been deleted/);
     expect(mocks.removeChat).toHaveBeenCalledWith("owner-id");
+    expect(mocks.deleteUser).not.toHaveBeenCalled();
+  });
+  it("does not delete identity when private social media cleanup fails", async () => {
+    mocks.removeSocial.mockResolvedValue(false);
+    const result = await deleteAccount(
+      {},
+      form({
+        confirmation: "DELETE",
+        currentPassword: "correct-password",
+        user_id: "victim-id",
+      }),
+    );
+    expect(result.error).toMatch(/not been deleted/);
+    expect(mocks.removeSocial).toHaveBeenCalledWith("owner-id");
     expect(mocks.deleteUser).not.toHaveBeenCalled();
   });
   it("does not delete identity when avatar cleanup fails", async () => {

@@ -44,7 +44,7 @@ Profile saves update profile, interests, favorite games, and platforms atomicall
 
 ## Retained service boundaries
 
-Community discovery, membership, roles, categories, channel definitions/permissions, invitations, and audit are now persisted. Home community cards use accessible database rows. Channel text messaging is connected in Phase 5. Voice, direct messages, demo online friends, feeds, squads, events, and the platform admin shell remain development fixtures. Voice/direct-message controls remain unavailable. Channel text sends only report delivery after a committed database response. No client-editable admin role was added; the admin shell grants no operational permissions.
+Community discovery, membership, roles, categories, channel definitions/permissions, invitations, and audit are now persisted. Home community cards use accessible database rows. Channel text messaging is connected in Phase 5. Voice uses real LiveKit media in Phase 6, and Phase 7 connects social feeds to real posts and private media. Direct messages, sample online friends, squads, events, and the platform admin shell retain explicitly labeled development boundaries. Direct-message sends remain unavailable. Channel text sends only report delivery after a committed database response. No client-editable admin role was added; the admin shell grants no operational permissions.
 
 ## Deployment
 
@@ -67,3 +67,7 @@ PostgreSQL commits messages before WAL Broadcast delivery. Events invalidate sta
 The persistent member layout hosts the official LiveKit React room context and audio renderer around one client `Room`. Next handlers under `/api/voice` verify trusted Origin and Supabase `getUser`, commit request budgets, reserve authorized room capacity, and mint microphone-only 60-second room-scoped tokens using the Node server SDK. Identity, room/epoch, permissions and participant limit derive from PostgreSQL, never caller-controlled roles or grants.
 
 An independent always-on worker reconciles actual LiveKit participants with a service-only, current ACL snapshot every two seconds, removing revoked memberships, room suspensions, bans, stale tickets, expired sessions and obsolete rooms. A successful enforcement heartbeat is required for admission. Owner/admin room settings rotate epochs and close existing rooms; moderation observes rank and audits commands. No voice media traverses Supabase, no provider secrets reach clients, and no recording is enabled by the application. See `VOICE.md` for provider revocation semantics, outage limitations, infrastructure and physical-device verification.
+
+## Phase 7 social boundary
+
+Server actions validate input and independently verify identity before RLS-backed social RPCs. Private Storage bytes flow only through authenticated media routes; staged ownership is claimed transactionally at publication. MP4 inspection runs in a bounded Node worker traced into the upload deployment. The feed uses stable cursor queries and explicit refresh, with no fabricated posts or success states. Scoped moderation/audits and account/scheduled media cleanup are documented in [SOCIAL.md](SOCIAL.md).

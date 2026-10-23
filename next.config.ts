@@ -3,6 +3,12 @@ const config: NextConfig = {
   poweredByHeader: false,
   allowedDevOrigins: ["127.0.0.1"],
   serverExternalPackages: ["sharp"],
+  outputFileTracingIncludes: {
+    "/api/social/upload": [
+      "./scripts/inspect-social-video.mjs",
+      "./node_modules/mp4box/**/*",
+    ],
+  },
   experimental: { serverActions: { bodySizeLimit: "3mb" } },
   async headers() {
     return [

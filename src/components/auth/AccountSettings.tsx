@@ -62,7 +62,7 @@ export function AccountSettings({
             <span>
               Show gaming activity
               <small>
-                Save your preference. Live gaming activity is not connected yet.
+                Show your host identity on Squad Up discovery cards, subject to profile visibility. Joined groups can see your display name.
               </small>
             </span>
           </label>

@@ -41,7 +41,7 @@ export function CommunityView({ data }: { data: CommunityDetailData }) {
       >
         <span className="pill">{role ?? "Not a member"}</span>
       </PageHeading>
-      {role && <Link className="button secondary" href={`/communities/${c.slug}/posts`}>View community posts</Link>}
+      {role && <><Link className="button secondary" href={`/communities/${c.slug}/posts`}>View community posts</Link><Link className="button secondary" href={`/squad-up?community=${c.id}&mode=game-nights`}>Community game nights</Link></>}
       <div className="community-membership">
         {role ? (
           role === "owner" ? (

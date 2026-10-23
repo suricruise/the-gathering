@@ -1,7 +1,14 @@
 "use client";
 import Link from "next/link";
 import { useCallback, useState } from "react";
-import { ArrowUpRight, Mic, MicOff, Headphones, PhoneOff, VolumeX } from "lucide-react";
+import {
+  ArrowUpRight,
+  Mic,
+  MicOff,
+  Headphones,
+  PhoneOff,
+  VolumeX,
+} from "lucide-react";
 import {
   useMediaDeviceSelect,
   useConnectionQualityIndicator,
@@ -44,9 +51,13 @@ export function PersistentVoiceBar({ mobile = false }: { mobile?: boolean }) {
         {v?.session && <small>{v.session.channelName}</small>}
       </div>
       <Link
-        href="/voice"
+        href={v?.session?.destination ?? "/voice"}
         className="icon-button"
-        aria-label="Open voice lounge"
+        aria-label={
+          v?.session?.destination?.startsWith("/squad-up/")
+            ? "Open squad voice room"
+            : "Open voice lounge"
+        }
       >
         <ArrowUpRight size={16} />
       </Link>

@@ -82,7 +82,7 @@ export function DemoNotice({ compact = false }: { compact?: boolean }) {
       <span>
         {compact
           ? "Sample events and online activity"
-          : "Accounts, gamer profiles, communities, and channel messaging use Supabase. Posts and social interactions use Supabase. Events and online activity are sample data; voice uses LiveKit when configured; direct messages are not connected."}
+          : "Accounts, gamer profiles, communities, and channel messaging use Supabase. Posts, social interactions and Squad Up sessions use Supabase. Events and online activity are sample data; voice uses LiveKit when configured; direct messages are not connected."}
       </span>
     </div>
   );

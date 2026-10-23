@@ -44,7 +44,7 @@ Profile saves update profile, interests, favorite games, and platforms atomicall
 
 ## Retained service boundaries
 
-Community discovery, membership, roles, categories, channel definitions/permissions, invitations, and audit are now persisted. Home community cards use accessible database rows. Channel text messaging is connected in Phase 5. Voice uses real LiveKit media in Phase 6, and Phase 7 connects social feeds to real posts and private media. Direct messages, sample online friends, squads, events, and the platform admin shell retain explicitly labeled development boundaries. Direct-message sends remain unavailable. Channel text sends only report delivery after a committed database response. No client-editable admin role was added; the admin shell grants no operational permissions.
+Community discovery, membership, roles, categories, channel definitions/permissions, invitations, and audit are now persisted. Home community cards use accessible database rows. Channel text messaging is connected in Phase 5. Voice uses real LiveKit media in Phase 6, and Phase 7 connects social feeds to real posts and private media. Direct messages, sample online friends, events, and the platform admin shell retain explicitly labeled development boundaries. Direct-message sends remain unavailable. Channel text sends only report delivery after a committed database response. No client-editable admin role was added; the admin shell grants no operational permissions.
 
 ## Deployment
 
@@ -71,3 +71,7 @@ An independent always-on worker reconciles actual LiveKit participants with a se
 ## Phase 7 social boundary
 
 Server actions validate input and independently verify identity before RLS-backed social RPCs. Private Storage bytes flow only through authenticated media routes; staged ownership is claimed transactionally at publication. MP4 inspection runs in a bounded Node worker traced into the upload deployment. The feed uses stable cursor queries and explicit refresh, with no fabricated posts or success states. Scoped moderation/audits and account/scheduled media cleanup are documented in [SOCIAL.md](SOCIAL.md).
+
+## Phase 8 group discovery and voice
+
+Squad Up uses authenticated server actions and RLS-backed session RPCs. Composite member keys, ordered user locks and a per-session row lock serialize joins, approvals and blocks. Capacity counts reserved accepted places; actual wall-clock expiry is rechecked after waits. Group voice reservations are separate from community channels. Public voice RPC wrappers preserve the original private community authorization and merge group rooms into the service-only enforcement snapshot. All tokens retain existing short-lived microphone-only grants. See [SQUAD_UP.md](SQUAD_UP.md) for audiences, compatibility, activity privacy, operator configuration, scheduled cleanup and tests.

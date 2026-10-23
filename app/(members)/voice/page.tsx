@@ -36,6 +36,10 @@ export default async function VoicePage() {
         description="The Lounge, squads, game nights, and private spaces for your communities."
       />
       <p>Live WebRTC audio through LiveKit. No recording is enabled.</p>
+      <p>
+        <Link href="/squad-up">Open Squad Up sessions</Link> to join a gaming
+        group’s reserved voice room.
+      </p>
       {!configured && (
         <p role="status" className="panel padded">
           Voice is not configured. An administrator must add LiveKit credentials

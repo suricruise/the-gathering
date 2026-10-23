@@ -30,7 +30,10 @@
     "test:voice:worker": "node --test scripts/test-voice-enforcement.mjs",
     "test:social": "node scripts/test-social.mjs",
     "test:social:setup": "node scripts/test-social-setup.mjs",
-    "social:cleanup": "node scripts/cleanup-social-files.mjs"
+    "social:cleanup": "node scripts/cleanup-social-files.mjs",
+    "test:squads": "node scripts/test-squads.mjs && node scripts/test-squad-concurrency.mjs",
+    "test:squads:setup": "node scripts/test-squad-setup.mjs",
+    "squad:cleanup": "node scripts/cleanup-squads.mjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",

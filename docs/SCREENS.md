@@ -9,7 +9,7 @@ All screens use deep navy surfaces, purple/indigo branding, cyan accents, locall
 | Text channels           | `/channels`, `/channels/:channelId`         | Community navigation, five linked channels, sample general conversation, empty channels, pinned guidance, mobile drawer, disabled composer |
 | Voice lounge            | `/voice`                                    | Three demo rooms, sample participants, voice etiquette, disabled join controls, explicit disconnected status                               |
 | Communities / discovery | `/communities`, `/communities/:communityId` | Six sample communities, text search, category filter, clearable no-results state, community details and channel links                      |
-| Squad Up                | `/squad-up`                                 | Game/platform filters, optional sample listings, empty state, disabled live posting and requests                                           |
+| Squad Up                | `/squad-up`                                 | Real session discovery, scoped creation, approvals, player limits, filters, game nights, block management and private group voice                                           |
 | Social feed             | `/feed`                                     | Personalized real posts, private photos/clips, audiences, comments/reactions, follows and scoped reporting                                      |
 | Events                  | `/events`, `/events/:eventId`               | Category filters, three demo events, detail pages, America/New_York times, screen-local bookmark, disabled RSVP                            |
 | Faith & Life            | `/faith`                                    | Three selectable reflection topics, scripture, prayer-channel link, sample Sunday gathering link                                           |
@@ -86,3 +86,7 @@ The composer stages up to four validated private photos/GIFs/files, preserves an
 ## Phase 7 social screens
 
 `/feed` is the real personalized feed and composer, with audience/community/interest filters, private media, reactions/comments, follows, report status and scoped moderation. `/feed/:id` opens an authorized permalink. `/communities/:slug/posts` opens a membership-only community feed. All three provide explicit loading, empty and error states, keyboard controls and responsive layouts. See [social setup and behavior](SOCIAL.md).
+
+## Phase 8 Squad Up screens
+
+`/squad-up` now provides real gaming session cards and creation, discovery/My sessions/game-night filters and private block management. `/squad-up/:id` handles joining, approval, roster, withdrawal, host removal/cancellation, schedules/expiry and the group’s real voice room. Community details link to scoped game-night listings. The persistent voice bar returns to connected group rooms. Missing and unauthorized sessions share one unavailable screen. See [SQUAD_UP.md](SQUAD_UP.md).

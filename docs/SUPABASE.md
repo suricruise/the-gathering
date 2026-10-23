@@ -131,3 +131,7 @@ Apply `supabase/phase6-setup.sql` once after Phase 5, or the three ordered `2026
 ## Phase 7 social sharing
 
 After Phase 6, apply the [one-time Phase 7 installer](../supabase/phase7-setup.sql), or the four `202610260001`–`202610260004` migrations in order through the CLI. Never rerun an installer over existing social tables. The `social-media` bucket must remain private; no ordinary Storage uploads or reads are granted. Schedule `npm run social:cleanup -- --hosted` privately using existing server credentials. Platform social moderators need explicit operator approval; community roles stay scoped. See the [step-by-step social guide](SOCIAL.md).
+
+## Phase 8 Squad Up
+
+After Phase 7, apply the four `202610270001`–`202610270004` migrations in order, or the [one-time installer](../supabase/phase8-setup.sql). The migration preserves community voice behind private functions while adding scoped gaming-group admission and enforcement. Eight new tables use RLS; only the operator can alter expiry/retention settings and platform metadata. Schedule `npm run squad:cleanup -- --hosted` privately, and retain the existing always-on voice worker. See the [step-by-step setup guide](SQUAD_UP.md).

@@ -1,6 +1,6 @@
 # The Gathering
 
-A premium dark gaming community interface with real Supabase authentication, gamer profiles, communities, memberships, invitations, channel permissions, persistent realtime channel messaging, and real LiveKit voice rooms. Phase 6 uses Next.js 16 App Router, React 19, TypeScript, and the current `@supabase/ssr` integration. The responsive interface remains behind authenticated routes. Direct messages, feeds, squad listings, events, and platform administrative services still use explicitly labeled preview content and do not simulate successful connections.
+A premium dark gaming community with real Supabase authentication, gamer profiles, communities, memberships, persistent Realtime messaging, social sharing, Squad Up reservations and actual LiveKit voice. It uses Next.js 16 App Router, React 19, TypeScript and `@supabase/ssr`. Direct messages, sample online activity, events and the platform administration shell retain explicitly labeled development boundaries.
 
 Voice setup requires a LiveKit project and an always-on authorization worker; follow the [voice setup guide](docs/VOICE.md). Voice is unavailable until configured, and never simulates a connection.
 
@@ -38,6 +38,8 @@ npm run test:communities
 npm run test:messaging
 npm run test:social
 npm run test:social:setup
+npm run test:squads
+npm run test:squads:setup
 npm run test:integration
 npm run test:realtime
 npm run test:e2e
@@ -77,3 +79,7 @@ LiveKit rooms support real microphone audio, mute/deafen, device selection, live
 ## Phase 7 social sharing
 
 The member feed now uses real persistent posts, photos/GIFs, validated MP4 clips, safe link cards/previews, reactions, comments, follows, audience filters and scoped reporting/moderation. No fabricated social posts are seeded. Apply the [one-time Phase 7 SQL installer](supabase/phase7-setup.sql) before using the new feed, then follow the [production setup and security guide](docs/SOCIAL.md). Keep the private social-media cleanup job scheduled.
+
+## Phase 8 Squad Up
+
+Create and discover real gaming sessions with platform/cross-play rules, player reservations, host approval, scoped audiences, community game nights and isolated LiveKit group rooms. Follow the [Squad Up production and security guide](docs/SQUAD_UP.md), apply the [one-time Phase 8 SQL installer](supabase/phase8-setup.sql), and schedule private session cleanup. Existing community voice permissions remain intact.

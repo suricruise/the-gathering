@@ -19,12 +19,14 @@ export const controlInput = z.discriminatedUnion("operation", [
     .strict(),
 ]);
 export type VoiceAdmission = {
+  destination?: string;
   room: string;
   ticket: string;
   limit: number;
   name: string;
 };
 export type VoiceCredentials = {
+  destination?: string;
   token: string;
   serverUrl: string;
   ticket: string;

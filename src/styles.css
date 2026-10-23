@@ -5958,3 +5958,56 @@ select:focus-visible,
  .social-tabs button { padding:10px 12px; font-size:.8rem; }
  .social-upload-row input[type=file] { max-width:135px; }
 }
+
+/* Real Squad Up session discovery and reservations. */
+.squad-page,.squad-detail-page { max-width:1500px; }
+.squad-hero { display:flex; justify-content:space-between; align-items:center; gap:24px; background:linear-gradient(120deg,#292047,#131a2c); border-color:#51416f; margin-bottom:24px; }
+.squad-hero h2 { font-size:1.7rem; margin:12px 0; }
+.squad-hero > svg { color:#b6a0f1; flex-shrink:0; }
+.squad-tabs { display:flex; flex-wrap:wrap; gap:10px; margin:20px 0; }
+.squad-tabs button { color:#c4c9dc; background:#181c2d; border:1px solid #33394f; border-radius:12px; padding:12px 18px; min-height:44px; cursor:pointer; }
+.squad-tabs button[aria-current=page] { color:#eee5ff; background:#3a2c5d; border-color:#8c6bd0; }
+.squad-privacy-note { display:flex; flex-wrap:wrap; align-items:center; gap:6px; color:#b0b7cc; font-size:.85rem; margin:20px 0; }
+.squad-filters { margin-bottom:24px; }
+.squad-filters fieldset { border:0; padding:0; margin:12px 0 0; display:flex; flex-wrap:wrap; gap:14px; align-items:end; }
+.squad-filters .field { flex:1 1 150px; margin:0; }
+.squad-filters select,.squad-create input,.squad-create select,.squad-create textarea,.squad-join select { width:100%; min-height:44px; }
+.squad-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:24px; }
+.squad-grid .squad-card { min-width:0; overflow:hidden; padding:0; }
+.squad-card-art { display:flex; align-items:center; gap:16px; min-height:130px; padding:24px; background:radial-gradient(ellipse at 20% 0%,#4a3373,#18213a); color:#d5c3ff; position:relative; }
+.squad-competitive .squad-card-art { background:radial-gradient(ellipse at 20% 0%,#16464c,#24203c); color:#a9edf1; }
+.squad-card-art > span:not(.pill) { font-family:Manrope,sans-serif; font-weight:800; font-size:1.2rem; }
+.squad-state { margin-left:auto; text-transform:capitalize; }
+.squad-state.full { color:#f1d6a7; }
+.squad-state.expired,.squad-state.cancelled { color:#c5c8d6; }
+.squad-card-body { padding:24px; }
+.squad-grid .squad-card h2 { min-height:0; font-size:1.25rem; margin:18px 0 12px; overflow-wrap:anywhere; }
+.squad-excerpt { color:#b5bdd2; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; overflow-wrap:anywhere; min-height:60px; }
+.squad-tags { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-bottom:16px; }
+.squad-identity { display:flex; align-items:center; gap:10px; margin:16px 0; min-width:0; overflow-wrap:anywhere; }
+.squad-identity img { border-radius:50%; object-fit:cover; }
+.squad-card-facts { display:grid; gap:10px; margin:20px 0; font-size:.8rem; color:#b9c4da; }
+.squad-card-facts span { display:flex; gap:8px; align-items:center; }
+.squad-form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.squad-create fieldset { border:0; padding:0; margin:20px 0 0; min-width:0; }
+.squad-create .field { margin-bottom:16px; }
+.squad-check { display:flex; align-items:center; gap:12px; min-height:44px; margin:12px 0; }
+.squad-check input { width:20px; height:20px; min-height:20px; flex-shrink:0; }
+.squad-create .form-error,.squad-detail .form-error { overflow-wrap:anywhere; }
+.squad-detail { display:grid; gap:24px; max-width:1000px; margin:20px auto; }
+.squad-detail h1 { font-size:clamp(1.7rem,4vw,2.7rem); margin:14px 0 24px; overflow-wrap:anywhere; }
+.squad-detail-header > p { display:flex; flex-wrap:wrap; align-items:center; gap:8px; color:#b7c2d8; }
+.squad-detail h2 { margin-bottom:18px; }
+.squad-detail .chat-markdown { margin-bottom:24px; }
+.squad-join { display:flex; flex-wrap:wrap; align-items:end; gap:16px; margin-top:24px; }
+.squad-join .field { min-width:180px; margin:0; }
+.squad-pending,.squad-joined { border:1px solid #675094; color:#d5c1ff; border-radius:12px; padding:14px; }
+.squad-roster ul,.squad-blocks ul { list-style:none; padding:0; }
+.squad-roster li,.squad-blocks li { display:flex; flex-wrap:wrap; align-items:center; gap:16px; border-bottom:1px solid #30364b; padding:12px 0; }
+.squad-roster li > .squad-identity { flex:1; min-width:150px; }
+.squad-roster small,.squad-blocks small { display:block; color:#aab6ce; margin-top:4px; }
+.squad-member-controls { display:flex; flex-wrap:wrap; gap:8px; }
+.squad-member-controls button { background:#262039; color:#dcc8ff; border:1px solid #5d4a7c; border-radius:8px; padding:10px; min-height:44px; cursor:pointer; }
+.squad-voice-title { display:flex; align-items:center; gap:12px; }
+.squad-more { margin:24px auto; display:flex; }
+@media(max-width:800px) { .squad-grid { grid-template-columns:1fr; } .squad-form-grid { grid-template-columns:1fr; gap:4px; } .squad-card-art { padding:20px; flex-wrap:wrap; } .squad-card-body { padding:20px; } .squad-hero > svg { display:none; } .squad-tabs button { padding:10px 12px; font-size:.8rem; } .squad-roster li { gap:10px; } }

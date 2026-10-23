@@ -59,6 +59,7 @@ export async function issueVoiceToken(
   });
   return {
     token: await token.toJwt(),
+    destination: admission.destination ?? "/voice",
     serverUrl: c.url,
     ticket: admission.ticket,
   };

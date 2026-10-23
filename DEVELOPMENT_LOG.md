@@ -1,5 +1,12 @@
 # Development log
 
+## 2026-10-23 — Distinguish received voice request origins
+
+- Extended rejected voice request diagnostics to show the browser's canonical HTTP origin, or an explicit missing/opaque/invalid classification. Only bounded, canonical HTTP origins can appear; raw headers, credentials, paths and queries are never echoed. This addresses repeated configuration troubleshooting without inferring an unobserved live header or relaxing CSRF protection.
+- Added coverage for missing/opaque origins and malicious credential/path/query values, preserving rejection before authentication, admission or provider access. Hosted voice joining remains unverified pending the updated error from the running deployment.
+
+- Validation: lint, all 128 unit/server/component tests, typecheck and production build passed.
+
 ## 2026-10-23 — Safe voice worker failure diagnostics
 
 - Replaced the generic enforcement failure log with an explicit Supabase snapshot/heartbeat or LiveKit operation stage, allowlisted error code/status, and configuration guidance. Provider error text, credentials, URLs, room names and member identities are never logged. A recovery message now confirms a complete successful enforcement pass.

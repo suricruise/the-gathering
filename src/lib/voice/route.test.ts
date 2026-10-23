@@ -37,12 +37,12 @@ const id = "a4000000-0000-4000-8000-000000000001";
 const request = (
   operation: string,
   body: unknown,
-  origin = "https://app.example.test",
+  origin: string | null = "https://app.example.test",
 ) =>
   POST(
     new Request(`https://app.example.test/api/voice/${operation}`, {
       method: "POST",
-      headers: { origin },
+      headers: origin === null ? {} : { origin },
       body: JSON.stringify(body),
     }),
     { params: Promise.resolve({ operation }) },
@@ -65,7 +65,7 @@ it("rejects cross-origin and oversized requests before authentication", async ()
   expect(rejected.status).toBe(403);
   const message = (await rejected.json()).error;
   expect(message).toContain("This deployment expects https://app.example.test");
-  expect(message).not.toContain("evil.invalid");
+  expect(message).toContain("Browser sent: https://evil.invalid.");
   expect(
     (await request("token", { channel: id, padding: "x".repeat(1500) })).status,
   ).toBe(400);
@@ -162,4 +162,19 @@ it("committed HTTP budget rejection stops even denied-attempt amplification", as
   expect((await request("token", { channel: id })).status).toBe(429);
   expect(mocks.rpc).not.toHaveBeenCalled();
   expect(mocks.createRoom).not.toHaveBeenCalled();
+});
+
+it.each([
+  [null, "missing"],
+  ["null", "opaque/null"],
+  ["https://user:private-secret@evil.invalid/private?token=private-secret", "invalid"],
+  ["https://evil.invalid/private-secret", "invalid"],
+])("diagnoses origin %s without accepting it or reflecting secrets", async (origin, label) => {
+  const response = await request("token", {channel:id}, origin);
+  expect(response.status).toBe(403);
+  const body = await response.json();
+  expect(body.error).toContain(`Browser sent: ${label}.`);
+  expect(body.error).not.toContain("private-secret");
+  expect(mocks.getUser).not.toHaveBeenCalled();
+  expect(mocks.rpc).not.toHaveBeenCalled();
 });

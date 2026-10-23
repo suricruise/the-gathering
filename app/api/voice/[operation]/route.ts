@@ -14,6 +14,20 @@ import {
   removeVoiceParticipant,
   isMissingRoom,
 } from "@/src/lib/voice/server";
+// Only report a bounded, canonical HTTP origin; never reflect raw headers,
+// URL credentials, paths or queries into diagnostic messages.
+function originLabel(value: string | null) {
+  if (value === null) return "missing";
+  if (value === "null") return "opaque/null";
+  if (value.length <= 256) {
+    try {
+      const url = new URL(value);
+      if (["https:", "http:"].includes(url.protocol) && url.origin === value)
+        return url.origin;
+    } catch { /* Invalid values are described without echoing their contents. */ }
+  }
+  return "invalid";
+}
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export async function POST(
@@ -27,9 +41,10 @@ export async function POST(
     });
   try {
     const expectedOrigin = appOrigin();
-    if (request.headers.get("origin") !== expectedOrigin)
+    const receivedOrigin = request.headers.get("origin");
+    if (receivedOrigin !== expectedOrigin)
       return reply(403, {
-        error: `Voice request rejected. This deployment expects ${expectedOrigin}. Open that website, or correct APP_URL in Vercel and redeploy Production.`,
+        error: `Voice request rejected. This deployment expects ${expectedOrigin}. Browser sent: ${originLabel(receivedOrigin)}. Open the expected website in a regular browser tab and sign in again; if the addresses differ, check APP_URL and the deployment you are visiting.`,
       });
     // Bound the actual body, including chunked requests, before JSON parsing.
     const reader = request.body?.getReader();

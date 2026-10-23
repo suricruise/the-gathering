@@ -1,5 +1,15 @@
 # Development log
 
+## 2026-10-23 — Custom community header uploads
+
+Added a header image uploader under each community's settings for active community owners and administrators. Supports replacing and removing custom images; headers display on community pages and Discover cards, with the existing chosen cover artwork as fallback. Input accepts JPEG, PNG and static WebP up to 3 MB; server decoding enforces a 20-megapixel cap, corrects orientation, strips metadata and produces a bounded WebP image. Pending, validation, permission and network errors remain visible and controls work on desktop/mobile.
+
+Migration `202611010001_community_headers.sql` creates RLS-protected header metadata, a private `community-headers` bucket, authenticated/audited permission-checked mutations and service-only orphan cleanup. Writes use the shared administration transaction lock and recheck current verified membership and administrator rank. Direct browser Storage reads/writes are denied; image streaming performs live authenticated RLS reads and uses private/no-store responses. Registered objects must match server-uploaded provenance, MIME, size and recent creation time. Rate limits cover checks, saves and removal. Daily maintenance removes abandoned/replaced/deleted-community objects older than one hour while excluding current headers. Operational health now checks all four media buckets. Community-owned assets survive ownership transfer and former-owner account deletion.
+
+Added an exact pending-only installer, with safe recorded reruns and ambiguous-state refusal, plus [setup/use/cleanup instructions](docs/COMMUNITY_HEADERS.md). Only the isolated local database was changed; production installation and publication/deployment remain pending confirmation.
+
+Validation: lint, typecheck, production build and client-secret bundle scan pass; all 215 unit/server/component tests pass. Twelve new PostgreSQL security/cleanup/rate-limit checks pass, as do 32 existing community checks and nine launch checks. Three installer scenarios pass and roll back. All six desktop/mobile community regression/browser scenarios pass; the final two header scenarios also verify Discover card persistence, authenticated image streaming, anonymous/cross-origin rejection, invalid bytes and removal fallback. No hosted database or live deployment was modified.
+
 ## 2026-10-23 — Phase 12: production readiness release candidate
 
 Completed repository/security/operations review and prepared a release candidate. Removed obsolete demo screens, sample content and the permissive catch-all route; real unknown routes now return HTTP 404. Protected account deletion with a verified-user preflight and a database Auth deletion trigger requiring community/platform ownership transfer. Added administrative member cursors, 53 missing foreign-key indexes, a root-message pagination index validated with a 5,000-message query plan, and protected operational freshness functions.

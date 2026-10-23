@@ -117,3 +117,7 @@ The composer stages up to four validated private photos/GIFs/files, preserves an
 ### Phase 12 — release preparation
 
 Removed development-only fallback screens and fabricated content. Unknown routes use the real 404 boundary. Home uses the device date; account deletion explains transfer/retention requirements. Added public review drafts at `/terms`, `/privacy`, `/community-rules`, public liveness `/api/health` and secret-authorized dependency health `/api/ops/health`. Administrative members now support sequence cursor pages.
+
+## Custom community headers
+
+Community settings now include owner/administrator header upload, replacement and removal. Uploaded headers appear in the community hero and Discover cards. See [header images](COMMUNITY_HEADERS.md) for requirements and deployment.

@@ -1,0 +1,38 @@
+import { test, expect } from "./helpers";
+import pg from "pg";
+import sharp from "sharp";
+import { readFileSync } from "node:fs";
+import { randomUUID } from "node:crypto";
+test("community owners upload and remove private headers without exposing them", async ({ memberPage: page, member, browser }) => {
+  const db = new pg.Client({ connectionString: readFileSync(".local-stack/database-url", "utf8").trim() });
+  await db.connect(); const id = randomUUID(), slug = "header-"+id.slice(0,8);
+  const other = await browser.newContext();
+  try {
+    await db.query("insert into public.communities(id,slug,name,visibility) values($1,$2,'Custom header test','private')", [id,slug]);
+    await db.query("insert into public.community_members(community_id,user_id,role_id) values($1,$2,'owner')", [id,member.id]);
+    await page.goto(`/communities/${slug}`);
+    await expect(page.getByRole("heading", { name: "Community header image" })).toBeVisible();
+    const image = await sharp({ create: { width: 2000, height: 800, channels: 3, background: "#32246f" } }).png().toBuffer();
+    await page.getByLabel("Header image", { exact: true }).setInputFiles({ name: "header.png", mimeType: "image/png", buffer: image });
+    await page.getByRole("button", { name: "Upload header image" }).click();
+    await expect(page.getByText("Community header updated.", { exact: true })).toBeVisible();
+    const header = page.getByRole("img", { name: "Custom header test community header" });
+    await expect(header).toHaveCSS("background-image", /api\/communities/);
+    await page.goto("/communities");
+    await expect(page.locator("article").filter({ has: page.getByRole("heading", { name: "Custom header test" }) }).locator(".community-cover")).toHaveCSS("background-image", /api\/communities/);
+    await page.goto(`/communities/${slug}`);
+    const response = await page.request.get(`/api/communities/${id}/header`);
+    expect(response.status()).toBe(200); expect(response.headers()["content-type"]).toBe("image/webp");
+    expect(response.headers()["cache-control"]).toContain("no-store");
+    expect((await other.request.get(`http://127.0.0.1:4173/api/communities/${id}/header`)).status()).toBe(404);
+    expect((await page.request.post(`/api/communities/${id}/header`, { headers: { Origin: "https://untrusted.invalid" } })).status()).toBe(403);
+    await page.getByLabel("Header image", { exact: true }).setInputFiles({ name: "fake.png", mimeType: "image/png", buffer: Buffer.from("<svg/>") });
+    await page.getByRole("button", { name: "Upload header image" }).click();
+    await expect(page.getByRole("alert").filter({ hasText: "could not be read" })).toBeVisible();
+    await page.reload(); await expect(header).toHaveCSS("background-image", /api\/communities/);
+    await page.getByRole("button", { name: "Remove header image" }).click();
+    await expect(page.getByText("Custom header removed.", { exact: true })).toBeVisible();
+    await expect(header).toHaveCSS("background-image", /covers\//);
+    expect((await page.request.get(`/api/communities/${id}/header`)).status()).toBe(404);
+  } finally { await other.close(); await db.query("delete from public.communities where id=$1",[id]); await db.end(); }
+});

@@ -7,6 +7,7 @@ export type Community = {
   description: string;
   visibility: "public" | "discoverable" | "private";
   cover: string;
+  community_headers?: { version: string } | null;
 };
 export type Channel = {
   id: string;
@@ -52,9 +53,10 @@ export async function communityIndex() {
   const [list, approval, memberships] = await Promise.all([
     client
       .from("communities")
-      .select("id,slug,name,description,visibility,cover")
+      .select("id,slug,name,description,visibility,cover,community_headers(version)")
       .order("name")
-      .limit(200),
+      .limit(200)
+      .returns<Community[]>(),
     client.rpc("can_create_community"),
     client
       .from("community_members")
@@ -76,9 +78,9 @@ export async function communityDetail(slug: string) {
   const { client, user } = await requireUser("/communities");
   const { data, error } = await client
     .from("communities")
-    .select("id,slug,name,description,visibility,cover")
+    .select("id,slug,name,description,visibility,cover,community_headers(version)")
     .eq("slug", slug)
-    .maybeSingle();
+    .maybeSingle<Community>();
   if (error) throw new Error("Community services are unavailable.");
   if (!data) return null;
   const c = data as Community;

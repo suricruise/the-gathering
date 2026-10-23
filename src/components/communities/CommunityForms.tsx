@@ -123,8 +123,7 @@ export function CommunityFields({ community }: { community?: Community }) {
         </select>
       </label>
       <p className="muted">
-        Choose original cover artwork. Community image uploads are not
-        connected.
+        Choose fallback artwork. After creating the community, upload a custom header in Community controls.
       </p>
     </>
   );

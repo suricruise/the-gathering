@@ -50,7 +50,10 @@
     "test:launch": "node scripts/test-launch.mjs",
     "test:security": "node scripts/security-audit.mjs",
     "test:recovery": "node scripts/test-recovery.mjs",
-    "test:launch:setup": "node scripts/test-launch-setup.mjs"
+    "test:launch:setup": "node scripts/test-launch-setup.mjs",
+    "community:cleanup": "node scripts/cleanup-community-headers.mjs",
+    "test:community:headers": "node scripts/test-community-headers.mjs",
+    "test:community:headers:setup": "node scripts/test-community-headers-setup.mjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",

@@ -74,7 +74,7 @@ export function Directory({
             <article className="panel live-community-card" key={c.id}>
               <div
                 className="community-cover"
-                style={{ backgroundImage: `url(/covers/${c.cover}.svg)` }}
+                style={{ backgroundImage: c.community_headers ? `url(/api/communities/${c.id}/header?v=${c.community_headers.version})` : `url(/covers/${c.cover}.svg)` }}
               />
               <div className="padded">
                 <span className="pill muted-pill">

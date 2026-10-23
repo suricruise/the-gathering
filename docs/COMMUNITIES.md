@@ -102,3 +102,7 @@ npm run test:bundle
 ```
 
 Use only the local environment for integration/browser checks. If secure hosted variables are injected into the shell, unset the four application variables for those commands so the ignored local file can load; never copy hosted values to local files. SQL authorization tests run inside a rolled-back local transaction. Browser tests create isolated real local identities/communities and clean them up.
+
+## Custom header images
+
+See [community header images](COMMUNITY_HEADERS.md) for upload controls, private storage, installation and cleanup.

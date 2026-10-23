@@ -1,3 +1,4 @@
+import { CommunityHeaderUpload } from "./CommunityHeaderUpload";
 import Link from "next/link";
 import { Hash, Headphones, Lock, Users } from "lucide-react";
 import { PageHeading, EmptyState } from "../ui";
@@ -30,9 +31,9 @@ export function CommunityView({ data }: { data: CommunityDetailData }) {
       </Link>
       <div
         role="img"
-        aria-label={`${c.cover} landscape cover`}
+        aria-label={`${c.name} community header`}
         className="community-cover community-cover-large"
-        style={{ backgroundImage: `url(/covers/${c.cover}.svg)` }}
+        style={{ backgroundImage: c.community_headers ? `url(/api/communities/${c.id}/header?v=${c.community_headers.version})` : `url(/covers/${c.cover}.svg)` }}
       />
       <PageHeading
         eyebrow={`${c.visibility.toUpperCase()} COMMUNITY`}
@@ -281,6 +282,7 @@ export function CommunityView({ data }: { data: CommunityDetailData }) {
           {admin && (
             <section className="panel padded community-section">
               <h2>Community settings</h2>
+              <CommunityHeaderUpload communityId={c.id} hasImage={!!c.community_headers} />
               <details>
                 <summary>Edit community</summary>
                 <CommandForm communityId={c.id} operation="settings">

@@ -84,6 +84,13 @@ test("navigation, disconnected services, and keyboard skip link", async ({
   ).toBeFocused();
   await page.keyboard.press("Enter");
   await expect(page.locator("#main-content")).toBeFocused();
+  await page.goto("/communities/the-gathering");
+  await page
+    .getByRole("button", { name: "Join community", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Leave community", exact: true }),
+  ).toBeVisible();
   if (info.project.name === "mobile") {
     await page
       .getByRole("button", { name: "Open navigation", exact: true })
@@ -93,11 +100,15 @@ test("navigation, disconnected services, and keyboard skip link", async ({
       .getByRole("link", { name: "Text channels" })
       .click();
     await page
+      .getByRole("navigation", { name: "Community channels", exact: true })
+      .getByRole("link", { name: "general", exact: true })
+      .click();
+    await page
       .getByRole("button", { name: "Open channels", exact: true })
       .click();
     await page
       .getByRole("dialog", { name: "Channels", exact: true })
-      .getByRole("link", { name: "introductions" })
+      .getByRole("link", { name: /introductions/ })
       .click();
   } else {
     await page
@@ -106,11 +117,11 @@ test("navigation, disconnected services, and keyboard skip link", async ({
       .click();
     await page
       .getByRole("navigation", { name: "Community channels", exact: true })
-      .getByRole("link", { name: "introductions" })
+      .getByRole("link", { name: /introductions/ })
       .click();
   }
   await expect(
-    page.getByRole("heading", { name: "introductions", exact: true }),
+    page.getByRole("heading", { name: "# introductions", exact: true }),
   ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Send message unavailable" }),

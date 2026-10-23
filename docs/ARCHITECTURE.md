@@ -4,7 +4,7 @@
 
 Next.js 16 App Router and React 19 replace the Phase 2 Vite application runtime. Vite remains only as Vitest’s unit-test transformer. Next’s `proxy.ts` refreshes Supabase cookies using `@supabase/ssr` and verified claims; protected layouts/pages and every mutation independently authorize with `auth.getUser()`. Authentication is not delegated to a client router or a proxy-only gate.
 
-The original Phase 2 repository began empty, without a blueprint or roadmap. The Phase 3 implementation follows the explicit authentication/profile request. `next dev` generated the framework’s `AGENTS.md`; it is preserved, and the bundled current Next.js guides were consulted.
+The original Phase 2 repository began empty, without a blueprint or roadmap. Phase 3 implemented authentication/profiles; Phase 4 follows the explicit communities and membership request. `next dev` generated the framework’s `AGENTS.md`; it is preserved, and the bundled current Next.js guides were consulted.
 
 ## Source map
 
@@ -15,7 +15,10 @@ The original Phase 2 repository began empty, without a blueprint or roadmap. The
 - `app/auth/callback/route.ts`: PKCE code exchange and allowlisted internal redirects.
 - `app/onboarding`: verified-user, three-step identity/games/interests setup.
 - `app/(members)/layout.tsx`: verified identity, own profile loading, and responsive shell.
-- `app/(members)/[...path]/page.tsx`: onboarding completion gate and retained community screens.
+- `app/(members)/[...path]/page.tsx`: onboarding completion gate for retained preview screens.
+- `app/(members)/home`, `communities`, `channels`: server-loaded community discovery, details, invitations, and authorized channel workspaces.
+- `src/lib/communities`: typed data projections, strict server form validation, authenticated transactional commands.
+- `src/components/communities`: real directory, host/member management, accessible command feedback, and native mobile channel dialog.
 - `app/(members)/profile` and `settings`: real profile and account workflows; no demo persistence.
 - `app/people/[username]`: opt-in, minimal profile projection. No public user directory.
 - `app/api/avatars/[id]`: per-request visibility-authorized media streaming; no public bucket URLs.
@@ -41,8 +44,12 @@ Profile saves update profile, interests, favorite games, and platforms atomicall
 
 ## Retained service boundaries
 
-The community dashboard, chat/voice, demo online friends, feeds, squads, events, and admin shell remain development fixtures. Authentication does not make those services live. Chat/voice controls remain unavailable, and the application never claims to send messages or establish a voice connection. No client-editable admin role was added; the admin shell grants no operational permissions.
+Community discovery, membership, roles, categories, channel definitions/permissions, invitations, and audit are now persisted. Home community cards use accessible database rows. Chat/voice, demo online friends, feeds, squads, events, and the platform admin shell remain development fixtures. Chat/voice controls remain unavailable, and the application never claims to send messages or establish a voice connection. No client-editable admin role was added; the admin shell grants no operational permissions.
 
 ## Deployment
 
 Build with `npm run build`, run with `npm run preview`/`next start`, and supply secure configuration before public launch. Server actions require a Next runtime. Authenticated content, RSC payloads, callbacks, and avatars must never be cached publicly. Publishing the cloud filesystem/configuration does not apply hosted SQL migrations or configure Supabase SMTP and redirect policies. See `docs/SUPABASE.md` for the exact external requirements.
+
+## Community authorization
+
+All community reads/writes use the authenticated SSR client. Community RLS hides private communities from outsiders and channels from nonmembers or members without view permission. Direct writes are denied; the session-derived `community_command` RPC checks live adult verification, locks the community, validates role hierarchy and scoped references, and records changes. A trigger separately audits membership/role/status mutations. Approval lives in an operator-only private table; the public admin preview cannot grant it. Invitations store only random-token digests, expire, and are single-use under the same community lock. Composite foreign keys prevent cross-community category/override assignments. See `COMMUNITIES.md` for the full permission matrix, privacy projection, limits, deployment, and initial-owner procedure.

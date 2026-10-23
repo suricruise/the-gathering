@@ -17,7 +17,9 @@
     "test:integration": "node scripts/test-supabase.mjs",
     "db:test-stack": "node scripts/test-stack.mjs",
     "test:gateway": "node scripts/test-gateway.mjs",
-    "test:bundle": "node scripts/check-client-secrets.mjs"
+    "test:bundle": "node scripts/check-client-secrets.mjs",
+    "db:seed:communities": "node scripts/seed-communities.mjs",
+    "test:communities": "node scripts/test-communities.mjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",

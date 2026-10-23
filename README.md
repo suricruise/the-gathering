@@ -1,6 +1,6 @@
 # The Gathering
 
-A premium dark gaming community interface with real Supabase email authentication and gamer profiles. Phase 3 uses Next.js 16 App Router, React 19, TypeScript, and the current `@supabase/ssr` integration. The Phase 2 responsive community screens remain intact behind authenticated routes. Chat, voice, feeds, squads, events, and administrative services still use explicitly labeled preview content and do not simulate successful connections.
+A premium dark gaming community interface with real Supabase authentication, gamer profiles, communities, memberships, invitations, and channel permissions. Phase 4 uses Next.js 16 App Router, React 19, TypeScript, and the current `@supabase/ssr` integration. The responsive interface remains behind authenticated routes. Chat, voice, feeds, squads, events, and administrative services still use explicitly labeled preview content and do not simulate successful connections.
 
 ## Develop
 
@@ -17,6 +17,7 @@ For the tested local integration stack:
 
 ```sh
 npm run db:test-stack
+npm run db:seed:communities
 npm run test:gateway
 # In another terminal:
 npm run dev
@@ -31,6 +32,7 @@ npm run lint
 npm run typecheck
 npm test
 npm run test:db
+npm run test:communities
 npm run test:integration
 npm run test:e2e
 npm run build
@@ -40,6 +42,10 @@ npm run test:bundle
 Real integration tests require the local services and gateway. Browser tests use installed `/usr/bin/chromium`, `PLAYWRIGHT_CHROMIUM_EXECUTABLE`, or a Playwright-installed Chromium. They run desktop/mobile flows and automated axe WCAG A/AA checks. `test:bundle` confirms the configured server secret is absent from client build artifacts.
 
 Run `npm run preview` after a production build. Hosting now requires a **Next.js server/runtime**, not the previous Vite static `dist/` or SPA fallback. `APP_URL` must match the deployed HTTPS origin. Next’s bundled agent guidance is preserved in `AGENTS.md`.
+
+## Communities
+
+Discover and join public communities, accept invitations, manage roles and channels, and control private-channel access with server authorization and RLS. Community creation requires operator approval. See the [community setup and permission guide](docs/COMMUNITIES.md) for the Phase 4 migration, idempotent development seed, first-owner provisioning, role matrix, and operational limits. Text/voice channel definitions are real; message delivery and voice transport remain disconnected.
 
 ## Account flows
 

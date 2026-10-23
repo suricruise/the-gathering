@@ -19,7 +19,7 @@ The normal app uses authenticated, RLS-constrained clients. The server-only priv
 
 ### Apply migrations
 
-For a **fresh hosted project**, open [supabase/initial-setup.sql](../supabase/initial-setup.sql), copy the entire file into Dashboard → SQL Editor → New query, and click **Run** as the project owner. It applies all four migrations in one transaction and records their versions for future CLI updates. It refuses to run when application tables already exist; for an existing installation, apply only pending migrations. Do not rerun the initial setup over an installed app.
+For a **fresh hosted project**, open [supabase/initial-setup.sql](../supabase/initial-setup.sql), copy the entire file into Dashboard → SQL Editor → New query, and click **Run** as the project owner. It applies the four Phase 3 baseline migrations in one transaction and records their versions for future CLI updates. It refuses to run when application tables already exist; for an existing installation, apply only pending migrations. Do not rerun the initial setup over an installed app. Apply the Phase 4 migration below afterward.
 
 Missing migrations prevent authentication: the app requires `consume_auth_rate_limit` before calling Supabase Auth. A real exhausted budget produces “Please wait”; an unavailable function/service produces an authentication-unavailable response and a server log containing only a diagnostic code. Never bypass the limiter to work around missing setup.
 
@@ -29,6 +29,7 @@ Alternatively, use the Supabase CLI with an authorized database connection, or r
 2. `supabase/migrations/202610220002_avatars.sql`
 3. `supabase/migrations/202610220003_active_member_visibility.sql`
 4. `supabase/migrations/202610220004_avatar_policy_boundary.sql`
+5. `supabase/migrations/202610230001_communities.sql` — Phase 4 communities/channel permissions; see [COMMUNITIES.md](COMMUNITIES.md) for host approval and initial ownership.
 
 For a linked project, the standard CLI workflow is `supabase link --project-ref <your-project-ref>` followed by `supabase db push`. Use secure CLI authentication/database settings; do not paste credentials into command history or chat. A publishable key or service API key alone does not provide PostgreSQL migration access. The migrations are forward-only and must not be edited once applied.
 

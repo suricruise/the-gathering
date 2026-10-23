@@ -1,5 +1,26 @@
 # Development log
 
+## 2026-10-23 — Phase 4: communities, channels, and membership
+
+### Delivered
+
+- Replaced actual discovery/community/channel routes with authenticated Supabase data, real public joining/leaving, invitation-only discoverable/private communities, descriptions, and four bundled original cover images. Home community cards use accessible database rows; sample feed/events/online activity remain explicitly labeled.
+- Added a versioned migration for communities, immutable role definitions, membership/status, channel categories/order, text/voice definitions, scoped role/user permission overrides, hashed invitations, operator-only creation approvals, and append-only security activity. All eight exposed community tables and the private approval table enable RLS. Direct ordinary writes are revoked.
+- Implemented session-derived, transactional server/database commands. Community locks serialize membership/role/permission/invitation changes; live verified adult checks reject stale banned/unverified identities. Private channel metadata and access require membership and a grant, with deny precedence and documented owner/admin access. Composite foreign keys prevent cross-community assignments.
+- Built approved-host creation, community/category/channel settings, ordering, invitation issue/revoke/accept, roster projections, role assignment, ownership transfer, kick/ban/unban, and staff security activity. Moderators cannot manage peers/superiors or escalate roles; administrators cannot appoint peers or owners. Membership changes are independently audited by a database trigger. Invitations always grant member, expire after seven days, are single-use, and expose no stored token digest to staff.
+- Added an opt-in, loopback-only idempotent development seed for The Gathering and three interest-based communities, initial gaming text/voice channels, categories, and explicit moderator access to seeded staff channels. Repeated seeding preserves existing settings/members/overrides; no sample identities, counts, connections, or automatic host approvals are fabricated.
+- Kept real authentication/profile/account flows and the responsive shell. New channel workspaces retain disconnected send/voice controls; mobile channels use a keyboard-accessible native modal drawer. Added pending/error/empty/unavailable feedback and generic missing/private responses.
+- Documented migration order, SQL Editor installation, host approval, first-owner bootstrap/recovery, visibility/role matrices, roster privacy, operational limits, seed/testing, and completed screens in `docs/COMMUNITIES.md`, Supabase/screen/architecture guides, and README. The repository still has no `PROJECT_BLUEPRINT.md` or `ROADMAP.md`; existing guidance and development log were read.
+
+### Validation
+
+- 82 unit/server/component tests passed, including all previous tests plus strict command validation, authenticated actor isolation, failed-operation feedback, unpredictable invitation links, and a form-reset regression.
+- 21 existing database access-control tests, 32 new community authorization checks, and 13 existing real Supabase API integration tests passed. New coverage includes private-channel isolation/grants/denials, privilege escalation, direct-write denial, cross-community references, bans, invitation reuse/expiry/revocation/hash protection, ownership transfer, audit tampering, live identity checks, and account deletion. SQL checks roll back their local test data.
+- New migration applied to real local PostgreSQL/Auth/Storage services; repeat startup/checksum verification passed. Development seed ran twice successfully, including legacy central-channel links.
+- Lint, typecheck, production build, and client-bundle secret scan passed. All 50 real browser tests passed at desktop/mobile sizes, including the 46 retained tests and four new community flows. New channel/member/management screens passed automated axe checks, overflow checks, and browser-error assertions; desktop/mobile management screenshots were visually inspected.
+- Browser review found and fixed a missing heading in the nonmember channel state and a control named `reset` shadowing the native form reset method. The affected host flows passed after correction at both desktop/mobile sizes.
+- Hosted database changes require the project operator's SQL Editor or an authorized database connection; no hosted SQL or accounts were changed by this phase. Apply `202610230001_communities.sql` after the Phase 3 baseline before using the connected features on Vercel.
+
 ## 2026-10-23 — Hosted signup setup and error handling
 
 - Read-only hosted checks confirmed email signup is enabled, while the application tables and auth-limiter RPC are absent from the exposed API schema. Registration stops before account creation; a missing RPC previously appeared as an exhausted rate budget. No hosted accounts or database records were modified.

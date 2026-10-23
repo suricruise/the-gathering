@@ -13,17 +13,20 @@ import {
 } from "lucide-react";
 import { Link } from "../compat/navigation";
 import { useMember } from "../components/MemberContext";
-import { communities, events } from "../data";
+import { events } from "../data";
 import {
   Brand,
-  CommunityCard,
   DemoNotice,
   EventCard,
   FeedPost,
   SectionHeading,
 } from "../components/ui";
 
-export function Home() {
+export function Home({
+  featured = [],
+}: {
+  featured?: import("../lib/communities/data").Community[];
+}) {
   const member = useMember();
   return (
     <div className="page home-page">
@@ -121,8 +124,25 @@ export function Home() {
           Different games. Shared values. A place to belong.
         </p>
         <div className="community-grid home-communities">
-          {communities.slice(0, 3).map((community) => (
-            <CommunityCard key={community.id} community={community} />
+          {featured.slice(0, 3).map((community) => (
+            <article className="panel live-community-card" key={community.id}>
+              <div
+                className="community-cover"
+                style={{
+                  backgroundImage: `url(/covers/${community.cover}.svg)`,
+                }}
+              />
+              <div className="padded">
+                <h3>{community.name}</h3>
+                <p className="body-copy">{community.description}</p>
+                <Link
+                  className="button secondary"
+                  to={`/communities/${community.slug}`}
+                >
+                  Explore community
+                </Link>
+              </div>
+            </article>
           ))}
         </div>
       </section>

@@ -82,8 +82,8 @@ export function DemoNotice({ compact = false }: { compact?: boolean }) {
       <span className="demo-tag">DEMO</span>
       <span>
         {compact
-          ? "Community content preview · Sample people and activity"
-          : "Community content is sample data. Accounts and gamer profiles use Supabase; chat and voice services are not connected."}
+          ? "Sample feed, events, and online activity"
+          : "Accounts, gamer profiles, and community memberships use Supabase. Feed, events, and online activity are sample data; chat and voice services are not connected."}
       </span>
     </div>
   );

@@ -53,3 +53,19 @@ All member workspace routes now require a verified Supabase user; community rout
 | Visible member profile | `/people/:username`               | Minimal public/member/owner projection, private-avatar streaming, generic unavailable state                                    |
 
 The dashboard and sidebar use the current member’s name, handle, and avatar. Selection controls have stable accessible names, step buttons avoid premature native submission, and typed profile values are preserved during server validation feedback. No credential values are rendered in page content. Exact Supabase requirements and security limits are documented in `SUPABASE.md`.
+
+## Phase 4 community screens
+
+The Phase 2 community/channel previews are superseded on their real routes:
+
+| Route | Connected behavior |
+| --- | --- |
+| `/home` | Real accessible community cards; sample feed/events remain labeled |
+| `/communities` | Database-backed discovery, text search, joined filter, approved-host creation, empty/unavailable states |
+| `/communities/:slug` | Cover artwork and descriptions, join/leave, ordered categories/text/voice definitions, explicit roster |
+| `/communities/:slug` host settings | Community settings, category/channel editing and ordering, individual/role overrides, role changes, ownership transfer, member moderation, invitation issue/revoke, security activity |
+| `/communities/invites/:token` | Verified single-use invitation acceptance; private details stay hidden until joining |
+| `/channels` | Central Gathering community entry |
+| `/channels/:uuid` | RLS-constrained channel definition, desktop navigation/mobile modal drawer, disconnected text composer or voice control |
+
+Legacy `/channels/general` and other channel-name links resolve only through an accessible channel in The Gathering; nonmembers see a join-community prompt. Private UUID routes return the same not-found state as missing channels. Covers are four bundled original SVG landscapes. There are no simulated messages, voice connections, membership counts, or member activity on connected community pages. See [COMMUNITIES.md](COMMUNITIES.md) for visibility and role semantics.

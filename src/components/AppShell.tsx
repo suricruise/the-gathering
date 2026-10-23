@@ -242,7 +242,7 @@ function FriendsSidebar() {
           Grounded in something greater.
         </p>
       </div>
-      <span className="rail-version">THE GATHERING · V0.2 PREVIEW</span>
+      <span className="rail-version">THE GATHERING · DEVELOPMENT</span>
     </aside>
   );
 }

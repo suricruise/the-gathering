@@ -26,6 +26,9 @@ test("community owners upload and remove private headers without exposing them",
     expect(response.headers()["cache-control"]).toContain("no-store");
     expect((await other.request.get(`http://127.0.0.1:4173/api/communities/${id}/header`)).status()).toBe(404);
     expect((await page.request.post(`/api/communities/${id}/header`, { headers: { Origin: "https://untrusted.invalid" } })).status()).toBe(403);
+    await page.getByLabel("Header image", { exact: true }).setInputFiles({ name: "oversized.png", mimeType: "image/png", buffer: Buffer.alloc(4*1024*1024) });
+    await page.getByRole("button", { name: "Upload header image" }).click();
+    await expect(page.getByRole("alert").filter({ hasText: "3 MB" })).toBeVisible();
     await page.getByLabel("Header image", { exact: true }).setInputFiles({ name: "fake.png", mimeType: "image/png", buffer: Buffer.from("<svg/>") });
     await page.getByRole("button", { name: "Upload header image" }).click();
     await expect(page.getByRole("alert").filter({ hasText: "could not be read" })).toBeVisible();

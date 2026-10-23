@@ -10,11 +10,18 @@ export function CommunityHeaderUpload({ communityId, hasImage }: { communityId: 
   async function save(event?: FormEvent<HTMLFormElement>) {
     event?.preventDefault();
     if (pending) return;
+    const form = event ? new FormData(event.currentTarget) : undefined;
+    const file = form?.get("file");
+    if (file instanceof File && file.size > 3 * 1024 * 1024) {
+      setError("Choose an image up to 3 MB. Resize or compress this image and try again.");
+      setNotice("");
+      return;
+    }
     setPending(true); setError(""); setNotice("");
     try {
       const response = await fetch(`/api/communities/${communityId}/header`, {
         method: event ? "POST" : "DELETE",
-        ...(event ? { body: new FormData(event.currentTarget) } : {}),
+        ...(form ? { body: form } : {}),
       });
       const result = await response.json();
       if (!response.ok) { setError(result.error || "Header could not be saved."); return; }

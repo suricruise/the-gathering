@@ -31,3 +31,9 @@ Run `npm run community:cleanup -- --hosted` on the private daily maintenance wor
 - The operational dependency health check now verifies all four private media buckets.
 
 Verification results are recorded in `DEVELOPMENT_LOG.md`. Local tests do not certify a production migration or deployment.
+
+## Upload troubleshooting
+
+Use the canonical production website and a JPEG, PNG or static WebP image up to 3 MB. Oversized files are rejected before upload, with the same validation enforced on the server. A missing database update, missing server configuration and unavailable Storage now produce distinct errors. Unexpected failures report a safe stage; restricted server logs contain only that stage and allowlisted provider code/status, never uploaded contents or credentials. A failed old-image cleanup does not report an already committed header change as failed; scheduled cleanup handles it.
+
+If an upload still fails, record the exact displayed message/stage and check the matching `[community-header]` entry in Vercel runtime logs. Do not paste secret values or raw provider responses into support conversations.

@@ -1,5 +1,13 @@
 # Development log
 
+## 2026-10-23 — Diagnose community header upload failures
+
+Investigated the reported generic "Header services are unavailable" response during upload. Reproduced a path where multipart bodies above the 3 MB budget were incorrectly caught as service failures. Added an early client size check and a server 413 validation response for that case. The user's actual file size and hosted failure cause are not confirmed; do not claim that every reported production failure was caused by size.
+
+Missing header RPCs, server storage configuration, Storage upload failures and unexpected stages now have separate safe responses. Restricted diagnostics include only stage and allowlisted provider code/status. Provider messages, filenames, user identifiers, payloads and credentials are never logged by these diagnostics. Failure to delete a replaced image or refresh cached paths no longer turns a committed save/removal into a false failure; private scheduled orphan cleanup remains in place. No database or permission policy change is required.
+
+All 221 unit/server/component tests pass, including oversized multipart parsing, missing migration, missing configuration and committed-removal cleanup failures. Lint, typecheck, production build and client bundle scan pass. Desktop/mobile browser verification additionally checks oversized input rejection before upload. This is a follow-up fix within the approved community-header release; hosted deployment status and the user's root cause remain unverified from the restricted environment.
+
 ## 2026-10-23 — Community header release publication
 
 User approved publication and deployment of the header-image update. Hosted Supabase and Vercel endpoints are inaccessible from this workspace, and no hosted SQL connection or Vercel deployment credentials are available. Production migration execution and deployment completion cannot be verified here. Added an explicit pre-migration fallback: only the missing PostgREST relationship error retries the existing authorized community query; other database/authorization errors remain failures. Settings explain the pending database update instead of showing unusable upload controls. Two additional unit tests cover fallback and non-bypass behavior; all 217 unit tests pass, with lint/typecheck passing. The production build, client bundle and credential/history scans pass, and both desktop/mobile header upload scenarios pass on the final production build. Publication to the production-connected main branch was authorized; the live migration remains an operator step because hosted access is unavailable.

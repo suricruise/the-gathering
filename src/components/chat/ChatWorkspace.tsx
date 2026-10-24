@@ -9,6 +9,7 @@ import {
 import type { Attachment, ChatMessage, ChatPage } from "../../lib/chat/types";
 import { useChannelChat } from "./useChannelChat";
 import { MessageItem } from "./MessageItem";
+import { groupWithPrevious, messageDay, messageDateLabel } from "../../lib/chat/presentation";
 import { reconcileMessages } from "../../lib/chat/reconcile";
 export function ChatWorkspace({
   channelId,
@@ -35,6 +36,8 @@ export function ChatWorkspace({
     publishableKey,
   });
   const { messages: allMessages, merge } = chat;
+  const [localTime, setLocalTime] = useState(false);
+  useEffect(() => setLocalTime(true), []);
   const [draft, setDraft] = useState("");
   const [files, setFiles] = useState<Attachment[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -50,6 +53,7 @@ export function ChatWorkspace({
   const [threadBefore, setThreadBefore] = useState<string | null>(null);
   const [threadOlder, setThreadOlder] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [searchResults, setSearchResults] = useState<ChatMessage[] | null>(
     null,
@@ -306,6 +310,7 @@ export function ChatWorkspace({
           {chat.status === "Live" ? "● Live" : chat.status}
         </span>
         <span>{chat.unread} unread</span>
+        <button className="chat-text-button" aria-expanded={searchOpen} onClick={() => { setSearchOpen(!searchOpen); if (searchOpen) setSearchResults(null); }}>Search channel</button>
         {chat.status !== "Live" && (
           <button className="chat-text-button" onClick={chat.retryConnection}>
             Reconnect
@@ -342,7 +347,7 @@ export function ChatWorkspace({
         </div>
       ) : (
         <>
-          <form
+          {searchOpen && <form
             className="chat-search"
             onSubmit={(e) => {
               e.preventDefault();
@@ -375,7 +380,7 @@ export function ChatWorkspace({
                 Close search
               </button>
             )}
-          </form>
+          </form>}
           {thread && !searchResults && (
             <div className="chat-thread-heading">
               <h2>Thread</h2>
@@ -440,14 +445,17 @@ export function ChatWorkspace({
                 </p>
               </div>
             )}
-            {visible.map((m) => (
+            {visible.map((m, index) => (
               <div key={m.id}>
+                {(index === 0 || messageDay(m.created_at, localTime) !== messageDay(visible[index-1].created_at, localTime)) && <div className="chat-day-divider" role="separator" aria-label={messageDateLabel(m.created_at, localTime)}><span>{messageDateLabel(m.created_at, localTime)}</span></div>}
                 {!searchResults &&
                   m.id === firstUnreadId && (
                     <div className="chat-unread-divider">Unread messages</div>
                   )}
                 <MessageItem
                   message={m}
+                  grouped={!searchResults && m.id !== firstUnreadId && groupWithPrevious(m, visible[index-1], localTime)}
+                  localTime={localTime}
                   userId={userId}
                   canPost={chat.canPost}
                   moderator={moderator}
@@ -495,7 +503,7 @@ export function ChatWorkspace({
                   placeholder={
                     chat.canPost
                       ? `Message #${channelName}`
-                      : "This channel is read-only"
+                      : ["Connecting", "Reconnecting"].includes(chat.status) ? "Connecting to channel…" : "This channel is read-only"
                   }
                   onChange={(e) => {
                     setDraft(e.target.value);

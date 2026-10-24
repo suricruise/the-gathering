@@ -16,15 +16,15 @@ test("simple people rail opens private member profiles for real friendship and r
   await db.query("insert into public.channels(id,community_id,name) values($1,$2,'rail-general')",[channel,community]);
   await page.goto(`/channels/${channel}`);
   if(test.info().project.name==='desktop'){
-   const row=page.getByRole('complementary',{name:'Community activity'}).getByRole('region',{name:'Members',exact:true}).getByRole('link',{name:'Rail Friend',exact:true});
-   await expect(row).toBeVisible();await expect(row).toHaveAttribute('title','Offline');
+   const row=page.getByRole('complementary',{name:'Community members'}).getByRole('link',{name:'Rail Friend',exact:true});
+   await expect(row).toBeVisible();await expect(row).toHaveAttribute('title',/Offline$/);
   }
   await signIn(peerPage,email,password);await peerPage.goto('/messages?tab=privacy');
-  const preference=peerPage.getByRole('checkbox',{name:'Share online status with fellow community members',exact:true});await expect(preference).toBeEnabled();await expect(preference).toBeChecked();await preference.click();await expect(preference).not.toBeChecked();await preference.click();await expect(peerPage.getByText('Community presence saved.')).toBeVisible();
+  const preference=peerPage.getByRole('checkbox',{name:'Share online status with fellow community members',exact:true});await expect(preference).toBeEnabled();await expect(preference).toBeChecked();await preference.click();await expect(preference).not.toBeChecked();await preference.click();await expect(preference).toBeChecked();await expect(peerPage.getByText('Community presence saved.')).toBeVisible();
   await page.goto(`/channels/${channel}`);
   if(test.info().project.name==='desktop'){
-   const rail=page.getByRole('complementary',{name:'Community activity'}),online=rail.getByRole('region',{name:'Members',exact:true});
-   const row=online.getByRole('link',{name:'Rail Friend',exact:true});await expect(row).toBeVisible();await expect(row).toHaveAttribute('title','Online');await expect(row).toHaveText('RRail Friend');await expect(rail.getByRole('button',{name:'Add friend'})).toHaveCount(0);await row.click();
+   const rail=page.getByRole('complementary',{name:'Community members'}),online=rail.getByRole('region',{name:'Online',exact:true});
+   const row=online.getByRole('link',{name:'Rail Friend',exact:true});await expect(row).toBeVisible();await expect(row).toHaveAttribute('title',/Online$/);await expect(row).toHaveText('RRail Friend');await expect(rail.getByRole('button',{name:'Add friend'})).toHaveCount(0);await row.click();
   }else await page.goto(`/members/${peer}`);
   await expect(page.getByRole('heading',{name:'Rail Friend',exact:true})).toBeVisible();await expect(page.getByText('Private biography must stay hidden')).toHaveCount(0);await expect(page.getByText('Profile details are private.',{exact:false})).toBeVisible();
   await page.getByRole('button',{name:'Add friend',exact:true}).click();await expect(page.getByText('Request sent',{exact:true})).toBeVisible();

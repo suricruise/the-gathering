@@ -151,3 +151,7 @@ Profiles and both presence settings now default to public/on; the one-time exist
 ## Home event date badges
 
 Home → On the horizon displays a calendar-style month/day badge at the right of each event row. The event title and full local date/time stay on the left; the entire row still opens the event. Badge and written time use the viewer's time zone, and the badge has an accessible full-date/time label. No database or configuration update is needed.
+
+## Stage 2 community channel workspace
+
+`/channels/[id]` now has a compact preserved community banner, joined-community switcher, ordered collapsible categories, real unread/mention badges, a contained timeline and bottom composer, grouped rows/day separators/local times, and a collapsible grouped member pane. Phone channel/member drawers use native dialogs. Voice remains in the existing persistent provider. See [setup and behavior](CHAT_WORKSPACE.md).

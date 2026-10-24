@@ -5,12 +5,12 @@ import { ChatWorkspace } from "@/src/components/chat/ChatWorkspace";
 import { publicConfig } from "@/src/lib/config";
 import type { ChatPage } from "@/src/lib/chat/types";
 import { z } from "zod";
-import { ChannelNavigation } from "@/src/components/communities/ChannelNavigation";
+import { ChannelWorkspaceLayout } from "@/src/components/chat/ChannelWorkspaceLayout";
+import { workspaceNavigation } from "@/src/lib/chat/workspace";
 import { notFound, redirect } from "next/navigation";
 import { requireUser } from "@/src/lib/auth/session";
 import { EmptyState, PageHeading } from "@/src/components/ui";
 import { communityDetail, type Community } from "@/src/lib/communities/data";
-import { CommunityBanner } from "@/src/components/communities/CommunityBanner";
 export default async function ChannelPage({
   params,
   searchParams,
@@ -64,13 +64,8 @@ export default async function ChannelPage({
   }
   if (communityError) throw new Error("Community services are unavailable.");
   if (!community) notFound();
-  const { data: channels, error: listError } = await client
-    .from("channels")
-    .select("id,name,kind")
-    .eq("community_id", channel.community_id)
-    .order("position")
-    .order("name");
-  if (listError) throw new Error("Channels could not be loaded.");
+  const navigation = await workspaceNavigation(id);
+  if (!navigation.data) throw new Error(navigation.error || "Community navigation unavailable.");
   const history =
     channel.kind === "text"
       ? await client.rpc("chat_page", { p_channel: id })
@@ -99,19 +94,7 @@ export default async function ChannelPage({
   }
   const shared = (await searchParams).message;
   return (
-    <div className="page live-channel">
-      <Link className="back-link" href={`/communities/${community.slug}`}>
-        ← {community.name}
-      </Link>
-      <CommunityBanner community={community} />
-      <PageHeading
-        eyebrow={channel.is_private ? "PRIVATE CHANNEL" : "COMMUNITY CHANNEL"}
-        title={`${channel.kind === "text" ? "#" : "◉"} ${channel.name}`}
-        description={channel.description}
-      />
-      <Link className="button secondary channel-members-link" href={`/members?community=${channel.community_id}`}>Browse community members · Add friends</Link>
-      <div className="two-column">
-        <ChannelNavigation channels={channels ?? []} active={id} />
+    <ChannelWorkspaceLayout key={community.id} community={community} channel={channel} initial={navigation.data}>
         {channel.kind === "text" &&
         history?.data &&
         !history.error &&
@@ -157,8 +140,7 @@ export default async function ChannelPage({
             </div>
           </section>
         )}
-      </div>
-    </div>
+    </ChannelWorkspaceLayout>
   );
 }
 

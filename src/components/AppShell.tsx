@@ -57,6 +57,7 @@ export function Sidebar({
       <Link
         to="/communities"
         className="workspace-switcher"
+        aria-label={collapsed ? "Discover communities" : undefined}
         onClick={onNavigate}
       >
         <span className="workspace-icon">
@@ -232,8 +233,49 @@ function FriendsSidebar() {
 }
 export function AppShell({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
+  const [channelNavExpanded, setChannelNavExpanded] = useState(false);
   const [drawer, setDrawer] = useState(false);
   const location = useLocation();
+  const channelMode = /^\/channels\/[a-f0-9-]{36}$/.test(location.pathname);
+  const shellRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!channelMode) return;
+    let focusFrame = 0;
+    let pointerActive = false;
+    const update = () => {
+      const shell = shellRef.current;
+      if (!shell) return;
+      shell.style.setProperty("--channel-viewport", `${window.visualViewport?.height || window.innerHeight}px`);
+      if (pointerActive) return;
+      const active = document.activeElement;
+      const editing = active?.matches("input,textarea,[contenteditable=true]") || (shell.dataset.editing === "true" && active?.closest("form")?.querySelector("input,textarea,[contenteditable=true]"));
+      // Keep controls steady while focus moves from an input to Send/Save.
+      shell.dataset.editing = editing ? "true" : "false";
+    };
+    const focusChanged = () => { cancelAnimationFrame(focusFrame); focusFrame = requestAnimationFrame(update); };
+    const pointerDown = () => { pointerActive = true; };
+    const pointerUp = () => { pointerActive = false; focusChanged(); };
+    update();
+    document.addEventListener("pointerdown", pointerDown, true);
+    document.addEventListener("pointerup", pointerUp, true);
+    document.addEventListener("pointercancel", pointerUp, true);
+    window.visualViewport?.addEventListener("resize", update);
+    window.visualViewport?.addEventListener("scroll", update);
+    window.addEventListener("resize", update);
+    document.addEventListener("focusin", focusChanged);
+    document.addEventListener("focusout", focusChanged);
+    return () => {
+      window.visualViewport?.removeEventListener("resize", update);
+      window.visualViewport?.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+      document.removeEventListener("focusin", focusChanged);
+      document.removeEventListener("focusout", focusChanged);
+      cancelAnimationFrame(focusFrame);
+      document.removeEventListener("pointerdown", pointerDown, true);
+      document.removeEventListener("pointerup", pointerUp, true);
+      document.removeEventListener("pointercancel", pointerUp, true);
+    };
+  }, [channelMode]);
   const drawerRef = useRef<HTMLElement>(null);
   const returnFocus = useRef<HTMLElement | null>(null);
   const mainRef = useRef<HTMLElement>(null);
@@ -281,14 +323,14 @@ export function AppShell({ children }: { children: ReactNode }) {
     setDrawer(true);
   };
   return (
-    <div className={`app-shell ${collapsed ? "is-collapsed" : ""}`}>
+    <div ref={shellRef} className={`app-shell ${(channelMode ? !channelNavExpanded : collapsed) ? "is-collapsed" : ""} ${channelMode ? "channel-mode" : ""}`}>
       <a className="skip-link" href="#main-content">
         Skip to content
       </a>
       <aside className="desktop-sidebar">
         <Sidebar
-          collapsed={collapsed}
-          onToggle={() => setCollapsed(!collapsed)}
+          collapsed={channelMode ? !channelNavExpanded : collapsed}
+          onToggle={() => channelMode ? setChannelNavExpanded(!channelNavExpanded) : setCollapsed(!collapsed)}
         />
       </aside>
       <div className="app-body" inert={drawer ? true : undefined}>
@@ -297,7 +339,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <main id="main-content" ref={mainRef} tabIndex={-1}>
             {children}
           </main>
-          <FriendsSidebar />
+          {!channelMode && <FriendsSidebar />}
         </div>
       </div>
       <div inert={drawer ? true : undefined}>

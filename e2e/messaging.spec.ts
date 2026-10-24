@@ -120,6 +120,7 @@ test("two authenticated browsers exchange, thread, edit, react, attach, reconnec
       page.getByText("A live response from Taylor.", { exact: true }),
     ).toBeVisible();
     const incoming = second.locator(`[data-message-id="${firstId}"]`);
+    await incoming.getByLabel("Message actions", { exact: true }).click();
     await incoming.getByRole("button", { name: "Reply", exact: true }).click();
     await second
       .getByRole("textbox", { name: "Thread reply", exact: true })
@@ -133,6 +134,7 @@ test("two authenticated browsers exchange, thread, edit, react, attach, reconnec
     await expect(
       second.getByText("Thread reply delivered live.", { exact: true }),
     ).toBeVisible();
+    await firstArticle.getByLabel("Message actions", { exact: true }).click();
     await expect(
       firstArticle.getByRole("button", { name: "Reply · 1", exact: true }),
     ).toBeVisible();
@@ -146,6 +148,7 @@ test("two authenticated browsers exchange, thread, edit, react, attach, reconnec
       await p
         .getByRole("button", { name: "Back to channel", exact: true })
         .click();
+    await firstArticle.getByLabel("Message actions", { exact: true }).click();
     await firstArticle
       .getByRole("button", { name: "Edit", exact: true })
       .click();
@@ -158,6 +161,7 @@ test("two authenticated browsers exchange, thread, edit, react, attach, reconnec
     await expect(
       incoming.getByText("Edited message in real time.", { exact: true }),
     ).toBeVisible();
+    await incoming.getByLabel("Message actions", { exact: true }).click();
     await incoming
       .locator("summary")
       .filter({ hasText: /^Add reaction$/ })
@@ -174,6 +178,7 @@ test("two authenticated browsers exchange, thread, edit, react, attach, reconnec
     await expect(
       firstArticle.getByText("Read by 1", { exact: true }),
     ).toBeVisible();
+    await page.getByRole("button", { name: "Search channel", exact: true }).click();
     await page
       .getByRole("textbox", { name: "Search this channel", exact: true })
       .fill("Edited");
@@ -249,6 +254,7 @@ test("two authenticated browsers exchange, thread, edit, react, attach, reconnec
     const taylor = page
       .locator(".chat-message")
       .filter({ hasText: "A live response from Taylor." });
+    await taylor.getByLabel("Message actions", { exact: true }).click();
     await taylor
       .locator("summary")
       .filter({ hasText: /^Delete message$/ })

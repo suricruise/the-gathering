@@ -60,9 +60,10 @@ test("community join, accessible channel navigation, persistence, and leave", as
       () => document.documentElement.scrollWidth > innerWidth,
     ),
   ).toBe(false);
-  await page
-    .getByRole("link", { name: "← The Gathering", exact: true })
-    .click();
+  if (test.info().project.name === "mobile") {
+    await page.getByRole("button", { name: "Open channels", exact: true }).click();
+    await page.getByRole("dialog", { name: "Channels", exact: true }).getByRole("link", { name: "The Gathering", exact: true }).click();
+  } else await page.getByRole("link", { name: "← The Gathering", exact: true }).click();
   await page
     .getByRole("button", { name: "Leave community", exact: true })
     .click();
@@ -249,7 +250,7 @@ test("approved host creates private community, invites, grants private access, a
     });
     await page.getByText("Moderation and member roles", { exact: true }).click();
     const roster = page
-      .locator("li")
+      .locator(".community-roster li")
       .filter({ has: page.getByText("Invited Gamer", { exact: true }) });
     await roster.getByText("Manage member", { exact: true }).click();
     await roster

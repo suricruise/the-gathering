@@ -1,11 +1,13 @@
 "use client";
 import Link from "next/link";
+import { MoreHorizontal } from "lucide-react";
 import { useState } from "react";
 import { ProfileAvatar } from "../ui";
 import { changeMessage, reactToMessage } from "../../lib/chat/actions";
 import { loadLinkPreviews } from "../../lib/chat/preview-action";
 import { messageLinks } from "../../lib/chat/validation";
 import { reactionEmoji, type ChatMessage } from "../../lib/chat/types";
+import { messageTime, messageDateLabel } from "../../lib/chat/presentation";
 import { SafeMarkdown } from "./SafeMarkdown";
 export function MessageItem({
   message: m,
@@ -15,6 +17,8 @@ export function MessageItem({
   onMerge,
   onReply,
   highlight = false,
+  grouped = false,
+  localTime = false,
 }: {
   message: ChatMessage;
   userId: string;
@@ -23,6 +27,8 @@ export function MessageItem({
   onMerge: (messages: ChatMessage[]) => void;
   onReply: (m: ChatMessage) => void;
   highlight?: boolean;
+  grouped?: boolean;
+  localTime?: boolean;
 }) {
   const [editing, setEditing] = useState(false);
   const [text, setText] = useState(m.body);
@@ -79,11 +85,11 @@ export function MessageItem({
     <article
       id={`message-${m.id}`}
       data-message-id={m.id}
-      className={`chat-message ${highlight ? "highlighted" : ""}`}
+      className={`chat-message ${highlight ? "highlighted" : ""} ${grouped ? "is-grouped" : ""}`}
       aria-label={`Message from ${m.author_name}`}
     >
       <div className="chat-message-avatar">
-        {m.author_avatar && m.author_id ? (
+        {grouped ? <time className="chat-group-time" dateTime={m.created_at} title={`${messageDateLabel(m.created_at, localTime)}, ${messageTime(m.created_at, localTime)}`}>{messageTime(m.created_at, localTime)}</time> : m.author_avatar && m.author_id ? (
           <img
             src={`/api/avatars/${m.author_id}`}
             alt={m.author_name}
@@ -95,13 +101,14 @@ export function MessageItem({
         )}
       </div>
       <div className="chat-message-content">
-        <header>
-          <strong>{m.author_name}</strong>
+        {!grouped && <header>
+          <strong>{m.author_id ? <Link href={`/members/${m.author_id}`}>{m.author_name}</Link> : m.author_name}</strong>
           <time dateTime={m.created_at} title={m.created_at}>
-            {new Date(m.created_at).toISOString().slice(11, 16)} UTC
+            {messageTime(m.created_at, localTime)}
           </time>
           {m.edited_at && !m.deleted_at && <small>edited</small>}
-        </header>
+        </header>}
+        {grouped && m.edited_at && !m.deleted_at && <small>edited</small>}
         {m.reply_to_id && <small className="muted">Reply in thread</small>}
         {m.deleted_at ? (
           <p className="muted">Message deleted</p>
@@ -195,6 +202,7 @@ export function MessageItem({
                 </button>
               ))}
             </div>
+            <details className="chat-message-menu"><summary aria-label="Message actions"><MoreHorizontal size={19} aria-hidden="true" /></summary>
             <div className="chat-actions">
               <button
                 type="button"
@@ -294,7 +302,7 @@ export function MessageItem({
                   Load link preview
                 </button>
               )}
-            </div>
+            </div></details>
             <small className="chat-read-count">Read by {m.read_count}</small>
           </>
         )}

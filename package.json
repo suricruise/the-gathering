@@ -63,7 +63,9 @@
     "test:people:rail:setup": "node scripts/test-people-rail-setup.mjs",
     "test:public:defaults": "node scripts/test-public-defaults.mjs",
     "test:members:rail": "node scripts/test-all-member-rail.mjs",
-    "test:members:rail:setup": "node scripts/test-all-member-rail-setup.mjs"
+    "test:members:rail:setup": "node scripts/test-all-member-rail-setup.mjs",
+    "test:workspace": "node scripts/test-channel-workspace.mjs",
+    "test:workspace:setup": "node scripts/test-channel-workspace-setup.mjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",

@@ -137,3 +137,7 @@ Admin → Communities includes platform-controlled display order and confirmed p
 ## Member lists and friendships
 
 Members navigation, community cards and desktop channel rails now offer membership-scoped lists with search, roles, pagination and direct friendship actions. See [member list setup and privacy](MEMBERS.md).
+
+## Community banners in channels
+
+Text and voice channel pages show the community's uploaded header above the channel heading, using the same responsive banner component as the community information page. Communities without an uploaded header use their default cover artwork. Images retain the existing authenticated, private/no-store delivery; no new database migration or configuration is required.

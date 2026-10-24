@@ -1,4 +1,5 @@
 import { CommunityHeaderUpload } from "./CommunityHeaderUpload";
+import { CommunityBanner } from "./CommunityBanner";
 import Link from "next/link";
 import { MemberDirectory } from "../people/MemberDirectory";
 import { Hash, Headphones, Lock, Users } from "lucide-react";
@@ -30,12 +31,7 @@ export function CommunityView({ data }: { data: CommunityDetailData }) {
       <Link className="back-link" href="/communities">
         ← All communities
       </Link>
-      <div
-        role="img"
-        aria-label={`${c.name} community header`}
-        className="community-cover community-cover-large"
-        style={{ backgroundImage: c.community_headers ? `url(/api/communities/${c.id}/header?v=${c.community_headers.version})` : `url(/covers/${c.cover}.svg)` }}
-      />
+      <CommunityBanner community={c} />
       <PageHeading
         eyebrow={`${c.visibility.toUpperCase()} COMMUNITY`}
         title={c.name}

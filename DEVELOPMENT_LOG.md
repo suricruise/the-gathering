@@ -1,5 +1,11 @@
 # Development log
 
+## 2026-10-24 — Community banners above text and voice channels
+
+Extracted the existing community information banner into a shared `CommunityBanner` component and placed it above the heading in both text and voice channel pages. Uploaded headers use the same versioned, authenticated image endpoint; communities without a custom header retain default artwork. Existing responsive height, center crop, rounded corners and accessible image labels apply in all three views. Channel metadata is read through the authenticated Supabase client with RLS, and the existing missing-header-migration fallback preserves channel access during rolling setup. No schema, bucket, environment setting or voice lifecycle change is required.
+
+Verification: lint, typecheck, all 257 unit tests and the production build pass. All 44 selected desktop/mobile interface and real LiveKit browser scenarios pass, including actual two-way audio, navigation persistence, muting, reconnect and revocation. Both expanded header browser scenarios pass after correcting an HTTP-only redirect assertion to use an actual anonymous browser: upload/display on community, Home, Discover, text and voice pages; banner placement above the channel heading; mobile overflow; anonymous redirect and private image denial; removal and fallback artwork. No production database changes, publication or deployment were performed for this change.
+
 ## 2026-10-23 — Community member directory and easier friendships
 
 Added Members to desktop/mobile navigation, a joined-community picker, searchable/paginated role-filtered member cards, and a channel member rail. Community pages link to the full directory and retain staff role controls separately. Members can request/cancel/accept/decline friendship directly, open permitted conversations, remove friends, block and report. Friends & messages now has prominent Add friends/community-list entry points and accepts @username searches. Navigation uses Next Form/Link so changing community does not reload the persistent voice shell.

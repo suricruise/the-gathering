@@ -9,7 +9,8 @@ import { ChannelNavigation } from "@/src/components/communities/ChannelNavigatio
 import { notFound, redirect } from "next/navigation";
 import { requireUser } from "@/src/lib/auth/session";
 import { EmptyState, PageHeading } from "@/src/components/ui";
-import { communityDetail } from "@/src/lib/communities/data";
+import { communityDetail, type Community } from "@/src/lib/communities/data";
+import { CommunityBanner } from "@/src/components/communities/CommunityBanner";
 export default async function ChannelPage({
   params,
   searchParams,
@@ -48,11 +49,20 @@ export default async function ChannelPage({
     .maybeSingle();
   if (error) throw new Error("Channel services are unavailable.");
   if (!channel) notFound();
-  const { data: community } = await client
+  let { data: community, error: communityError } = await client
     .from("communities")
-    .select("slug,name")
+    .select("id,slug,name,description,visibility,cover,community_headers(version)")
     .eq("id", channel.community_id)
-    .single();
+    .maybeSingle<Community>();
+  // Keep existing channel access working during an additive header migration.
+  if (communityError?.code === "PGRST200") {
+    const fallback = await client.from("communities")
+      .select("id,slug,name,description,visibility,cover")
+      .eq("id", channel.community_id).maybeSingle<Community>();
+    community = fallback.data;
+    communityError = fallback.error;
+  }
+  if (communityError) throw new Error("Community services are unavailable.");
   if (!community) notFound();
   const { data: channels, error: listError } = await client
     .from("channels")
@@ -93,6 +103,7 @@ export default async function ChannelPage({
       <Link className="back-link" href={`/communities/${community.slug}`}>
         ← {community.name}
       </Link>
+      <CommunityBanner community={community} />
       <PageHeading
         eyebrow={channel.is_private ? "PRIVATE CHANNEL" : "COMMUNITY CHANNEL"}
         title={`${channel.kind === "text" ? "#" : "◉"} ${channel.name}`}

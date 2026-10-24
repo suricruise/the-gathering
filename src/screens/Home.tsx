@@ -126,7 +126,9 @@ export function Home({
               <div
                 className="community-cover"
                 style={{
-                  backgroundImage: `url(/covers/${community.cover}.svg)`,
+                  backgroundImage: community.community_headers
+                    ? `url(/api/communities/${community.id}/header?v=${community.community_headers.version})`
+                    : `url(/covers/${community.cover}.svg)`,
                 }}
               />
               <div className="padded">

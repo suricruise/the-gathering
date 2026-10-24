@@ -1,5 +1,11 @@
 # Development log
 
+## 2026-10-23 — Show uploaded community banners on Home
+
+Fixed Home's featured community cards to use the same authenticated, versioned header-image URL as Discover and the community page. Home was already loading authorized header metadata but still rendered only the built-in cover artwork. Communities without a custom upload retain that artwork. Existing private image authorization and no-store streaming are unchanged; no SQL migration or new configuration is needed.
+
+Extended the existing real desktop/mobile header flow to assert the uploaded image on Home and restoration of built-in artwork after removal. The fixture sorts first so it is deterministically included in Home's three featured communities. All 222 unit tests, lint, typecheck, production build, bundle scan and credential/history scan pass. Both desktop/mobile production-build header scenarios pass, including uploaded Home banners and artwork restoration after removal. Published as a follow-up to the approved header-image release; hosted deployment completion remains externally unverified.
+
 ## 2026-10-23 — Accept community header source images up to 5 MiB
 
 Raised the community header source-image limit from 3 MiB to 5 MiB in the picker, server validation and bounded multipart reader. Other uploads retain their existing limits. Vercel's request-body limit prevents sending a raw 5 MiB file directly, so larger source images are decoded and resized in the browser before upload; the server independently revalidates and sanitizes the result. Prepared/stored headers remain under 3 MiB, preserving the existing private bucket, provenance checks and database limits without a migration. Browser preparation failures are actionable and do not bypass server validation.

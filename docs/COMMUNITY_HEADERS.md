@@ -1,6 +1,6 @@
 # Community header images
 
-Community owners and administrators can upload, replace or remove custom header images. Moderators and ordinary members cannot change them. Headers appear on the community page and its Discover card; removing one restores the chosen cover artwork.
+Community owners and administrators can upload, replace or remove custom header images. Moderators and ordinary members cannot change them. Headers appear on the community page, its Discover card and its featured Home card; removing one restores the chosen cover artwork.
 
 ## Using the feature
 

@@ -8,7 +8,7 @@ test("community owners upload and remove private headers without exposing them",
   await db.connect(); const id = randomUUID(), slug = "header-"+id.slice(0,8);
   const other = await browser.newContext();
   try {
-    await db.query("insert into public.communities(id,slug,name,visibility) values($1,$2,'Custom header test','private')", [id,slug]);
+    await db.query("insert into public.communities(id,slug,name,visibility) values($1,$2,'000 custom header test','private')", [id,slug]);
     await db.query("insert into public.community_members(community_id,user_id,role_id) values($1,$2,'owner')", [id,member.id]);
     await page.goto(`/communities/${slug}`);
     await expect(page.getByRole("heading", { name: "Community header image" })).toBeVisible();
@@ -23,10 +23,13 @@ test("community owners upload and remove private headers without exposing them",
     const sentBytes = Number(await (await uploaded).headerValue("content-length"));
     expect(sentBytes).toBeGreaterThan(0);
     expect(sentBytes).toBeLessThan(3*1024*1024+64*1024);
-    const header = page.getByRole("img", { name: "Custom header test community header" });
+    const header = page.getByRole("img", { name: "000 custom header test community header" });
     await expect(header).toHaveCSS("background-image", /api\/communities/);
     await page.goto("/communities");
-    await expect(page.locator("article").filter({ has: page.getByRole("heading", { name: "Custom header test" }) }).locator(".community-cover")).toHaveCSS("background-image", /api\/communities/);
+    await expect(page.locator("article").filter({ has: page.getByRole("heading", { name: "000 custom header test" }) }).locator(".community-cover")).toHaveCSS("background-image", /api\/communities/);
+    await page.goto("/home");
+    const homeCard = page.locator("article").filter({ has: page.getByRole("heading", { name: "000 custom header test" }) });
+    await expect(homeCard.locator(".community-cover")).toHaveCSS("background-image", new RegExp(`/api/communities/${id}/header`));
     await page.goto(`/communities/${slug}`);
     const response = await page.request.get(`/api/communities/${id}/header`);
     expect(response.status()).toBe(200); expect(response.headers()["content-type"]).toBe("image/webp");
@@ -44,5 +47,7 @@ test("community owners upload and remove private headers without exposing them",
     await expect(page.getByText("Custom header removed.", { exact: true })).toBeVisible();
     await expect(header).toHaveCSS("background-image", /covers\//);
     expect((await page.request.get(`/api/communities/${id}/header`)).status()).toBe(404);
+    await page.goto("/home");
+    await expect(homeCard.locator(".community-cover")).toHaveCSS("background-image", /covers\//);
   } finally { await other.close(); await db.query("delete from public.communities where id=$1",[id]); await db.end(); }
 });

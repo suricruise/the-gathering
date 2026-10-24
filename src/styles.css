@@ -6362,3 +6362,8 @@ select:focus-visible,
 .member-profile-actions { margin: 20px 0; }
 .member-contact-profile { max-width: 760px; }
 .rail-people-section ul { max-height: 36vh; overflow-y: auto; scrollbar-width: thin; }
+.rail-person-picture { position: relative; display: block; flex-shrink: 0; width: 32px; height: 32px; }
+.rail-presence { position: absolute; right: -1px; bottom: -1px; width: 10px; height: 10px; border: 2px solid #0e111c; border-radius: 50%; }
+.rail-presence.online { background: #69d7b4; }
+.rail-presence.offline { background: #8490a5; }
+.rail-presence.hidden { background: #0e111c; box-shadow: inset 0 0 0 1px #8490a5; }

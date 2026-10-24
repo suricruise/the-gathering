@@ -1,5 +1,17 @@
 # Development log
 
+## 2026-10-24 — Show online, offline and hidden-status members
+
+Changed the right rail from Online members to Members. All authorized shared-community identities now remain listed regardless of activity, including the current member; accepted friends remain in Friends without duplicate rows. Compact avatar/name links retain profile contact controls. Small avatar dots distinguish Online, Offline and Status hidden, with tooltip/accessibility descriptions. Online identities sort first within loaded rows, then names. UUID cursor pagination remains stable across status changes and preserves the 25-row bound.
+
+Added authenticated `community_people_rail` in `202611060001_all_member_rail.sql`. Reads retain verified/onboarded active-account checks, shared membership, private-channel access, archive/block/ban guards and search budgets. Real recent heartbeats mean online; missing/expired activity means offline only when sharing is enabled. Opting out hides the status while keeping baseline membership identity visible. The older online-only RPC remains available for rolling compatibility. Existing public/on defaults and members' later privacy choices are unchanged.
+
+Created the combined `supabase/all-member-rail-setup.sql` installer: it applies the public/presence defaults migration only if still pending, then the inclusive-list migration. Recorded versions skip safely; unknown objects without migration history refuse destructive repair. This avoids requiring the operator to repeat old phase setup or repeatedly resetting members' privacy choices. Usage and setup are documented in [the member rail guide](docs/PEOPLE_RAIL.md#all-members-including-offline).
+
+Verification: lint, typecheck, production build, all 263 unit/server/component tests, tracked-file/history credential-pattern scan and client-secret bundle scan pass. Eight new local authorization/status checks pass, covering offline retention, real pulse/expiry, opt-out unknown state, self membership, outsider/private-channel denial, UUID cursors, friend deduplication, mutual blocks and banned/suspended accounts. Three combined installer rehearsals pass, including preservation of later private/off preferences on rerun. All 50 selected desktop/mobile production-browser scenarios pass: responsive/accessibility screens, offline member visibility and online transition, profile/friend/DM flows, private-channel controls, and actual two-way decoded LiveKit audio with navigation, mute, reconnect and revocation. Physical-device and large-community load acceptance remain separate gates.
+
+Only the local test database was migrated. Hosted SQL, publication and deployment have not been performed for this release.
+
 ## 2026-10-24 — Public profiles and shared presence by default
 
 Implemented the owner's explicit request to make existing and future profiles public and enable both friend and community online-status sharing. The additive `202611050001_public_profile_defaults.sql` changes database insert defaults and performs a one-time existing-account backfill. It clears presence timestamps rather than inventing online activity. Member profile and presence controls remain editable; discovery opt-in, DM consent, blocks and private-content rules are unchanged. Onboarding, presence instructions and the draft privacy notice now explain the defaults and how to opt out.

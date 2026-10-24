@@ -1,4 +1,4 @@
-vi.mock("./lib/people/rail", () => ({ onlineMembers: vi.fn(async()=>({data:{items:[]}})),communityPresence:vi.fn(async()=>({data:{share:false}})) }));
+vi.mock("./lib/people/rail", () => ({ railMembers: vi.fn(async()=>({data:{items:[]}})),communityPresence:vi.fn(async()=>({data:{share:false}})) }));
 vi.mock("./lib/communities/members", () => ({ communityMembers: vi.fn(async()=>({data:{community:{id:"fixture",name:"Fixture",slug:"fixture"},items:[],total:0}})), communityMemberAction: vi.fn() }));
 vi.mock("./lib/admin/actions", () => ({
   memberAnnouncements: async () => ({ data: [] }),

@@ -13,10 +13,10 @@ async function call<T>(name: string, args: Record<string, unknown>): Promise<Res
     return result.data?.limited ? { error: "Please wait before trying again." } : { data: result.data };
   } catch { return { error: "Member services are unavailable. Check your connection and retry." }; }
 }
-export async function onlineMembers(input: unknown): Promise<Result<{ items: Person[] }>> {
+export async function railMembers(input: unknown): Promise<Result<{ items: Person[] }>> {
   const parsed = z.strictObject({ channel: z.uuid().nullable().default(null), after: z.uuid().nullable().default(null) }).safeParse(input);
   if (!parsed.success) return { error: "Invalid member list." };
-  return call("online_member_rail", { p_channel: parsed.data.channel, p_after: parsed.data.after });
+  return call("community_people_rail", { p_channel: parsed.data.channel, p_after: parsed.data.after });
 }
 export async function memberContact(target: unknown): Promise<Result<MemberContact>> {
   const parsed = z.uuid().safeParse(target);

@@ -61,7 +61,9 @@
     "test:members:setup": "node scripts/test-member-directory-setup.mjs",
     "test:people:rail": "node scripts/test-people-rail.mjs",
     "test:people:rail:setup": "node scripts/test-people-rail-setup.mjs",
-    "test:public:defaults": "node scripts/test-public-defaults.mjs"
+    "test:public:defaults": "node scripts/test-public-defaults.mjs",
+    "test:members:rail": "node scripts/test-all-member-rail.mjs",
+    "test:members:rail:setup": "node scripts/test-all-member-rail-setup.mjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",

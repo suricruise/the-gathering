@@ -99,3 +99,5 @@ describe("contact validation", () => {
     ).toEqual(["b", "a"]);
   });
 });
+
+it("accepts an @ prefix without changing discovery privacy",()=>{expect(searchSchema.parse({query:" @Gamer_123 "}).query).toBe("gamer_123");expect(searchSchema.safeParse({query:"email@example.test"}).success).toBe(false);});

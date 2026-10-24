@@ -9,6 +9,7 @@ import {
   HeartHandshake,
   MessagesSquare,
   UserRound,
+  Users,
   Settings,
   ShieldCheck,
 } from "lucide-react";
@@ -18,6 +19,7 @@ export const navigation = [
   { to: "/channels", label: "Text channels", icon: Hash, section: "SPACE" },
   { to: "/voice", label: "Voice lounge", icon: Headphones, section: "SPACE" },
   { to: "/communities", label: "Discover", icon: Compass, section: "CONNECT" },
+  { to: "/members", label: "Members", icon: Users, section: "CONNECT" },
   { to: "/squad-up", label: "Squad Up", icon: Swords, section: "CONNECT" },
   {
     to: "/feed",

@@ -1,4 +1,5 @@
 "use client";
+import { MemberDirectory } from "./people/MemberDirectory";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, NavLink, useLocation } from "../compat/navigation";
 import {
@@ -147,7 +148,7 @@ export function Topbar({ onMenu }: { onMenu: () => void }) {
         <span>{current?.label ?? "The Gathering"}</span>
       </div>
       <div className="topbar-actions">
-        <Link className="search-shortcut" to="/communities">
+        <Link className="search-shortcut" to="/members">
           <Search size={16} />
           <span>Find your people</span>
           <span className="search-key">↗</span>
@@ -191,6 +192,9 @@ function ShellNotifications() {
 }
 function FriendsSidebar() {
   const member = useMember();
+  const location = useLocation();
+  const channel = /^\/channels\/([a-f0-9-]{36})$/.exec(location.pathname)?.[1];
+  if (channel && member) return <aside className="friends-sidebar member-rail" aria-label="Community members"><MemberDirectory key={channel} channel={channel} compact /></aside>;
   return (
     <aside className="friends-sidebar" aria-label="Community activity">
       <div className="section-heading">

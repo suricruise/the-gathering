@@ -54,7 +54,11 @@ export function PeoplePage({ tab: initial = "friends" }: { tab?: string }) {
         await refresh();
         setNotice("Saved.");
         if (r.data?.id) router.push(`/messages/${r.data.id}`);
-        if (results) setResults(null);
+        if (results) {
+          const updated = await searchPeople({ query, before: null });
+          if (updated.data) { setResults(updated.data.items.slice(0,20));setNext(updated.data.items.length>20?updated.data.items[19].username:null); }
+          else { setResults(null);setNext(null); }
+        }
       }
     } catch {
       setNotice("Request failed. Please retry.");
@@ -171,6 +175,7 @@ export function PeoplePage({ tab: initial = "friends" }: { tab?: string }) {
         <p>
           Find shared interests. Build friendships. Keep the conversation going.
         </p>
+        <div className="button-row"><button className="button primary" onClick={()=>chooseTab("discover")}>Add friends</button><Link className="button secondary" href="/members">Browse community members</Link></div>
       </div>
       <nav className="people-tabs" aria-label="Friends and messages sections">
         {[
@@ -206,8 +211,7 @@ export function PeoplePage({ tab: initial = "friends" }: { tab?: string }) {
             home.friends.map(person)
           ) : (
             <p>
-              No friends or requests yet. Discover members or ask a friend to
-              enable discovery.
+              No friends or requests yet. Use Add friends to search by username, or browse your community members and send a request directly.
             </p>
           )}
         </section>
@@ -215,6 +219,7 @@ export function PeoplePage({ tab: initial = "friends" }: { tab?: string }) {
       {tab === "discover" && (
         <section>
           <h2>Find your people</h2>
+          <p><Link href="/members">Browse community members</Link> to add people you share a community with, even when their full profile is private.</p>
           <p>
             Only members who enable discovery and share a member-visible profile
             appear here. Emails are never searched or displayed.
@@ -229,13 +234,13 @@ export function PeoplePage({ tab: initial = "friends" }: { tab?: string }) {
               Find by username
               <input
                 value={query}
-                maxLength={24}
+                maxLength={25}
                 onChange={(e) => {
                   setQuery(e.target.value);
                   setNext(null);
                   setResults(null);
                 }}
-                placeholder="At least 2 username characters"
+                placeholder="Username or @username"
               />
             </label>
             <button disabled={busy} type="submit">
@@ -375,6 +380,7 @@ export function PeoplePage({ tab: initial = "friends" }: { tab?: string }) {
       {tab === "privacy" && privacy && (
         <section>
           <h2>Discovery & contact privacy</h2>
+          <p>Your name and handle remain visible to fellow community members. Private profile details stay private; global discovery is a separate choice.</p>
           <form
             onSubmit={(e) => {
               e.preventDefault();

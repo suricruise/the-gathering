@@ -247,6 +247,7 @@ test("approved host creates private community, invites, grants private access, a
       path: `/tmp/gathering-phase4-${test.info().project.name}.png`,
       fullPage: true,
     });
+    await page.getByText("Moderation and member roles", { exact: true }).click();
     const roster = page
       .locator("li")
       .filter({ has: page.getByText("Invited Gamer", { exact: true }) });

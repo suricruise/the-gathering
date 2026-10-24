@@ -110,3 +110,7 @@ See [community header images](COMMUNITY_HEADERS.md) for upload controls, private
 ## Permanent deletion and custom display order
 
 See [community management](COMMUNITY_MANAGEMENT.md) for permissions, confirmation, Home/Discover ordering, migration and retention behavior.
+
+## Member lists and friendships
+
+Members navigation, community cards and desktop channel rails now offer membership-scoped lists with search, roles, pagination and direct friendship actions. See [member list setup and privacy](MEMBERS.md).

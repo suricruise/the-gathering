@@ -54,8 +54,8 @@ export const searchSchema = z.strictObject({
   query: z
     .string()
     .trim()
-    .toLowerCase()
-    .regex(/^(?:[a-z0-9_]{2,24})?$/)
+    .transform(value=>value.replace(/^@/, "").toLowerCase())
+    .pipe(z.string().regex(/^(?:[a-z0-9_]{2,24})?$/))
     .default(""),
   before: z
     .string()

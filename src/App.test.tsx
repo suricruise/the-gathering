@@ -1,3 +1,4 @@
+vi.mock("./lib/communities/members", () => ({ communityMembers: vi.fn(async()=>({data:{community:{id:"fixture",name:"Fixture",slug:"fixture"},items:[],total:0}})), communityMemberAction: vi.fn() }));
 vi.mock("./lib/admin/actions", () => ({
   memberAnnouncements: async () => ({ data: [] }),
   adminRead: async () => ({ data: {rank:0,communities:[],retention_days:null} }),

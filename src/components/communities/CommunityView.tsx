@@ -1,5 +1,6 @@
 import { CommunityHeaderUpload } from "./CommunityHeaderUpload";
 import Link from "next/link";
+import { MemberDirectory } from "../people/MemberDirectory";
 import { Hash, Headphones, Lock, Users } from "lucide-react";
 import { PageHeading, EmptyState } from "../ui";
 import { CommandForm, CommunityFields, ChannelFields } from "./CommunityForms";
@@ -122,10 +123,9 @@ export function CommunityView({ data }: { data: CommunityDetailData }) {
               <h2>
                 <Users size={18} /> Members
               </h2>
-              <p className="muted">
-                Community display names and handles are visible to fellow
-                members. Showing up to 500 members.
-              </p>
+              <Link className="button secondary" href={`/members?community=${c.id}`}>Open full member list · Add friends</Link>
+              <MemberDirectory key={c.id} community={c.id} />
+              {staff && <details><summary>Moderation and member roles</summary>
               <ul className="community-roster">
                 {roster.map((m) => (
                   <li key={m.user_id}>
@@ -238,6 +238,7 @@ export function CommunityView({ data }: { data: CommunityDetailData }) {
                   </li>
                 ))}
               </ul>
+              </details>}
             </section>
           </div>
           {staff && (

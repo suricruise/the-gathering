@@ -216,7 +216,7 @@ test("real friend requests, private realtime DMs, privacy, reports, mute and mut
     await other.getByRole("button", { name: "Friends", exact: true }).click();
     await expect(
       other.getByText(
-        "No friends or requests yet. Discover members or ask a friend to enable discovery.",
+        /^No friends or requests yet\./,
       ),
     ).toBeVisible();
     expect(errors).toEqual([]);

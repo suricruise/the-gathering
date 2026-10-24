@@ -133,3 +133,7 @@ Admin → Communities includes platform-controlled display order and confirmed p
 ## Email verification recovery
 
 `/verify-email` shows safe failure reasons, a rate-limited resend form and sign-in/password-recovery choices. Login and registration link to it. Admin member rows clearly label missing profile setup without treating active status as email verification. See [hosted setup and recovery](EMAIL_VERIFICATION.md).
+
+## Member lists and friendships
+
+Members navigation, community cards and desktop channel rails now offer membership-scoped lists with search, roles, pagination and direct friendship actions. See [member list setup and privacy](MEMBERS.md).

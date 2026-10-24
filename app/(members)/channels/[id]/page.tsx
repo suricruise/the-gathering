@@ -98,6 +98,7 @@ export default async function ChannelPage({
         title={`${channel.kind === "text" ? "#" : "◉"} ${channel.name}`}
         description={channel.description}
       />
+      <Link className="button secondary channel-members-link" href={`/members?community=${channel.community_id}`}>Browse community members · Add friends</Link>
       <div className="two-column">
         <ChannelNavigation channels={channels ?? []} active={id} />
         {channel.kind === "text" &&

@@ -98,7 +98,7 @@ export async function communityDetail(slug: string) {
   if (error) throw new Error("Community services are unavailable.");
   if (!data) return null;
   const c = data as Community;
-  const [role, channels, categories, roster] = await Promise.all([
+  const [role, channels, categories] = await Promise.all([
     client.rpc("community_my_role", { p_community: c.id }),
     client
       .from("channels")
@@ -112,13 +112,13 @@ export async function communityDetail(slug: string) {
       .eq("community_id", c.id)
       .order("position")
       .order("name"),
-    client.rpc("community_roster", { p_community: c.id }),
   ]);
-  if (role.error || channels.error || categories.error || roster.error)
+  if (role.error || channels.error || categories.error)
     throw new Error("Community details could not be loaded.");
   const staff = ["owner", "administrator", "moderator"].includes(role.data);
   const admin = ["owner", "administrator"].includes(role.data);
-  const [invites, overrides, audit] = await Promise.all([
+  const [roster, invites, overrides, audit] = await Promise.all([
+    staff ? client.rpc("community_roster", { p_community: c.id }) : Promise.resolve({data: [], error: null}),
     staff
       ? client
           .from("invitations")
@@ -142,7 +142,7 @@ export async function communityDetail(slug: string) {
           .limit(50)
       : Promise.resolve({ data: [], error: null }),
   ]);
-  if (invites.error || overrides.error || audit.error)
+  if (roster.error || invites.error || overrides.error || audit.error)
     throw new Error("Community management could not be loaded.");
   return {
     community: c,

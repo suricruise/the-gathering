@@ -6266,11 +6266,53 @@ select:focus-visible,
 }
 .space-upcoming-row {
   display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   padding: 1rem;
   border-bottom: 1px solid #34384f;
 }
+.space-upcoming-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.space-upcoming-row .event-date-badge {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 56px;
+  text-align: center;
+  border: 1px solid #7662ac;
+  border-radius: 9px;
+  overflow: hidden;
+  background: #1b1d31;
+  color: #f2efff;
+  box-shadow: 0 3px 10px #0002;
+}
+.event-date-badge::before, .event-date-badge::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  width: 3px;
+  height: 7px;
+  border-radius: 2px;
+  background: #ddd3ff;
+}
+.event-date-badge::before { left: 10px; }
+.event-date-badge::after { right: 10px; }
+.event-date-month {
+  padding: 9px 3px 3px;
+  background: #49376c;
+  color: #f2eaff;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.event-date-day { padding: 3px 0 5px; font-size: 24px; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
 .space-upcoming-row time {
   font-size: 0.8rem;
   color: #abb6d0;

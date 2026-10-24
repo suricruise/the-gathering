@@ -152,6 +152,38 @@ test("faith privacy, generic live notifications, timezone events, RSVPs and host
     await expect(
       page.getByRole("link", { name: "Open linked voice room" }),
     ).toHaveAttribute("href", `/channels/${voice}`);
+    await page.goto("/home");
+    const horizonEvent = page.locator(".space-upcoming-row").filter({ hasText: title });
+    const badge = horizonEvent.locator(".event-date-badge");
+    await expect(badge).toBeVisible();
+    const start = (await db.query("select starts_at from public.events where id=$1", [event])).rows[0].starts_at.toISOString();
+    expect(new Date((await badge.getAttribute("datetime"))!).toISOString()).toBe(start);
+    const expectedDate = await page.evaluate(value => ({
+      month: new Intl.DateTimeFormat(undefined, { month: "short" }).format(new Date(value)),
+      day: new Intl.DateTimeFormat(undefined, { day: "numeric" }).format(new Date(value)),
+    }), start);
+    await expect(badge.locator(".event-date-month")).toHaveText(expectedDate.month);
+    await expect(badge.locator(".event-date-day")).toHaveText(expectedDate.day);
+    expect(await horizonEvent.evaluate(row => row.querySelector('.event-date-badge')!.getBoundingClientRect().left >= row.querySelector('.space-upcoming-details')!.getBoundingClientRect().right)).toBe(true);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
+    const localized = await browser.newContext({
+      locale: "fr-FR",
+      timezoneId: "America/Los_Angeles", storageState: await page.context().storageState(),
+    });
+    try {
+      const localizedPage = await localized.newPage();
+      const hydrationErrors: string[] = [];
+      localizedPage.on("console", message => {
+        if (/hydration|hydrating|didn't match/i.test(message.text())) hydrationErrors.push(message.text());
+      });
+      await localizedPage.goto("http://127.0.0.1:4173/home");
+      const localizedBadge = localizedPage.locator(".space-upcoming-row").filter({ hasText: title }).locator(".event-date-badge");
+      await expect(localizedBadge.locator(".event-date-month")).toHaveText(new Intl.DateTimeFormat("fr-FR", { month: "short", timeZone: "America/Los_Angeles" }).format(new Date(start)));
+      await expect(localizedBadge.locator(".event-date-day")).toHaveText(new Intl.DateTimeFormat("fr-FR", { day: "numeric", timeZone: "America/Los_Angeles" }).format(new Date(start)));
+      expect(hydrationErrors).toEqual([]);
+    } finally { await localized.close(); }
+    await horizonEvent.click();
+    await expect(page).toHaveURL(new RegExp(`/events/${event}$`));
     await peer.goto(`/events/${event}`);
     await expect(
       peer.getByRole("button", { name: "Edit event", exact: true }),

@@ -147,3 +147,7 @@ Text and voice channel pages show the community's uploaded header above the chan
 The right rail uses avatar/name links with online/offline/hidden-status dots under Friends and Members on all authenticated screens, including text and voice channels. `/members/[id]` shows an authorized member profile with friend controls and permitted profile details. Friends & messages → Privacy adds a separate control for community online status (on by default). See [setup, privacy and usage](PEOPLE_RAIL.md).
 
 Profiles and both presence settings now default to public/on; the one-time existing-account update and member opt-outs are documented in [the defaults update](PEOPLE_RAIL.md#public-profile-and-presence-defaults-update).
+
+## Home event date badges
+
+Home → On the horizon displays a calendar-style month/day badge at the right of each event row. The event title and full local date/time stay on the left; the entire row still opens the event. Badge and written time use the viewer's time zone, and the badge has an accessible full-date/time label. No database or configuration update is needed.

@@ -1,5 +1,11 @@
 # Development log
 
+## 2026-10-24 — Calendar date badges on Home events
+
+Added a calendar-style month/day badge to the right of each Home → On the horizon event. The title and full local date/time remain on the left, long titles wrap, and the entire row still opens the event. Purple calendar headers, binding details, rounded borders and large tabular day numbers match the dark interface. Semantic time elements provide the original timestamp and an accessible full-date/time label. Initial UTC/en-US markup is stable across server/client hydration before switching to the viewer's locale and time zone.
+
+Verification: lint, typecheck, production build, 263 unit/server/component tests, client-secret bundle scan and tracked-file/history credential-pattern scan pass. Four focused desktop/mobile production-browser scenarios pass, checking Home accessibility/responsiveness and real event creation/RSVP/update flows, correct badge month/day/timestamp, placement to the right, no horizontal overflow and click-through navigation. Additional French/Los Angeles browser contexts confirm localized dates and no hydration errors. No database migration or configuration change is required. No hosted data was changed; publication and deployment remain pending.
+
 ## 2026-10-24 — Show online, offline and hidden-status members
 
 Changed the right rail from Online members to Members. All authorized shared-community identities now remain listed regardless of activity, including the current member; accepted friends remain in Friends without duplicate rows. Compact avatar/name links retain profile contact controls. Small avatar dots distinguish Online, Offline and Status hidden, with tooltip/accessibility descriptions. Online identities sort first within loaded rows, then names. UUID cursor pagination remains stable across status changes and preserves the 25-row bound.

@@ -355,6 +355,24 @@ function EventCard({ event: e }: { event: Event }) {
     </article>
   );
 }
+function EventDateBadge({ value }: { value: string }) {
+  const [local, setLocal] = useState(false);
+  useEffect(() => {
+    setLocal(true);
+  }, []);
+  // Stable server/initial-client markup before switching to the viewer's locale.
+  const zone = local ? undefined : "UTC";
+  const locale = local ? undefined : "en-US";
+  const date = new Date(value);
+  const label = new Intl.DateTimeFormat(locale, {
+    year: "numeric", month: "long", day: "numeric",
+    hour: "numeric", minute: "2-digit", timeZoneName: "short", timeZone: zone,
+  }).format(date);
+  return <time className="event-date-badge" dateTime={value} aria-label={`Event date: ${label}`} title={label}>
+    <span className="event-date-month" aria-hidden="true">{new Intl.DateTimeFormat(locale, { month: "short", timeZone: zone }).format(date)}</span>
+    <span className="event-date-day" aria-hidden="true">{new Intl.DateTimeFormat(locale, { day: "numeric", timeZone: zone }).format(date)}</span>
+  </time>;
+}
 export function UpcomingEvents() {
   const [items, setItems] = useState<Event[] | null>(null);
   const [error, setError] = useState("");
@@ -387,8 +405,11 @@ export function UpcomingEvents() {
             href={`/events/${e.id}`}
             className="space-upcoming-row"
           >
-            <strong>{e.title}</strong>
-            <ZonedTime value={e.starts_at} />
+            <span className="space-upcoming-details">
+              <strong>{e.title}</strong>
+              <ZonedTime value={e.starts_at} />
+            </span>
+            <EventDateBadge value={e.starts_at} />
           </Link>
         ))
       ) : (

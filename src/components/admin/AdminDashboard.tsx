@@ -94,7 +94,10 @@ export function AdminDashboard({ initial }: { initial: Context | null }) {
           setError(r.error);
           setRows([]);
         } else if (view === "overview") setMetrics(r.data as Row);
-        else setRows(r.data as Row[]);
+        else {
+          const records = r.data as Row[];
+          setRows(view === "communities" ? [...records].sort((a, b) => Number(a.display_order ?? 1000)-Number(b.display_order ?? 1000) || String(a.name).localeCompare(String(b.name))) : records);
+        }
         setBusy(false);
       })
       .catch(() => {
@@ -115,6 +118,7 @@ export function AdminDashboard({ initial }: { initial: Context | null }) {
     const r = await adminCommand(data);
     if (r.error) throw Error(r.error);
     setNotice("Saved. The action was recorded in audit history.");
+    if (data.operation === "community_delete" && community === data.community_id) setCommunity("");
     setRevision((x) => x + 1);
   }
   function choose(v: string) {
@@ -439,6 +443,19 @@ export function AdminDashboard({ initial }: { initial: Context | null }) {
                           {str(r, "visibility")}
                           {r.archived ? " · archived" : ""}
                         </span>
+                        {rank >= 30 && (
+                          <Control title="Display order" operation="community_order" fixed={{ community_id: r.id }} act={act}>
+                            <p>Lower numbers appear first on Home and Discover. Matching numbers sort by community name.</p>
+                            <Field name="position" label="Community display position" type="number" min={0} max={999999} value={String(r.display_order ?? 1000)} />
+                          </Control>
+                        )}
+                        {(rank >= 30 || (community === r.id && active?.rank === 40)) && (
+                          <Control title="Permanently delete community" operation="community_delete" fixed={{ community_id: r.id }} act={act} submitLabel="Permanently delete community" destructive>
+                            <p>This permanently deletes this community and its memberships, channels, messages, posts, events, prayer requests and gaming sessions. This cannot be undone. Limited moderation evidence, audit records and backups follow their retention rules. Voice access is revoked; the voice worker removes the deleted rooms.</p>
+                            <p>To confirm, type the community address: <strong>{str(r, "slug")}</strong></p>
+                            <Field name="confirmation" label="Community address to confirm deletion" />
+                          </Control>
+                        )}
                         {(rank >= 30 || (community && manager)) && (
                           <>
                             <CommunityForm row={r} act={act} />
@@ -717,12 +734,16 @@ function Control({
   fixed,
   act,
   children,
+  submitLabel,
+  destructive = false,
 }: {
   title: string;
   operation: string;
   fixed: Row;
   act: Action;
   children?: React.ReactNode;
+  submitLabel?: string;
+  destructive?: boolean;
 }) {
   const [pending, setPending] = useState(false),
     [error, setError] = useState("");
@@ -768,8 +789,8 @@ function Control({
           Use a concise reason without sensitive personal details.
         </p>
         {error && <p role="alert">{error}</p>}
-        <button className="button primary" disabled={pending}>
-          {pending ? "Saving…" : `Save ${title.toLowerCase()}`}
+        <button className={`button ${destructive ? "danger" : "primary"}`} disabled={pending}>
+          {pending ? "Saving…" : submitLabel || `Save ${title.toLowerCase()}`}
         </button>
       </form>
     </details>

@@ -1,4 +1,5 @@
 "use server";
+import { revalidatePath } from "next/cache";
 import { createClient } from "../supabase/server";
 import {
   adminCommandSchema,
@@ -42,6 +43,20 @@ export async function adminCommand(input: unknown): Promise<Result> {
   if (!p.success) return { error: p.error.issues[0].message };
   const c = await verified();
   if (!c) return { error: "Sign in again to continue." };
+  if (p.data.operation === "community_order" || p.data.operation === "community_delete") {
+    const command = p.data;
+    const r = await c.rpc("community_manage", {
+      p_operation: command.operation,
+      p_community: command.community_id,
+      p_reason: command.reason,
+      ...(command.operation === "community_order" ? { p_position: command.position } : { p_confirmation: command.confirmation }),
+    });
+    if (r.error) return { error: ["PGRST202", "42883"].includes(r.error.code)
+      ? "Apply the community management database update before using deletion or display ordering."
+      : failure(r.error.code) };
+    revalidatePath("/", "layout");
+    return { data: r.data };
+  }
   const { operation, ...data } = p.data;
   const r = await c.rpc("admin_command", {
     p_operation: operation,

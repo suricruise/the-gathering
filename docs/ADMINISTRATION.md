@@ -120,3 +120,7 @@ npm run test:bundle
 ```
 
 Authorization tests use actual PostgreSQL roles and roll back fixtures. API tests exercise anonymous/member rejection, private evidence denial and concurrent role revocation with a stale session. Exact installer rehearsals cover fresh install, rerun, pending-only completion and ambiguous-history refusal. Desktop/mobile browsers exercise real metrics, community/channel creation/disable, reported evidence, removal, appeals, audit history and revocation. Existing authentication, chat, social, squads, friends, faith/events and LiveKit suites remain part of regression verification. Fixture/rehearsal scripts refuse non-loopback projects. Hosted activation must be verified separately.
+
+## Community deletion and directory order
+
+The Communities tab adds confirmed permanent deletion and platform-controlled display positions. See [community management](COMMUNITY_MANAGEMENT.md) for setup and scope rules.

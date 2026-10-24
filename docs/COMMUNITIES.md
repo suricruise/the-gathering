@@ -106,3 +106,7 @@ Use only the local environment for integration/browser checks. If secure hosted 
 ## Custom header images
 
 See [community header images](COMMUNITY_HEADERS.md) for upload controls, private storage, installation and cleanup.
+
+## Permanent deletion and custom display order
+
+See [community management](COMMUNITY_MANAGEMENT.md) for permissions, confirmation, Home/Discover ordering, migration and retention behavior.

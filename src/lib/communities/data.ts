@@ -7,6 +7,7 @@ export type Community = {
   description: string;
   visibility: "public" | "discoverable" | "private";
   cover: string;
+  display_order?: number;
   community_headers?: { version: string } | null;
 };
 export type Channel = {
@@ -50,24 +51,28 @@ export type Audit = {
 };
 export async function communityIndex() {
   const { client, user } = await requireUser("/communities");
-  const [initialList, approval, memberships] = await Promise.all([
-    client
-      .from("communities")
-      .select("id,slug,name,description,visibility,cover,community_headers(version)")
-      .order("name")
-      .limit(200)
-      .returns<Community[]>(),
+  const [directory, approval, memberships] = await Promise.all([
+    client.rpc("community_directory"),
     client.rpc("can_create_community"),
     client
       .from("community_members")
       .select("community_id,role_id,status")
       .eq("user_id", user.id),
   ]);
-  // Deploy safely before the additive header migration: retain existing artwork.
-  const list = initialList.error?.code === "PGRST200"
-    ? await client.from("communities").select("id,slug,name,description,visibility,cover").order("name").limit(200).returns<Community[]>()
-    : initialList;
-  if (list.error || approval.error || memberships.error) return null;
+  // During a rolling deployment, retain the existing authorized directory until
+  // the additive management migration is installed. Never retry permission errors.
+  let list: { data: Community[] | null; error: { code: string } | null };
+  if (directory.error && ["PGRST202", "42883"].includes(directory.error.code)) {
+    const initialList = await client.from("communities")
+      .select("id,slug,name,description,visibility,cover,community_headers(version)")
+      .order("name").limit(200).returns<Community[]>();
+    list = initialList.error?.code === "PGRST200"
+      ? await client.from("communities").select("id,slug,name,description,visibility,cover").order("name").limit(200).returns<Community[]>()
+      : initialList;
+  } else {
+    list = { data: Array.isArray(directory.data) ? directory.data : null, error: directory.error };
+  }
+  if (list.error || !list.data || approval.error || memberships.error) return null;
   return {
     communities: list.data as Community[],
     approved: approval.data === true,

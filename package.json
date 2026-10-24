@@ -53,7 +53,9 @@
     "test:launch:setup": "node scripts/test-launch-setup.mjs",
     "community:cleanup": "node scripts/cleanup-community-headers.mjs",
     "test:community:headers": "node scripts/test-community-headers.mjs",
-    "test:community:headers:setup": "node scripts/test-community-headers-setup.mjs"
+    "test:community:headers:setup": "node scripts/test-community-headers-setup.mjs",
+    "test:community:management": "node scripts/test-community-management.mjs",
+    "test:community:management:setup": "node scripts/test-community-management-setup.mjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",

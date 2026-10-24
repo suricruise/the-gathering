@@ -17,7 +17,7 @@ const text = (max: number, min = 1) =>
     );
 const scope = { community_id: id };
 const reason = { reason: text(500, 5) };
-const command = <T extends z.ZodRawShape>(operation: string, fields: T) =>
+const command = <const O extends string, T extends z.ZodRawShape>(operation: O, fields: T) =>
   z.strictObject({ operation: z.literal(operation), ...reason, ...fields });
 // Roles are an explicit allowlist; owner is provisioned only by a trusted SQL operator.
 export const adminCommandSchema = z.discriminatedUnion("operation", [
@@ -38,6 +38,14 @@ export const adminCommandSchema = z.discriminatedUnion("operation", [
     description: z.string().max(2000),
     visibility: z.enum(["public", "discoverable", "private"]),
     archived: z.boolean(),
+  }),
+  command("community_order", {
+    ...scope,
+    position: z.number().int().min(0).max(999999),
+  }),
+  command("community_delete", {
+    ...scope,
+    confirmation: z.string().regex(/^[a-z][a-z0-9-]{2,47}$/),
   }),
   command("community_settings", {
     ...scope,

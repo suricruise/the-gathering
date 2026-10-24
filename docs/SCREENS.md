@@ -121,3 +121,7 @@ Removed development-only fallback screens and fabricated content. Unknown routes
 ## Custom community headers
 
 Community settings now include owner/administrator header upload, replacement and removal. Uploaded headers appear in the community hero and Discover cards. See [header images](COMMUNITY_HEADERS.md) for requirements and deployment.
+
+## Community management additions
+
+Admin → Communities includes platform-controlled display order and confirmed permanent deletion for platform managers or the selected community owner. Home and Discover follow the shared order while retaining their existing audience restrictions. See [setup and permissions](COMMUNITY_MANAGEMENT.md).

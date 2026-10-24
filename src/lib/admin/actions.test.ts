@@ -1,5 +1,6 @@
 // @vitest-environment node
 import { beforeEach, it, expect, vi } from "vitest";
+vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 const m = vi.hoisted(() => ({ getUser: vi.fn(), rpc: vi.fn() }));
 vi.mock("../supabase/server", () => ({
   createClient: async () => ({ auth: { getUser: m.getUser }, rpc: m.rpc }),
@@ -68,4 +69,21 @@ it("report and appeal payloads cannot forge roles or evidence", async () => {
     p_body: "Please reconsider this decision.",
     p_case: null,
   });
+});
+it("validates community deletion confirmation and rejects client actor injection", async () => {
+ expect((await adminCommand({ operation: "community_delete", community_id: id, reason: "Approved deletion", confirmation: "" })).error).toBeTruthy();
+ expect((await adminCommand({ operation: "community_delete", community_id: id, reason: "Approved deletion", confirmation: "test-community", actor_id: id })).error).toBeTruthy();
+ expect(m.rpc).not.toHaveBeenCalled();
+});
+it("routes deletion and ordering through independently authorized transactional management", async () => {
+ await adminCommand({ operation: "community_order", community_id: id, position: 2, reason: "Preferred display position" });
+ expect(m.rpc).toHaveBeenLastCalledWith("community_manage", { p_operation: "community_order", p_community: id, p_reason: "Preferred display position", p_position: 2 });
+ await adminCommand({ operation: "community_delete", community_id: id, confirmation: "test-community", reason: "Approved permanent removal" });
+ expect(m.rpc).toHaveBeenLastCalledWith("community_manage", { p_operation: "community_delete", p_community: id, p_reason: "Approved permanent removal", p_confirmation: "test-community" });
+});
+it("rejects invalid display positions and explains a pending management migration", async () => {
+ expect((await adminCommand({ operation: "community_order", community_id: id, position: -1, reason: "Preferred display position" })).error).toBeTruthy();
+ expect(m.rpc).not.toHaveBeenCalled();
+ m.rpc.mockResolvedValue({ error: { code: "PGRST202" } });
+ expect((await adminCommand({ operation: "community_order", community_id: id, position: 0, reason: "Preferred display position" })).error).toContain("database update");
 });

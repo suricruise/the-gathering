@@ -1,5 +1,5 @@
 "use client";
-import { MemberDirectory } from "./people/MemberDirectory";
+import { PeopleRail } from "./people/PeopleRail";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, NavLink, useLocation } from "../compat/navigation";
 import {
@@ -20,7 +20,7 @@ import {
 import { useMember, MemberAvatar } from "./MemberContext";
 import { logout } from "../lib/auth/actions";
 import { LogOut } from "lucide-react";
-import { PeopleSidebar, PeopleBell, usePeople } from "./people/PeopleProvider";
+import { PeopleBell, usePeople } from "./people/PeopleProvider";
 import { navigation } from "../data";
 import {
   Brand,
@@ -194,17 +194,13 @@ function FriendsSidebar() {
   const member = useMember();
   const location = useLocation();
   const channel = /^\/channels\/([a-f0-9-]{36})$/.exec(location.pathname)?.[1];
-  if (channel && member) return <aside className="friends-sidebar member-rail" aria-label="Community members"><MemberDirectory key={channel} channel={channel} compact /></aside>;
   return (
     <aside className="friends-sidebar" aria-label="Community activity">
       <div className="section-heading">
         <h2>Around the gathering</h2>
         <span className="tiny-dot" />
       </div>
-      <p className="rail-description">A few familiar faces.</p>
-      <div className="friend-list">
-        {member ? <PeopleSidebar /> : <p>Sign in to see your friends.</p>}
-      </div>
+      {member ? <PeopleRail key={channel || "joined"} channel={channel || null} /> : <p>Sign in to see your friends.</p>}
       <Link className="text-link all-friends" to="/messages">
         All friends
         <ArrowUpRight size={14} />

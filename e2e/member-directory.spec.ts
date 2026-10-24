@@ -30,7 +30,7 @@ test("community member lists make private-peer friendship easy and preserve bloc
   await card.getByRole('button',{name:'Message',exact:true}).click();await expect(page).toHaveURL(/\/messages\/[a-f0-9-]+/);
   await page.goto(`/channels/${channel}`);await expect(page.getByRole('link',{name:'Browse community members · Add friends'})).toBeVisible();
   if(test.info().project.name==='desktop'){
-   const rail=page.getByRole('complementary',{name:'Community members',exact:true});await expect(rail.getByRole('heading',{name:'Community Friend'})).toBeVisible();
+   const rail=page.getByRole('complementary',{name:'Community activity',exact:true});await expect(rail.getByRole('region',{name:'Friends',exact:true}).getByRole('link',{name:'Community Friend',exact:true})).toBeVisible();
   }
   await page.getByRole('link',{name:'Browse community members · Add friends'}).click();await expect(card).toBeVisible();
   await card.getByText('More actions',{exact:true}).click();page.once('dialog',dialog=>dialog.accept());await card.getByRole('button',{name:'Block member',exact:true}).click();await expect(card).toHaveCount(0);

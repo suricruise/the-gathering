@@ -6345,3 +6345,20 @@ select:focus-visible,
 
 .member-actions details[open] { display: block; }
 .member-more-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+
+/* Compact people rail: identity only; contact actions live on the profile. */
+.rail-people-section { margin: 24px 0; }
+.rail-people-section h3 { color: #969fb8; font-size: 11px; font-weight: 700; letter-spacing: .05em; margin: 0 0 10px; }
+.rail-people-section ul { list-style: none; padding: 0; margin: 0; }
+.rail-person { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 5px 7px; border-radius: 8px; color: #d7dcec; }
+.rail-person:hover, .rail-person:focus-visible { background: #22233a; color: #c6b5ff; }
+.rail-person img, .rail-person-avatar { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+.rail-person-avatar { display: grid; place-items: center; background: #343052; color: #d9cbff; font-size: 12px; font-weight: 700; }
+.rail-person > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+.rail-people-section p { font-size: 12px; line-height: 1.6; color: #969fb8; }
+.rail-people-section button { min-height: 44px; }
+.community-presence-preference { margin: 20px 0; padding: 16px; border: 1px solid #30344a; border-radius: 14px; }
+.community-presence-preference label { display: flex; align-items: center; gap: 10px; min-height: 44px; }
+.member-profile-actions { margin: 20px 0; }
+.member-contact-profile { max-width: 760px; }
+.rail-people-section ul { max-height: 36vh; overflow-y: auto; scrollbar-width: thin; }

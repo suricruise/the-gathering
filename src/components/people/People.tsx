@@ -1,4 +1,5 @@
 "use client";
+import { CommunityPresencePreference } from "./CommunityPresencePreference";
 import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -380,6 +381,7 @@ export function PeoplePage({ tab: initial = "friends" }: { tab?: string }) {
       {tab === "privacy" && privacy && (
         <section>
           <h2>Discovery & contact privacy</h2>
+          <CommunityPresencePreference />
           <p>Your name and handle remain visible to fellow community members. Private profile details stay private; global discovery is a separate choice.</p>
           <form
             onSubmit={(e) => {

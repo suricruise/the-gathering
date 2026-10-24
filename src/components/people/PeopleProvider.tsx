@@ -58,41 +58,6 @@ export function PeopleProvider({
     </Context.Provider>
   );
 }
-export function PeopleSidebar() {
-  const p = usePeople();
-  if (!p) return null;
-  return (
-    <div className="friend-list">
-      <p>Friends · status shared by permission</p>
-      {p.error ? (
-        <p role="status">Friends unavailable.</p>
-      ) : !p.home ? (
-        <p>Loading friends…</p>
-      ) : (
-        p.home.friends
-          .filter((f) => f.relationship === "friends")
-          .slice(0, 8)
-          .map((f) => (
-            <Link className="friend-row" href="/messages" key={f.id}>
-              <span>
-                <strong>{f.name}</strong>
-                <small>
-                  {f.online === null
-                    ? "Status hidden"
-                    : f.online
-                      ? "Online"
-                      : "Offline"}
-                </small>
-              </span>
-            </Link>
-          ))
-      )}
-      {p.home && !p.home.friends.some((f) => f.relationship === "friends") && (
-        <p>No friends yet. Find your people below.</p>
-      )}
-    </div>
-  );
-}
 export function PeopleBell() {
   const p = usePeople();
   if (!p) return null;

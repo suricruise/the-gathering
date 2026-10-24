@@ -136,8 +136,12 @@ Admin → Communities includes platform-controlled display order and confirmed p
 
 ## Member lists and friendships
 
-Members navigation, community cards and desktop channel rails now offer membership-scoped lists with search, roles, pagination and direct friendship actions. See [member list setup and privacy](MEMBERS.md).
+Members navigation and community pages offer membership-scoped lists with search, roles, pagination and direct friendship actions. Desktop rails link compact identities to profiles. See [member list setup and privacy](MEMBERS.md).
 
 ## Community banners in channels
 
 Text and voice channel pages show the community's uploaded header above the channel heading, using the same responsive banner component as the community information page. Communities without an uploaded header use their default cover artwork. Images retain the existing authenticated, private/no-store delivery; no new database migration or configuration is required.
+
+## Compact friends and online members
+
+The right rail uses avatar/name links under Friends and Online members on all authenticated screens, including text and voice channels. `/members/[id]` shows an authorized member profile with friend controls and permitted profile details. Friends & messages → Privacy adds a separate opt-in for community online status. See [setup, privacy and usage](PEOPLE_RAIL.md).

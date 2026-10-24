@@ -1,0 +1,10 @@
+import {act,render,screen,within} from "@testing-library/react";
+import {beforeEach,it,expect,vi} from "vitest";
+const m=vi.hoisted(()=>({read:vi.fn()}));
+vi.mock("next/link",()=>({default:({href,children,...props}:{href:string;children:React.ReactNode})=><a href={href} {...props}>{children}</a>}));
+vi.mock("../../lib/people/rail",()=>({onlineMembers:m.read}));
+vi.mock("./PeopleProvider",()=>({usePeople:()=>({home:{friends:[{id:"friend",name:"Friend",username:"friend",avatar:true,relationship:"friends"}],blocks:[]},error:"",refresh:vi.fn()})}));
+import {PeopleRail} from "./PeopleRail";
+beforeEach(()=>{vi.resetAllMocks();});
+it("renders only avatar and name links in separate Friends and Online members lists",async()=>{m.read.mockResolvedValue({data:{items:[{id:"peer",name:"Online peer",username:"peer",avatar:false,online:true}]}});render(<PeopleRail channel={null}/>);const friend=within(screen.getByRole("region",{name:"Friends"})).getByRole("link",{name:"Friend"});expect(friend).toHaveAttribute("href","/members/friend");expect(friend.querySelector("img")).toBeTruthy();expect(await screen.findByRole("link",{name:"Online peer"})).toHaveAttribute("href","/members/peer");expect(screen.queryByRole("button",{name:"Add friend"})).toBeNull();expect(screen.queryByText("@peer")).toBeNull();});
+it("shows retry after network rejection and discards stale channel results",async()=>{let complete!:(value:unknown)=>void;m.read.mockImplementationOnce(()=>new Promise(resolve=>{complete=resolve;})).mockRejectedValueOnce(Error("offline"));const view=render(<PeopleRail channel="old"/>);view.rerender(<PeopleRail channel="new"/>);await screen.findByText("Online members unavailable. Please retry.");await act(async()=>complete({data:{items:[{id:"stale",name:"Stale",username:"stale",avatar:false}]}}));expect(screen.queryByText("Stale")).toBeNull();expect(screen.getByRole("button",{name:"Retry"})).toBeVisible();});

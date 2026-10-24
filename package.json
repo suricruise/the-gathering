@@ -58,7 +58,9 @@
     "test:community:management:setup": "node scripts/test-community-management-setup.mjs",
     "pwa:assets": "node scripts/build-pwa.mjs",
     "test:members": "node scripts/test-member-directory.mjs",
-    "test:members:setup": "node scripts/test-member-directory-setup.mjs"
+    "test:members:setup": "node scripts/test-member-directory-setup.mjs",
+    "test:people:rail": "node scripts/test-people-rail.mjs",
+    "test:people:rail:setup": "node scripts/test-people-rail-setup.mjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",

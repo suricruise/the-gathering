@@ -57,6 +57,8 @@ export async function POST(request: Request) {
     p_operation: "heartbeat",
     p_data: {},
   });
+  // Separate opt-in presence; older deployments may not have this additive RPC yet.
+  if (!r.error && !r.data?.limited) await client.rpc("community_presence_pulse");
   return r.error
     ? json({ error: "Presence unavailable." }, 503)
     : r.data?.limited

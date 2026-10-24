@@ -4,16 +4,16 @@
 
 - **Members** in the main navigation opens `/members`. Choose a community and select **Show members**. Mobile users can open **More → Members**.
 - Each community page has **Open full member list · Add friends**, plus its own member cards.
-- Desktop text/voice channel pages show a community member rail on the right. The channel page also has a **Browse community members · Add friends** link for phones and smaller windows.
+- Desktop pages show compact Friends and Online members lists on the right, with profile links. See [sidebar and presence privacy](PEOPLE_RAIL.md). The channel page also has a **Browse community members · Add friends** link for phones and smaller windows.
 - **Friends & messages → Add friends** opens username search. A leading `@` is accepted. **Browse community members** provides an alternative when a peer does not enable global discovery.
 
-Search a community by display name or handle, filter by community role, or show online friends. Full directories load 30 members at a time with **Load more members**; compact rails load 12. IDs provide a stable cursor and incoming pages reconcile by ID. The community picker loads up to 200 joined active communities, ordered by the platform's configured display order. It does not scan the public directory to infer memberships.
+Search a community by display name or handle, filter by community role, or show online friends. Full directories load 30 members at a time with **Load more members**. The compact sidebar has a separate online list with 25 rows per page. IDs provide a stable cursor and incoming pages reconcile by ID. The community picker loads up to 200 joined active communities, ordered by the platform's configured display order. It does not scan the public directory to infer memberships.
 
 ## Friend and conversation controls
 
 Member cards show **Add friend**, an actual **Request sent / Cancel request** state, incoming **Accept request / Decline**, or **Friends**. Message actions appear only when the recipient's current policy permits them. More actions include removal of an existing friendship, blocking and reporting. The global search keeps authoritative results visible after an action instead of clearing the whole result list.
 
-A request is not an accepted friendship. The recipient must accept through Members or Friends & messages. Personal private Realtime updates refresh the relationship/presence view. Compact rails also refresh every 30 seconds while visible and online; full directories have a Refresh control. Manual refresh/relationship changes restart pagination from the first page. No invented people or simulated online statuses are added.
+A request is not an accepted friendship. The recipient must accept through Members or Friends & messages. Personal private Realtime updates refresh the relationship/presence view. The separate compact online sidebar refreshes every 30 seconds while visible and online; full directories have a Refresh control. Manual refresh/relationship changes restart pagination from the first page. No invented people or simulated online statuses are added.
 
 ## Privacy and permissions
 

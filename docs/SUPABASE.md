@@ -153,3 +153,7 @@ Apply the five `202610300001`–`202610300005` migrations using `supabase/phase1
 ## Phase 12 operational migration
 
 After owner approval, apply pending `202610310001` with `supabase/phase12-setup.sql`. It adds owner-deletion protection, supporting indexes, member-directory pagination and service-only operational health/job completion. Review [deployment](DEPLOYMENT.md), [backup/recovery](BACKUP_RECOVERY.md) and [launch gates](LAUNCH_READINESS.md) before hosted execution. Normal user behavior remains Auth/RLS-authorized; operational RPCs are service-only. No production SQL is applied by the test commands.
+
+### Verification troubleshooting and existing unfinished accounts
+
+See [email verification recovery and hosted template setup](EMAIL_VERIFICATION.md). Vercel does not automatically update Supabase email templates. The verification help/resend page is `/verify-email`; an active Admin account status is separate from email verification and onboarding.

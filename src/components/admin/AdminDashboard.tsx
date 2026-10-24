@@ -274,13 +274,14 @@ export function AdminDashboard({ initial }: { initial: Context | null }) {
                   >
                     {view === "members" ? (
                       <>
-                        <h2>{str(r, "display_name") || str(r, "username")}</h2>
+                        <h2>{str(r, "display_name") || str(r, "username") || "Profile setup pending"}</h2>
                         <p>
-                          @{str(r, "username")} · {str(r, "status")} ·{" "}
+                          {r.username ? `@${str(r, "username")}` : "No username selected"} · Account: {str(r, "status")} · Role: {" "}
                           {str(r, "platform_role") ||
                             str(r, "community_role") ||
                             "member"}
                         </p>
+                        {!r.username && <p className="muted">This member has not selected a username yet. “Active” describes account restrictions, not completion of email verification or profile setup.</p>}
                         <details>
                           <summary>Account identifier</summary>
                           <code>{str(r, "id")}</code>

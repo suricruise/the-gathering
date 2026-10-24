@@ -147,3 +147,18 @@ export async function logout(): Promise<void> {
   revalidatePath("/", "layout");
   redirect("/login?loggedOut=1");
 }
+
+export async function resendVerification(_previous: ActionState, form: FormData): Promise<ActionState> {
+  const parsed = emailSchema.safeParse(formText(form, "email"));
+  if (!parsed.success) return { error: "Enter a valid email address." };
+  if (!authConfigured()) return unavailable;
+  const notice = "If this address has an account awaiting verification, a new email can be sent. Check your inbox and spam folder, and allow a few minutes before trying again. If you already verified, sign in instead.";
+  try {
+    if (await allowAuthAttempt(parsed.data)) {
+      const client = await createClient();
+      // Do not expose whether an address exists, is already verified or is limited.
+      await client.auth.resend({ type: "signup", email: parsed.data, options: { emailRedirectTo: `${appOrigin()}/auth/callback` } });
+    }
+    return { notice };
+  } catch { return unavailable; }
+}

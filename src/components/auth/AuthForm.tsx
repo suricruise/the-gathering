@@ -73,6 +73,7 @@ export function AuthForm({
           </div>
         </div>
       )}
+      {mode === "register" && state.notice && <p><Link href="/verify-email">Need another verification email?</Link></p>}
       <form action={action} className="auth-form">
         <input type="hidden" name="next" value={next} />
         {mode !== "reset" && (

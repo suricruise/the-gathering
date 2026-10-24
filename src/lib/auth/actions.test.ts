@@ -12,6 +12,7 @@ const mocks = vi.hoisted(() => ({
   signIn: vi.fn(),
   signUp: vi.fn(),
   reset: vi.fn(),
+  resend: vi.fn(),
   update: vi.fn(),
   signOut: vi.fn(),
   remove: vi.fn(),
@@ -39,7 +40,7 @@ vi.mock("../config", () => ({
   authConfigured: () => true,
   appOrigin: () => "https://gathering.example",
 }));
-import { login, register, forgotPassword } from "./actions";
+import { login, register, forgotPassword, resendVerification } from "./actions";
 import {
   saveProfile,
   deleteAccount,
@@ -74,6 +75,7 @@ beforeEach(() => {
       signInWithPassword: mocks.signIn,
       signUp: mocks.signUp,
       resetPasswordForEmail: mocks.reset,
+      resend: mocks.resend,
       updateUser: mocks.update,
       signOut: mocks.signOut,
     },
@@ -338,3 +340,18 @@ describe("Server actions and account isolation", () => {
 });
 
 it("refuses owner deletion before removing any stored files",async()=>{mocks.rpc.mockResolvedValue({data:false,error:null});const r=await deleteAccount({},form({confirmation:"DELETE",currentPassword:"Correct-Password123!"}));expect(r.error).toMatch(/Transfer ownership/);expect(mocks.removeChat).not.toHaveBeenCalled();expect(mocks.list).not.toHaveBeenCalled();expect(mocks.deleteUser).not.toHaveBeenCalled();});
+
+it("resends verification through the public Auth API with a generic enumeration-safe response",async()=>{
+ mocks.resend.mockResolvedValueOnce({error:null});
+ const known=await resendVerification({},form({email:"member@example.test"}));
+ expect(mocks.resend).toHaveBeenCalledWith({type:"signup",email:"member@example.test",options:{emailRedirectTo:"https://gathering.example/auth/callback"}});
+ mocks.resend.mockResolvedValueOnce({error:{code:"user_not_found"}});
+ expect(await resendVerification({},form({email:"unknown@example.test"}))).toEqual(known);
+ mocks.allow.mockResolvedValueOnce(false);
+ expect(await resendVerification({},form({email:"member@example.test"}))).toEqual(known);
+ expect(mocks.resend).toHaveBeenCalledTimes(2);
+});
+it("validates resend inputs before Auth and fails safely when the limiter is unavailable",async()=>{
+ expect((await resendVerification({},form({email:"invalid"}))).error).toBeTruthy();expect(mocks.resend).not.toHaveBeenCalled();
+ mocks.allow.mockRejectedValueOnce(Error("limiter unavailable"));expect((await resendVerification({},form({email:"member@example.test"}))).error).toMatch(/unavailable/);
+});

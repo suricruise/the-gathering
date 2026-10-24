@@ -129,3 +129,7 @@ Admin → Communities includes platform-controlled display order and confirmed p
 ## Installable PWA
 
 `/install` provides native installation when offered and manual iPhone/iPad, Android and desktop instructions. Home/welcome/settings link to it. A generic offline reconnect screen and manual worker-update controls preserve the app’s private-data boundary and avoid automatic voice disconnection. See [PWA documentation](PWA.md).
+
+## Email verification recovery
+
+`/verify-email` shows safe failure reasons, a rate-limited resend form and sign-in/password-recovery choices. Login and registration link to it. Admin member rows clearly label missing profile setup without treating active status as email verification. See [hosted setup and recovery](EMAIL_VERIFICATION.md).

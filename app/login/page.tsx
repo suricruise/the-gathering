@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { AuthFrame } from "@/src/components/auth/AuthFrame";
 import { AuthForm } from "@/src/components/auth/AuthForm";
 import { authConfigured } from "@/src/lib/config";
@@ -32,6 +33,7 @@ export default async function LoginPage({
           You have signed out on this device.
         </p>
       )}
+      <p className="muted">Having trouble with your verification email? <Link href="/verify-email">Get verification help</Link>.</p>
       <AuthForm
         mode="login"
         configured={authConfigured()}

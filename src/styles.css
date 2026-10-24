@@ -6332,3 +6332,6 @@ select:focus-visible,
 @media(max-width:700px){.install-hero{grid-template-columns:1fr;gap:8px}.install-art{min-height:180px}.install-art img{width:128px;height:128px;border-radius:28px}.install-orbit{width:190px;height:190px}.install-benefits,.install-device-grid{grid-template-columns:1fr}.install-benefits{gap:24px}.install-benefits>div{grid-template-columns:28px 1fr;column-gap:14px}.install-benefits p{grid-column:2}.install-header{padding-top:16px;padding-bottom:8px}.install-header>a:first-child{font-size:1.15rem}.pwa-update{align-items:stretch;flex-direction:column}.install-notes{gap:12px}}
 
 .install-page .button, a[href="/install"].button { min-height: 48px; }
+
+.auth-links { display: flex; flex-direction: column; gap: 4px; margin-top: 16px; }
+.auth-links a { display: inline-flex; align-items: center; min-height: 44px; color: #c7b7f7; }

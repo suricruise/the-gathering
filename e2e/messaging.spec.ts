@@ -94,13 +94,30 @@ test("two authenticated browsers exchange, thread, edit, react, attach, reconnec
       name: "Message real-chat",
       exact: true,
     });
+    // Stage 3: multiline/emoji/authorized mentions use the same real send pipeline.
+    await compose.fill("Stage three");
+    await compose.press("Shift+Enter");
+    await compose.press("End");
+    await page.keyboard.type("second line");
+    await expect(compose).toHaveValue("Stage three\nsecond line");
+    await page.getByRole("button", { name: "Choose emoji", exact: true }).click();
+    await page.getByRole("button", { name: "gaming controller", exact: true }).click();
+    await expect(compose).toHaveValue("Stage three\nsecond line🎮");
+    await compose.press("Enter");
+    await expect(second.locator(".chat-message").filter({ hasText: "second line🎮" })).toHaveCount(1);
+    await compose.fill("@chat_");
+    const mention = page.getByRole("option", { name: `Taylor Lane @chat_${suffix}`, exact: true });
+    await expect(mention).toBeVisible();
+    await compose.press("ArrowDown"); await compose.press("Enter");
+    await expect(compose).toHaveValue(`@chat_${suffix} `);
+    await compose.fill("");
     await compose.fill("Hello from Jordan, **live**.");
     await expect(
       second.getByText("Jordan Rivers is typing…", { exact: true }),
     ).toBeVisible();
-    await page
-      .getByRole("button", { name: "Send message", exact: true })
-      .click();
+    const sendControl = page.getByRole("button", { name: "Send message", exact: true });
+    if (test.info().project.name === "mobile") await sendControl.tap();
+    else await sendControl.click();
     await expect(
       second
         .locator(".chat-message")
@@ -120,6 +137,11 @@ test("two authenticated browsers exchange, thread, edit, react, attach, reconnec
       page.getByText("A live response from Taylor.", { exact: true }),
     ).toBeVisible();
     const incoming = second.locator(`[data-message-id="${firstId}"]`);
+    await incoming.getByLabel("Message actions", { exact: true }).click();
+    await incoming.getByRole("button", { name: "Reply", exact: true }).click();
+    await second.getByRole("textbox", { name: "Thread reply", exact: true }).fill("Keep this draft");
+    await second.getByRole("button", { name: "Cancel reply", exact: true }).click();
+    await expect(composeSecond).toHaveValue("Keep this draft");
     await incoming.getByLabel("Message actions", { exact: true }).click();
     await incoming.getByRole("button", { name: "Reply", exact: true }).click();
     await second
@@ -197,14 +219,28 @@ test("two authenticated browsers exchange, thread, edit, react, attach, reconnec
     })
       .png()
       .toBuffer();
+    // A failed upload cannot silently disappear or enable Send; retry is explicit.
+    await page.route("**/api/chat/upload", async (route) => route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ error: "Test upload interruption" }) }), { times: 1 });
     await page.getByLabel("Attach files", { exact: true }).setInputFiles({
       name: "party.png",
       mimeType: "image/png",
       buffer: image,
     });
+    await expect(page.getByText("Test upload interruption", { exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Send message", exact: true })).toBeDisabled();
+    await page.getByRole("button", { name: "Retry upload", exact: true }).click();
     await expect(page.locator(".chat-staged-files")).toContainText(
       "party.webp",
     );
+    await expect(page.getByRole("img", { name: "Preview of party.webp", exact: true })).toBeVisible();
+    // Native file drops use the identical secure upload endpoint.
+    await page.locator(".chat-composer").evaluate((element) => {
+      const data = new DataTransfer(); data.items.add(new File(["Squad notes"], "drop.txt", { type: "text/plain" }));
+      element.dispatchEvent(new DragEvent("drop", { bubbles: true, dataTransfer: data }));
+    });
+    await expect(page.locator(".chat-staged-files")).toContainText("drop.txt");
+    await expect(page.getByText("Ready to send", { exact: true })).toHaveCount(2);
+
     await compose.fill("A photo for our party.");
     await page
       .getByRole("button", { name: "Send message", exact: true })

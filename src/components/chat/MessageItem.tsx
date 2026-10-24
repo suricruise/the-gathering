@@ -14,6 +14,7 @@ export function MessageItem({
   userId,
   moderator,
   canPost,
+  replyDisabled = false,
   onMerge,
   onReply,
   highlight = false,
@@ -24,6 +25,7 @@ export function MessageItem({
   userId: string;
   moderator: boolean;
   canPost: boolean;
+  replyDisabled?: boolean;
   onMerge: (messages: ChatMessage[]) => void;
   onReply: (m: ChatMessage) => void;
   highlight?: boolean;
@@ -207,7 +209,7 @@ export function MessageItem({
               <button
                 type="button"
                 className="chat-text-button"
-                onClick={() => onReply(m)}
+                disabled={replyDisabled} onClick={() => onReply(m)}
               >
                 {m.parent_id
                   ? "Reply"

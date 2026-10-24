@@ -26,7 +26,7 @@ export async function sendMessage(
   input: unknown,
 ): Promise<ChatResult<ChatMessage>> {
   const p = sendSchema.safeParse(input);
-  if (!p.success) return { error: p.error.issues[0].message };
+  if (!p.success) return { error: p.error.issues[0].message, delivery: "not_sent" };
   const { client } = await requireUser("/channels");
   const v = p.data;
   try {
@@ -38,12 +38,12 @@ export async function sendMessage(
       p_reply_to: v.replyToId,
       p_attachments: v.attachments,
     });
-    if (error) return failure(error);
+    if (error) return { ...failure(error), delivery: ["42501", "P0001", "22023"].includes(error.code) ? "not_sent" : "unconfirmed" };
     const result = await client.rpc("chat_message", { p_id: id });
-    if (result.error || !result.data) return failure(result.error);
-    return { data: result.data as ChatMessage };
+    if (result.error || !result.data) return { ...failure(result.error), delivery: "unconfirmed" };
+    return { data: result.data as ChatMessage, delivery: "sent" };
   } catch {
-    return failure(null);
+    return { ...failure(null), delivery: "unconfirmed" };
   }
 }
 export async function changeMessage(

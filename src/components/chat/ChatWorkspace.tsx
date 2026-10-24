@@ -4,10 +4,10 @@ import {
   getHistory,
   getMessage,
   markRead,
-  sendMessage,
 } from "../../lib/chat/actions";
-import type { Attachment, ChatMessage, ChatPage } from "../../lib/chat/types";
+import type { ChatMessage, ChatPage } from "../../lib/chat/types";
 import { useChannelChat } from "./useChannelChat";
+import { MessageComposer } from "./MessageComposer";
 import { MessageItem } from "./MessageItem";
 import { groupWithPrevious, messageDay, messageDateLabel } from "../../lib/chat/presentation";
 import { reconcileMessages } from "../../lib/chat/reconcile";
@@ -38,12 +38,9 @@ export function ChatWorkspace({
   const { messages: allMessages, merge } = chat;
   const [localTime, setLocalTime] = useState(false);
   useEffect(() => setLocalTime(true), []);
-  const [draft, setDraft] = useState("");
-  const [files, setFiles] = useState<Attachment[]>([]);
-  const [uploading, setUploading] = useState(false);
-  const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
-  const [attempt, setAttempt] = useState<string | null>(null);
+  const [composerLocked, setComposerLocked] = useState(false);
+  const threadGeneration = useRef(0);
   const [thread, setThread] = useState<string | null>(null);
   const [replyTo, setReplyTo] = useState<string | null>(null);
   const [older, setOlder] = useState(initial.messages.length === 40);
@@ -61,9 +58,6 @@ export function ChatWorkspace({
   const [searchBefore, setSearchBefore] = useState<string | null>(null);
   const [searchMore, setSearchMore] = useState(false);
   const [highlight, setHighlight] = useState(sharedMessage ?? "");
-  const typingStop = useRef<ReturnType<typeof setTimeout> | undefined>(
-    undefined,
-  );
   const bottom = useRef<HTMLDivElement>(null);
   const wasNearBottom = useRef(true);
   const seen = useRef("0");
@@ -72,6 +66,7 @@ export function ChatWorkspace({
   const root = allMessages.find((m) => m.id === thread);
   const openThread = useCallback(
     async (m: ChatMessage) => {
+      const generation = ++threadGeneration.current;
       const parent = m.parent_id ?? m.id;
       setThread(parent);
       setReplyTo(m.id);
@@ -85,15 +80,16 @@ export function ChatWorkspace({
             merge([parentResult.data]);
         }
         const result = await getHistory({ channelId, parentId: parent });
+        if (generation !== threadGeneration.current) return;
         if (result.data) {
           merge(result.data.messages);
           setThreadOlder(result.data.messages.length === 40);
           setThreadBefore(result.data.messages[0]?.created_seq ?? null);
         } else setError(result.error ?? "Thread unavailable.");
       } catch {
-        setError("Thread unavailable. Please retry.");
+        if (generation === threadGeneration.current) setError("Thread unavailable. Please retry.");
       } finally {
-        setLoading(false);
+        if (generation === threadGeneration.current) setLoading(false);
       }
     },
     [channelId, merge, allMessages],
@@ -125,8 +121,7 @@ export function ChatWorkspace({
   }, [sharedMessage, channelId]);
   useEffect(() => {
     if (chat.denied) {
-      setFiles([]);
-      setDraft("");
+      threadGeneration.current++;
       setThread(null);
       setSearchResults(null);
     }
@@ -159,80 +154,14 @@ export function ChatWorkspace({
     // Message versions change after read notifications; created_seq prevents receipt loops.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allMessages, thread, searchResults, channelId]);
-  useEffect(() => () => clearTimeout(typingStop.current), []);
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    if (
-      sending ||
-      uploading ||
-      !chat.canPost ||
-      (!draft.trim() && !files.length)
-    )
-      return;
-    const id = attempt ?? crypto.randomUUID();
-    setAttempt(id);
-    setSending(true);
-    setError("");
-    chat.indicateTyping(false);
-    try {
-      const result = await sendMessage({
-        id,
-        channelId,
-        body: draft,
-        parentId: thread,
-        replyToId: thread ? replyTo : null,
-        attachments: files.map((f) => f.id),
-      });
-      if (result.data) {
-        merge([result.data]);
-        setDraft("");
-        setFiles([]);
-        setAttempt(null);
-        wasNearBottom.current = true;
-        void chat.refresh();
-      } else {
-        setError(
-          result.error ?? "Message not sent. Retry with the same message ID.",
-        );
-      }
-    } catch {
-      setError(
-        "Message delivery was not confirmed. Retry uses the same ID to prevent duplicates.",
-      );
-    } finally {
-      setSending(false);
-    }
-  }
-  async function upload(list: FileList | null) {
-    if (!list || uploading || sending) return;
-    if (files.length + list.length > 4) {
-      setError("Attach up to four files per message.");
-      return;
-    }
-    setUploading(true);
-    setError("");
-    try {
-      for (const file of Array.from(list)) {
-        if (file.size > 3 * 1024 * 1024)
-          throw Error("Choose files up to 3 MB.");
-        const form = new FormData();
-        form.set("channel", channelId);
-        form.set("file", file);
-        const response = await fetch("/api/chat/upload", {
-          method: "POST",
-          body: form,
-        });
-        const result = await response.json();
-        if (!response.ok) throw Error(result.error ?? "Upload unavailable.");
-        setFiles((previous) => [...previous, result as Attachment]);
-      }
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Upload failed. Please retry.");
-    } finally {
-      setUploading(false);
-    }
+  function closeThread() {
+    threadGeneration.current++;
+    setThread(null);
+    setReplyTo(null);
+    setLoading(false);
   }
   async function olderMessages(inThread: boolean) {
+    const generation = threadGeneration.current;
     wasNearBottom.current = false;
     setLoading(true);
     setError("");
@@ -242,6 +171,7 @@ export function ChatWorkspace({
         parentId: inThread ? thread : null,
         before: inThread ? threadBefore : rootBefore,
       });
+      if (inThread && generation !== threadGeneration.current) return;
       if (result.data) {
         merge(result.data.messages);
         if (inThread) {
@@ -253,9 +183,9 @@ export function ChatWorkspace({
         }
       } else setError(result.error ?? "History unavailable.");
     } catch {
-      setError("History unavailable. Please retry.");
+      if (!inThread || generation === threadGeneration.current) setError("History unavailable. Please retry.");
     } finally {
-      setLoading(false);
+      if (!inThread || generation === threadGeneration.current) setLoading(false);
     }
   }
   async function runSearch(more = false) {
@@ -310,7 +240,7 @@ export function ChatWorkspace({
           {chat.status === "Live" ? "● Live" : chat.status}
         </span>
         <span>{chat.unread} unread</span>
-        <button className="chat-text-button" aria-expanded={searchOpen} onClick={() => { setSearchOpen(!searchOpen); if (searchOpen) setSearchResults(null); }}>Search channel</button>
+        <button className="chat-text-button" aria-expanded={searchOpen} disabled={composerLocked} onClick={() => { setSearchOpen(!searchOpen); if (searchOpen) setSearchResults(null); }}>Search channel</button>
         {chat.status !== "Live" && (
           <button className="chat-text-button" onClick={chat.retryConnection}>
             Reconnect
@@ -358,6 +288,7 @@ export function ChatWorkspace({
               <span className="sr-only">Search this channel</span>
               <input
                 value={search}
+                disabled={composerLocked}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search this channel…"
                 minLength={2}
@@ -367,7 +298,7 @@ export function ChatWorkspace({
             <button
               type="submit"
               className="button secondary"
-              disabled={loading}
+              disabled={loading || composerLocked}
             >
               Search
             </button>
@@ -392,10 +323,8 @@ export function ChatWorkspace({
               </span>
               <button
                 className="chat-text-button"
-                onClick={() => {
-                  setThread(null);
-                  setReplyTo(null);
-                }}
+                disabled={composerLocked}
+                onClick={closeThread}
               >
                 Back to channel
               </button>
@@ -458,6 +387,7 @@ export function ChatWorkspace({
                   localTime={localTime}
                   userId={userId}
                   canPost={chat.canPost}
+                  replyDisabled={composerLocked}
                   moderator={moderator}
                   onMerge={merge}
                   onReply={(m) => {
@@ -484,100 +414,14 @@ export function ChatWorkspace({
               ? `${chat.typing.slice(0, 3).join(", ")} ${chat.typing.length === 1 ? "is" : "are"} typing…`
               : ""}
           </div>
-          {!searchResults && (
-            <form className="chat-composer" onSubmit={submit}>
-              {thread && (
-                <p className="muted">
-                  Replying in thread
-                  {replyTo && replyTo !== thread ? " to a message" : ""}
-                </p>
-              )}
-              <label>
-                <span className="sr-only">
-                  {thread ? "Thread reply" : `Message ${channelName}`}
-                </span>
-                <textarea
-                  value={draft}
-                  disabled={!chat.canPost || sending}
-                  maxLength={4000}
-                  placeholder={
-                    chat.canPost
-                      ? `Message #${channelName}`
-                      : ["Connecting", "Reconnecting"].includes(chat.status) ? "Connecting to channel…" : "This channel is read-only"
-                  }
-                  onChange={(e) => {
-                    setDraft(e.target.value);
-                    if (attempt) setAttempt(null);
-                    chat.indicateTyping(!!e.target.value.trim());
-                    clearTimeout(typingStop.current);
-                    typingStop.current = setTimeout(
-                      () => chat.indicateTyping(false),
-                      4000,
-                    );
-                  }}
-                />
-              </label>
-              {files.length > 0 && (
-                <ul className="chat-staged-files">
-                  {files.map((f) => (
-                    <li key={f.id}>
-                      {f.filename}
-                      <button
-                        type="button"
-                        disabled={sending}
-                        className="chat-text-button"
-                        onClick={() =>
-                          setFiles((previous) =>
-                            previous.filter((x) => x.id !== f.id),
-                          )
-                        }
-                      >
-                        Remove attachment
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              <div className="chat-composer-footer">
-                <label className="chat-upload">
-                  Attach files
-                  <input
-                    type="file"
-                    multiple
-                    accept="image/jpeg,image/png,image/webp,image/gif,application/pdf,text/plain,text/csv,text/markdown,.txt,.md,.csv"
-                    disabled={
-                      !chat.canPost || sending || uploading || files.length >= 4
-                    }
-                    onChange={(e) => {
-                      void upload(e.target.files);
-                      e.target.value = "";
-                    }}
-                  />
-                </label>
-                <span className="muted">
-                  {uploading
-                    ? "Uploading…"
-                    : `${draft.length}/4000 · Markdown supported · Files up to 3 MB`}
-                </span>
-                <button
-                  className="button primary"
-                  type="submit"
-                  disabled={
-                    !chat.canPost ||
-                    sending ||
-                    uploading ||
-                    (!draft.trim() && !files.length)
-                  }
-                >
-                  {sending
-                    ? "Sending…"
-                    : attempt
-                      ? "Retry message"
-                      : "Send message"}
-                </button>
-              </div>
-            </form>
-          )}
+          <MessageComposer
+            channelId={channelId} channelName={channelName} userId={userId}
+            canPost={chat.canPost} connection={chat.status} hidden={!!searchResults}
+            parentId={thread} reply={allMessages.find((m) => m.id === replyTo) ?? root}
+            onCancelReply={closeThread} onLocked={setComposerLocked}
+            onTyping={chat.indicateTyping}
+            onSent={(message) => { merge([message]); wasNearBottom.current = true; void chat.refresh(); }}
+          />
         </>
       )}
       {loading && (

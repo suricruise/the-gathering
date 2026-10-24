@@ -83,3 +83,11 @@ describe("Chat server actions", () => {
     expect(mocks.rpc).not.toHaveBeenCalled();
   });
 });
+it("classifies commit/read ambiguity conservatively for safe retries", async () => {
+  mocks.rpc.mockResolvedValueOnce({ data: id }).mockResolvedValueOnce({ error: { code: "42501" } });
+  expect((await sendMessage(input)).delivery).toBe("unconfirmed");
+  mocks.rpc.mockResolvedValueOnce({ error: { code: "42501" } });
+  expect((await sendMessage(input)).delivery).toBe("not_sent");
+  mocks.rpc.mockRejectedValueOnce(Error("lost acknowledgement"));
+  expect((await sendMessage(input)).delivery).toBe("unconfirmed");
+});

@@ -37,3 +37,7 @@ The chat hook, persistence/edit/delete/reaction/history/reconnect RPCs, private 
 Before this additive migration, existing message operations remain available, while the new member projection reports setup unavailability and mention count errors are surfaced instead of fabricated. Roll back the application to a compatible release while retaining the additive functions; do not erase live data or alter authorization to restore appearance.
 
 Automated local evidence and remaining limitations are recorded in `DEVELOPMENT_LOG.md`. Physical iOS/Android keyboards, Safari, network transitions and production-scale communities remain manual/load acceptance gates. Browser emulation does not certify them.
+
+## Stage 3 composer update
+
+The later composer request is documented in [CHAT_COMPOSER.md](CHAT_COMPOSER.md). It adds Enter/Shift+Enter, emoji, authorized mentions, staged uploads/progress and immutable retry while retaining this workspace and providers. This supersedes the Stage 2 statements that keyboard sending/emoji/mentions were future work. No additional migration or environment setting is required for Stage 3.

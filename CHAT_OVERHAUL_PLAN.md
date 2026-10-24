@@ -313,3 +313,7 @@ No SQL, seeds, cleanup, account creation, database/browser fixture suites, produ
 ## Stage 2 implementation follow-through
 
 The later Stage 2 user request explicitly authorized the workspace implementation, including timeline grouping/day separators and member grouping. See `docs/CHAT_WORKSPACE.md` and the development log for the final behavior and verification. Existing chat/voice providers and data were retained. Categories/unreads reuse existing data; two additive read projections provide scoped mention counts and grouped member role/presence data without recreating tables. Remaining later-stage items (simultaneous thread/search panes, keyboard-send policy, persistent drafts, virtualization) are not represented as completed.
+
+## Stage 3 composer follow-through
+
+The user's later request explicitly calls the composer overhaul **Stage 3**, superseding the proposed stage numbering for this scope. It is implemented incrementally in `MessageComposer` using the existing send/file/member-directory actions and same-ID reconciliation. See `docs/CHAT_COMPOSER.md` and the current development log. No new database migration or provider is required. Simultaneous thread/search panes, persistent drafts, virtualization, expanded attachment formats and an approved GIF-search provider remain separate follow-ups.

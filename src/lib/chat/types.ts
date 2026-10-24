@@ -37,7 +37,7 @@ export type ChatPage = {
   last_read_seq: string;
   unread_count: number;
 };
-export type ChatResult<T> = { data?: T; error?: string; denied?: boolean };
+export type ChatResult<T> = { data?: T; error?: string; denied?: boolean; delivery?: "sent" | "not_sent" | "unconfirmed" };
 export const reactionEmoji = [
   "👍",
   "❤️",

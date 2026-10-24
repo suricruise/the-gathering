@@ -125,3 +125,7 @@ Community settings now include owner/administrator header upload, replacement an
 ## Community management additions
 
 Admin → Communities includes platform-controlled display order and confirmed permanent deletion for platform managers or the selected community owner. Home and Discover follow the shared order while retaining their existing audience restrictions. See [setup and permissions](COMMUNITY_MANAGEMENT.md).
+
+## Installable PWA
+
+`/install` provides native installation when offered and manual iPhone/iPad, Android and desktop instructions. Home/welcome/settings link to it. A generic offline reconnect screen and manual worker-update controls preserve the app’s private-data boundary and avoid automatic voice disconnection. See [PWA documentation](PWA.md).

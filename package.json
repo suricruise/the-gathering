@@ -45,7 +45,7 @@
     "test:admin:setup": "node scripts/test-admin-setup.mjs",
     "moderation:cleanup": "node scripts/cleanup-moderation.mjs",
     "test:admin:api": "node scripts/test-admin-api.mjs",
-    "prebuild": "node scripts/check-environment.mjs",
+    "prebuild": "node scripts/check-environment.mjs && node scripts/build-pwa.mjs",
     "check:production": "node scripts/check-environment.mjs --production",
     "test:launch": "node scripts/test-launch.mjs",
     "test:security": "node scripts/security-audit.mjs",
@@ -55,7 +55,8 @@
     "test:community:headers": "node scripts/test-community-headers.mjs",
     "test:community:headers:setup": "node scripts/test-community-headers-setup.mjs",
     "test:community:management": "node scripts/test-community-management.mjs",
-    "test:community:management:setup": "node scripts/test-community-management-setup.mjs"
+    "test:community:management:setup": "node scripts/test-community-management-setup.mjs",
+    "pwa:assets": "node scripts/build-pwa.mjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",

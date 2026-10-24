@@ -5,6 +5,7 @@ import {
   ArrowRight,
   ArrowUpRight,
   CalendarDays,
+  Download,
   ChevronRight,
   Compass,
   Gamepad2,
@@ -72,10 +73,13 @@ export function Home({
             <br />
             Build connections that go beyond the game.
           </p>
+          <div className="button-row">
           <Link className="button light" to="/communities">
             Find your community
             <ArrowRight size={17} />
           </Link>
+            <Link className="button secondary" to="/install"><Download size={17} /> Install app</Link>
+          </div>
         </div>
         <span className="hero-caption">PLAY TOGETHER. GROW TOGETHER.</span>
       </section>
@@ -176,7 +180,7 @@ export function Home({
       </div>
       <footer className="page-footer">
         <nav aria-label="Policies">
-          <Link to="/terms">Terms</Link> · <Link to="/privacy">Privacy</Link> ·{" "}
+          <Link to="/install">Install app</Link> · <Link to="/terms">Terms</Link> · <Link to="/privacy">Privacy</Link> ·{" "}
           <Link to="/community-rules">Community rules</Link>
         </nav>
         <span>
@@ -202,6 +206,7 @@ export function Landing() {
         <nav aria-label="Welcome navigation">
           <Link to="/communities">Discover</Link>
           <Link to="/faith">Our heart</Link>
+          <Link to="/install">Install app</Link>
           <Link className="button secondary" to="/login">
             Sign in
             <ArrowUpRight size={16} />
@@ -285,7 +290,7 @@ export function Landing() {
           </article>
         </div>
       </main>
-      <footer className="landing-footer"><nav aria-label="Policies"><Link to="/terms">Terms</Link> · <Link to="/privacy">Privacy</Link> · <Link to="/community-rules">Community rules</Link></nav>
+      <footer className="landing-footer"><nav aria-label="Policies"><Link to="/install">Install app</Link> · <Link to="/terms">Terms</Link> · <Link to="/privacy">Privacy</Link> · <Link to="/community-rules">Community rules</Link></nav>
         <Brand />
         <span>Good games. Even better people.</span>
         <Link to="/home">

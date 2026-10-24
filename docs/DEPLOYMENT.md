@@ -62,3 +62,7 @@ Plan quotas from actual workload, not a fictional capacity promise. Example assu
 Use protected branches and require the verification workflow plus integration evidence before promotion. The included CI workflow runs lint, types, unit tests, secret-pattern history scan, dependency audit, production build and bundle scan on PR/manual dispatch. Full local Docker/WebRTC suites remain an explicit gate; they are not silently replaced by unit CI. No workflow here deploys automatically. Existing Vercel Git integration may deploy `main`, so pushing/merging to it is a live action requiring confirmation.
 
 Prefer rolling the app back to a verified compatible commit while keeping additive security guards/indexes. Do not drop user tables, evidence holds or deletion protection as a rollback shortcut. Verify old-client RPC compatibility on staging; account-owner deletion may return an error on older UIs. If data recovery is required, follow the isolated-restore/PITR procedure; restoring old data can undo valid deletions/blocks and requires a reconciliation plan. Never run a restore over production without explicit owner approval.
+
+## Installable PWA deployment
+
+See [PWA deployment and physical-device acceptance](PWA.md). The first-party worker precaches only a small allowlist of public branding/offline assets. No new secrets or database migration are required. Keep `/sw.js` no-store and root-scoped, and do not add private API/document caching through a CDN or third-party PWA plugin. Verify actual OS installation and mobile voice before claiming platform support.

@@ -103,3 +103,7 @@ Start with the [launch readiness report](docs/LAUNCH_READINESS.md). Deliverables
 The pending-only [Phase 12 installer](supabase/phase12-setup.sql) requires Phase 11 and explicit production approval. Do not push/merge to the production-connected branch or change hosted databases before owner confirmation.
 
 Additional checks: `npm run test:launch`, `npm run test:launch:setup`, `npm run test:recovery`, `npm run test:security`, `npm audit`, and `npm run check:production`. Local recovery tests create only a uniquely named local restore database and refuse hosted URLs. Public `/api/health` is liveness only; private `/api/ops/health` needs a server-only bearer token and checks real dependencies.
+
+## Installable app
+
+The PWA adds branded icons/launch assets, a public `/install` guide, first-party offline fallback and manual update controls. See [PWA setup, installation and acceptance](docs/PWA.md). It needs no additional database migration or credentials. Private content is never placed in the service-worker cache.

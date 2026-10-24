@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireUser } from "@/src/lib/auth/session";
 import { loadMyProfile } from "@/src/lib/profiles/data";
 import { PageHeading } from "@/src/components/ui";
@@ -13,6 +14,7 @@ export default async function SettingsPage() {
         title="Your account settings"
         description="Control your preferences, security, and account."
       />
+      <section className="panel padded"><h2>The Gathering on your device</h2><p>Install the app on your phone or computer using your existing account.</p><Link className="button secondary" href="/install">Install The Gathering</Link></section>
       <AccountSettings
         email={user.email!}
         eventReminders={data.preferences.event_reminders}

@@ -41,3 +41,7 @@ Do not treat local browser tests as evidence of production SMTP, physical-device
 See [deployment](DEPLOYMENT.md), [operations](OPERATIONS.md), [recovery](BACKUP_RECOVERY.md), [security findings](SECURITY_REVIEW.md), [known limitations](KNOWN_LIMITATIONS.md) and [acceptance checklist](USER_ACCEPTANCE.md).
 
 Publishing to the production-connected main branch can trigger Vercel automatically. Obtain the user's confirmation before publishing/deploying or changing production data. Preserve security fixes when reverting application behavior; do not drop ownership guards, authorization policies or evidence controls as a rollback shortcut.
+
+## PWA follow-up
+
+The installable web-app release adds no new database or provider credentials. Its local installability, offline-cache isolation and browser regressions are verified; physical OS installation, launch rendering and background voice remain manual acceptance gates. This does not change the public-launch NO-GO decision above. See [PWA deployment and device checklist](PWA.md).

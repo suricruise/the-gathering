@@ -54,7 +54,7 @@ try {
     [a, b, `db-a-${a}@example.test`, `db-b-${b}@example.test`],
   );
   await check(
-    "signup trigger creates private profiles and preferences",
+    "signup trigger creates public profiles and preferences",
     async () => {
       assert.equal(
         (
@@ -62,7 +62,7 @@ try {
             a,
           ])
         ).rows[0].visibility,
-        "private",
+        "public",
       );
       assert.equal(
         (

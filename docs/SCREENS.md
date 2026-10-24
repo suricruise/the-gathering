@@ -144,4 +144,6 @@ Text and voice channel pages show the community's uploaded header above the chan
 
 ## Compact friends and online members
 
-The right rail uses avatar/name links under Friends and Online members on all authenticated screens, including text and voice channels. `/members/[id]` shows an authorized member profile with friend controls and permitted profile details. Friends & messages → Privacy adds a separate opt-in for community online status. See [setup, privacy and usage](PEOPLE_RAIL.md).
+The right rail uses avatar/name links under Friends and Online members on all authenticated screens, including text and voice channels. `/members/[id]` shows an authorized member profile with friend controls and permitted profile details. Friends & messages → Privacy adds a separate control for community online status (on by default). See [setup, privacy and usage](PEOPLE_RAIL.md).
+
+Profiles and both presence settings now default to public/on; the one-time existing-account update and member opt-outs are documented in [the defaults update](PEOPLE_RAIL.md#public-profile-and-presence-defaults-update).

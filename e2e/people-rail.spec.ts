@@ -15,7 +15,7 @@ test("simple people rail opens private member profiles for real friendship and r
   await db.query("insert into public.community_members(community_id,user_id,role_id) values($1,$2,'owner'),($1,$3,'member')",[community,member.id,peer]);
   await db.query("insert into public.channels(id,community_id,name) values($1,$2,'rail-general')",[channel,community]);
   await signIn(peerPage,email,password);await peerPage.goto('/messages?tab=privacy');
-  const preference=peerPage.getByRole('checkbox',{name:'Share online status with fellow community members',exact:true});await expect(preference).toBeEnabled();await expect(preference).not.toBeChecked();await preference.click();await expect(peerPage.getByText('Community presence saved.')).toBeVisible();
+  const preference=peerPage.getByRole('checkbox',{name:'Share online status with fellow community members',exact:true});await expect(preference).toBeEnabled();await expect(preference).toBeChecked();await preference.click();await expect(preference).not.toBeChecked();await preference.click();await expect(peerPage.getByText('Community presence saved.')).toBeVisible();
   await page.goto(`/channels/${channel}`);
   if(test.info().project.name==='desktop'){
    const rail=page.getByRole('complementary',{name:'Community activity'}),online=rail.getByRole('region',{name:'Online members',exact:true});

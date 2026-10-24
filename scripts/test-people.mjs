@@ -87,10 +87,10 @@ try {
     );
   }
   await check(
-    "defaults disable discovery and presence; strangers cannot DM",
+    "defaults share presence but keep discovery opt-in and reject stranger DMs",
     async () => {
       assert.equal((await home(a)).privacy.discoverable, false);
-      assert.equal((await home(a)).privacy.share_presence, false);
+      assert.equal((await home(a)).privacy.share_presence, true);
       assert.equal((await rpc(a, "people_search")).items.length, 0);
       await denied(() => cmd(a, "open", { target: b }));
     },
@@ -312,7 +312,7 @@ try {
     },
   );
   await check(
-    "presence hidden by default, only opted-in friends see online and offline states",
+    "presence opt-out is respected and only sharing friends see online and offline states",
     async () => {
       assert.equal((await history(a, conv)).member.online, null);
       await cmd(b, "privacy", { ...privacy, share_presence: true });

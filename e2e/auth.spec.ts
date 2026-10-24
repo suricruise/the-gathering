@@ -34,7 +34,7 @@ test("email registration → verification → onboarding → persistent profile"
     expect(id).toBeTruthy();
     await page.getByLabel("Display name", { exact: true }).fill("New Gamer");
     await page.getByLabel(/Username/).fill(username);
-    await expect(page.getByRole("radio", { name: /Just me/ })).toBeChecked();
+    await expect(page.getByRole("radio", { name: /Anyone with the link/ })).toBeChecked();
     await page.getByRole("button", { name: "Continue" }).click();
     await page
       .getByRole("checkbox", { name: "Minecraft", exact: true })

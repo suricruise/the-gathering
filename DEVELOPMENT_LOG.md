@@ -1,5 +1,15 @@
 # Development log
 
+## 2026-10-24 — Public profiles and shared presence by default
+
+Implemented the owner's explicit request to make existing and future profiles public and enable both friend and community online-status sharing. The additive `202611050001_public_profile_defaults.sql` changes database insert defaults and performs a one-time existing-account backfill. It clears presence timestamps rather than inventing online activity. Member profile and presence controls remain editable; discovery opt-in, DM consent, blocks and private-content rules are unchanged. Onboarding, presence instructions and the draft privacy notice now explain the defaults and how to opt out.
+
+The guarded `supabase/public-profile-defaults-setup.sql` installer requires the sidebar migration, records its version and skips recorded reruns so members' later private/off choices survive. Matching defaults without history stop for inspection instead of repeating the reset. The guide explains that reversing defaults cannot reconstruct previously overwritten choices and that any settings recovery requires a reviewed pre-change backup.
+
+Verification: all 263 unit/server/component tests, lint, typecheck, production build, tracked-file/history credential-pattern scan and client-secret bundle scan pass. Four new migration/installer checks verify existing backfill, real Auth bootstrap defaults, editable opt-outs and rerun preservation, plus refusal of ambiguous history. Existing 21 profile, 25 People, 15 directory and 11 rail database checks pass with fixture/default expectations updated to the requested behavior. All 16 selected desktop/mobile production-browser scenarios pass, covering registration/onboarding public defaults, persistent profile editing/private opt-out, secure avatars, login/recovery/deletion, privacy settings, real two-account friend/DM behavior, community directory and default-on presence with opt-out/re-enable.
+
+Only the local test database was updated. Production SQL and deployment remain pending; no hosted profiles or preferences were changed. Setup and rollback notes are in [the defaults update guide](docs/PEOPLE_RAIL.md#public-profile-and-presence-defaults-update).
+
 ## 2026-10-24 — Compact friends/online sidebar and profile contact controls
 
 Replaced the previous mixed activity/channel member rail with one consistent Around the gathering sidebar: Friends first, Online members second. Each member row contains only an authorized avatar (or initials) and display name, linking to `/members/[id]` inside the authenticated shell. Long lists scroll, rows have 44px targets and the full Members pages remain available when the right rail is hidden on phones. Friend controls now live on the linked profile: request/cancel, accept/decline, accepted/removal and messaging when permitted. Profile details use the existing authorized projection; private profiles expose only existing shared-membership/friendship identity and permitted contact options. The old unused PeopleSidebar implementation was removed.

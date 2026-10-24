@@ -42,7 +42,7 @@ const content = {
       ],
       [
         "Audience controls",
-        "Profiles, community membership, private channels, direct messages and prayer requests have separate access rules. A prayer marked private to moderators is visible to its author and current authorized community moderators. Staff can review reported items within their authorized scope. Messages are not end-to-end encrypted.",
+        "Profiles are public by default, and online status is shared with friends and fellow community members by default. Members can limit profile visibility and turn off either online-status setting. Community membership, private channels, direct messages and prayer requests have separate access rules. A prayer marked private to moderators is visible to its author and current authorized community moderators. Staff can review reported items within their authorized scope. Messages are not end-to-end encrypted.",
       ],
       [
         "Providers and browser storage",

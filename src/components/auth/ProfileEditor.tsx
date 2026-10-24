@@ -152,6 +152,7 @@ export function ProfileEditor({
               placeholder="Favorite worlds, little joys, what you’re here for…"
             />
           </label>
+          <p className="muted">Profiles are public by default. Choose Gathering members or Just me below to limit access. Online-status sharing can be turned off in Friends &amp; messages → Privacy.</p>
           <fieldset className="privacy-options">
             <legend>
               <LockKeyhole size={16} />

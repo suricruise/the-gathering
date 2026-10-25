@@ -3,6 +3,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { ImagePlus, Paperclip, Smile, X } from "lucide-react";
 import { sendMessage } from "../../lib/chat/actions";
 import { communityMembers, type DirectoryMember } from "../../lib/communities/members";
+import { useChatIdentity } from "./ChatIdentity";
 import { attachmentAccept, attachmentError, composerEmoji, mentionAt } from "../../lib/chat/composer";
 import { uploadChatFile } from "../../lib/chat/upload-client";
 import type { Attachment, ChatMessage, DeliveryChange } from "../../lib/chat/types";
@@ -15,6 +16,7 @@ export function MessageComposer({ channelId, channelName, userId, canPost, conne
   committed?: ChatMessage[]; onDelivery?: (change: DeliveryChange) => void;
   onCancelReply: () => void; onSent: (message: ChatMessage) => void; onTyping: (active: boolean) => void; onLocked: (locked: boolean) => void;
 }) {
+  const identity=useChatIdentity();
   const [draft, setDraft] = useState("");
   const [staged, setStaged] = useState<Staged[]>([]);
   const entries = useRef<Staged[]>([]);
@@ -46,6 +48,8 @@ export function MessageComposer({ channelId, channelName, userId, canPost, conne
   const disabled = !canPost || locked;
   const mention = !disabled && !dismissed ? mentionAt(draft, caret) : null;
   const query = mention?.query;
+  const mass=identity?.canMassMention&&mention?['everyone','role:member','role:moderator','role:administrator','role:owner'].filter(token=>token.startsWith(mention.query.toLowerCase())):[];
+  const suggestionCount=suggestions.length+mass.length;
   const update = (next: Staged[]) => { entries.current = next; setStaged(next); };
   useEffect(() => {
     alive.current = true;
@@ -63,9 +67,9 @@ export function MessageComposer({ channelId, channelName, userId, canPost, conne
     if (query === undefined || hidden) { setMentionLoading(false); return; }
     setMentionLoading(true);
     const timer = setTimeout(() => {
-      void communityMembers({ channel: channelId, query, size: 8 }).then((result) => {
+      void communityMembers({ channel: channelId, query:query.includes(":")?"":query, size: 8 }).then((result) => {
         if (!active) return;
-        setSuggestions(result.data?.items.filter((m) => m.id !== userId) ?? []);
+        setSuggestions(query.includes(":")?[]:result.data?.items.filter((m) => m.id !== userId) ?? []);
         setMentionError(result.error ?? "");
         setMentionLoading(false);
       }).catch(() => { if (active) { setMentionError("Member suggestions unavailable. Type a username or retry."); setMentionLoading(false); } });
@@ -173,12 +177,12 @@ export function MessageComposer({ channelId, channelName, userId, canPost, conne
       <button type="button" className="chat-text-button" disabled={locked} onClick={() => { uploads.current.get(entry.id)?.(); uploads.current.delete(entry.id); update(entries.current.filter((item) => item.id !== entry.id)); }}>Remove attachment</button>
     </li>)}</ul>}
     <div className="composer-input-wrap">
-      {mention && <div className="composer-mentions"><span className="sr-only" role="status">{mentionLoading ? "Finding members…" : mentionError || `${suggestions.length} member suggestions`}</span>
-        <ul id={listId} role="listbox" aria-label="Mention members">{suggestions.map((member, index) => <li key={member.id} id={`${listId}-${index}`} role="option" aria-selected={selected === index} onMouseDown={(event) => event.preventDefault()} onClick={() => selectMention(member)}><span>{member.name}</span><span className="muted">@{member.username}</span></li>)}</ul>
-        {!suggestions.length && <p>{mentionLoading ? "Finding members…" : mentionError || "No matching members"}</p>}
+      {mention && <div className="composer-mentions"><span className="sr-only" role="status">{mentionLoading ? "Finding members…" : mentionError || `${suggestionCount} mention suggestions`}</span>
+        <ul id={listId} role="listbox" aria-label="Mention members">{suggestions.map((member, index) => <li key={member.id} id={`${listId}-${index}`} role="option" aria-selected={selected === index} onMouseDown={(event) => event.preventDefault()} onClick={() => selectMention(member)}><span>{member.name}</span><span className="muted">@{member.username}</span></li>)}{mass.map((token,index)=><li key={token} id={`${listId}-${suggestions.length+index}`} role="option" aria-selected={selected===suggestions.length+index} onMouseDown={event=>event.preventDefault()} onClick={()=>{if(mention){insert(`@${token} `,mention.start,mention.end);setDismissed(true);}}}><span>@{token}</span><span className="muted">Administrator mention · cooldown applies</span></li>)}</ul>
+        {!suggestionCount && <p>{mentionLoading ? "Finding members…" : mentionError || "No matching members"}</p>}
       </div>}
       <label><span className="sr-only">{parentId ? "Thread reply" : `Message ${channelName}`}</span>
-        <textarea ref={textarea} value={draft} rows={1} disabled={disabled} maxLength={4000} aria-describedby={`${listId}-help`} aria-autocomplete="list" aria-controls={mention ? listId : undefined} aria-activedescendant={mention && suggestions[selected] ? `${listId}-${selected}` : undefined}
+        <textarea ref={textarea} value={draft} rows={1} disabled={disabled} maxLength={4000} aria-describedby={`${listId}-help`} aria-autocomplete="list" aria-controls={mention ? listId : undefined} aria-activedescendant={mention && selected<suggestionCount ? `${listId}-${selected}` : undefined}
           placeholder={canPost ? `Message #${channelName}` : ["Connecting", "Reconnecting"].includes(connection) ? "Connecting to channel…" : "This channel is read-only"}
           onChange={(event) => changeDraft(event.target.value, event.target.selectionStart)}
           onSelect={(event) => { setCaret(event.currentTarget.selectionStart); selection.current = { start: event.currentTarget.selectionStart, end: event.currentTarget.selectionEnd }; }}
@@ -186,8 +190,8 @@ export function MessageComposer({ channelId, channelName, userId, canPost, conne
           onKeyDown={(event) => {
             if (composing.current || event.nativeEvent.isComposing || event.keyCode === 229) return;
             if (mention && event.key === "Escape") { event.preventDefault(); setDismissed(true); return; }
-            if (mention && suggestions.length && ["ArrowDown", "ArrowUp"].includes(event.key)) { event.preventDefault(); setSelected((current) => (current + (event.key === "ArrowDown" ? 1 : -1) + suggestions.length) % suggestions.length); return; }
-            if (mention && suggestions[selected] && ((event.key === "Enter" && !event.shiftKey) || (event.key === "Tab" && !event.shiftKey))) { event.preventDefault(); selectMention(suggestions[selected]); return; }
+            if (mention && suggestionCount && ["ArrowDown", "ArrowUp"].includes(event.key)) { event.preventDefault(); setSelected((current) => (current + (event.key === "ArrowDown" ? 1 : -1) + suggestionCount) % suggestionCount); return; }
+            if (mention && suggestionCount && ((event.key === "Enter" && !event.shiftKey) || (event.key === "Tab" && !event.shiftKey))) { event.preventDefault(); if(suggestions[selected])selectMention(suggestions[selected]);else{insert(`@${mass[selected-suggestions.length]} `,mention.start,mention.end);setDismissed(true);} return; }
             if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); if (!(mention && mentionLoading)) void submit(); }
           }} />
       </label>

@@ -71,7 +71,9 @@
     "test:threads": "node scripts/test-channel-threads.mjs",
     "test:threads:setup": "node scripts/test-channel-threads-setup.mjs",
     "test:chat:reliability": "node scripts/test-chat-reliability.mjs",
-    "test:chat:reliability:setup": "node scripts/test-chat-reliability-setup.mjs"
+    "test:chat:reliability:setup": "node scripts/test-chat-reliability-setup.mjs",
+    "test:chat:navigation": "node scripts/test-chat-navigation.mjs",
+    "test:chat:navigation:setup": "node scripts/test-chat-navigation-setup.mjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",

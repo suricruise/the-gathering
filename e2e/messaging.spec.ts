@@ -392,8 +392,9 @@ test("two authenticated browsers exchange, thread, edit, react, attach, reconnec
       fullPage: true,
     });
     // Deleting a pinned root keeps its existing replies reachable and removes it from pins.
-    await page.reload();
+    await page.goto(`/channels/${channel}?message=${firstId}`);
     await expect(page.locator(".chat-connection")).toHaveText("● Live");
+    await expect(page.locator(`[data-message-id="${firstId}"]`)).toHaveCount(1);
     firstArticle = page.locator(`[data-message-id="${firstId}"]`);
     await openActions(firstArticle);
     await firstArticle.locator("summary").filter({ hasText: /^Delete message$/ }).click();

@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { useChatIdentity, mentionsMember } from "./ChatIdentity";
 import { MoreHorizontal, SmilePlus, Reply, MessagesSquare, Copy, Pin } from "lucide-react";
 import { memo, useRef, useState } from "react";
 import { ProfileAvatar } from "../ui";
@@ -117,12 +118,14 @@ export const MessageItem = memo(function MessageItem({
     setText(m.body); setEditing(true); setError("");
     requestAnimationFrame(() => editInput.current?.focus());
   }
+  const identity=useChatIdentity();
+  const mentioned=!m.deleted_at&&(mentionsMember(m.body,identity?.username??"")||!!identity&&!!m.mass_mention_role&&(m.mass_mention_role==='*'||m.mass_mention_role===identity.role));
   return (
     <article
       id={`${scope === "thread" ? "thread-message" : "message"}-${m.id}`}
       data-message-id={scope === "channel" ? m.id : undefined}
       data-thread-message-id={scope === "thread" ? m.id : undefined}
-      className={`chat-message ${highlight ? "highlighted" : ""} ${grouped ? "is-grouped" : ""}`}
+      className={`chat-message ${mentioned?"mentions-you":""} ${highlight ? "highlighted" : ""} ${grouped ? "is-grouped" : ""}`}
       aria-label={`Message from ${m.author_name}`}
     >
       <div className="chat-message-avatar">
@@ -146,6 +149,7 @@ export const MessageItem = memo(function MessageItem({
           {m.edited_at && !m.deleted_at && <small>edited</small>}
         </header>}
         {grouped && m.edited_at && !m.deleted_at && <small>edited</small>}
+        {mentioned&&<small className="message-mention-label">Mentioned you</small>}
         {m.pinned_at && !m.deleted_at && <small className="message-pin-label"><Pin size={12} aria-hidden="true" /> Pinned</small>}
         {scope === "channel" && !m.deleted_at && m.reply_count > 0 && <button type="button" className="message-thread-summary chat-text-button" disabled={replyDisabled} onClick={() => onReply(m)}>{m.reply_count} replies{m.thread_latest_at && <span> · Latest <time dateTime={m.thread_latest_at}>{messageTime(m.thread_latest_at, localTime)}</time></span>}</button>}
         {m.reply_to_id && <small className="muted">Reply in thread</small>}

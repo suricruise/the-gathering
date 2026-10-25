@@ -6657,3 +6657,24 @@ body:has(.app-shell.channel-mode) .pwa-status:not(.pwa-update) { pointer-events:
 
 /* Contain separator margins so measured rows and pane anchors include their full height. */
 .message-timeline, .message-timeline > div { display: flow-root; }
+
+/* Stage 7: searchable, personal community navigation. */
+.chat-notification-settings { border-bottom:1px solid var(--border,#303449); padding:0 14px; font-size:12px; max-height:45dvh; overflow:auto; }
+.chat-notification-settings>summary { cursor:pointer; min-height:44px; display:flex; align-items:center; color:#c2b4ff; }
+.chat-notification-settings form { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:12px 0; }
+.chat-notification-settings label,.chat-advanced-search label { display:grid; gap:6px; color:#d4d9e8; font-size:12px; }
+.chat-notification-settings select,.chat-advanced-search select,.chat-advanced-search input:not([type=checkbox]) { min-height:44px; width:100%; min-width:0; border:1px solid #373c56; background:#0c101d; color:#f0efff; border-radius:8px; padding:8px; }
+.chat-notification-settings p { grid-column:1/-1; margin:0; color:#b3bbcf; }
+.chat-search-dialog { width:min(850px,calc(100% - 24px)); max-height:88dvh; padding:20px; border:1px solid #3a3e5b; border-radius:16px; color:#ececf8; background:#111523; }
+.chat-search-dialog::backdrop { background:#060914c9; }
+.chat-advanced-search>header { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.chat-advanced-search>form { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:16px 0; }
+.chat-advanced-search .chat-search-check { display:flex; align-items:center; gap:10px; min-height:44px; }
+.chat-search-results { list-style:none; padding:0; margin:0; display:grid; gap:10px; }
+.chat-search-results a { display:block; border:1px solid #30384e; padding:14px; border-radius:10px; overflow-wrap:anywhere; background:#151b2c; }
+.chat-search-results a:hover { border-color:#8d77e9; }
+.chat-search-results p { color:#dde2ed; white-space:pre-wrap; margin:8px 0; }
+.chat-search-results time { font-size:11px; color:#b6bfd2; }
+.chat-message.mentions-you { background:#7960d31c; border-left:3px solid #aa8aff; }
+.message-mention-label { color:#d5c6ff; font-weight:700; }
+@media(max-width:600px) { .chat-notification-settings form,.chat-advanced-search>form { grid-template-columns:1fr; } .workspace-channel-header>.chat-text-button { max-width:74px; line-height:1.3; min-height:44px; } .chat-search-dialog { padding:14px; } }

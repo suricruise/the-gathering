@@ -94,7 +94,7 @@ epoch.current++;clearTimeout(retryTimer.current);clearTimeout(visibleTimer.curre
         subscription=socket.channel(topic,{config:{private:true,broadcast:{self:false}}})
           .on("broadcast",{event:"changed"},invalidate)
           .on("broadcast",{event:"receipt"},()=>{if(!stopped){void refresh().catch(()=>{});void receiptSnapshot();}})
-          .on("broadcast",{event:"access_changed"},()=>{if(stopped)return;epoch.current++;allowed.current=false;socketReady.current=false;setCanPost(false);setTyping({});setStatus("Reauthorizing");setGeneration(value=>value+1);})
+          .on("broadcast",{event:"access_changed"},()=>{if(stopped)return;window.dispatchEvent(new Event("gathering:chat-access-changed"));epoch.current++;allowed.current=false;socketReady.current=false;setCanPost(false);setTyping({});setStatus("Reauthorizing");setGeneration(value=>value+1);})
           .on("broadcast",{event:"typing"},({payload})=>{
             if(stopped||!allowed.current||payload?.user_id===userId||typeof payload?.user_id!=="string"||payload.user_id.length>36||typeof payload?.name!=="string")return;
             const until=Date.parse(payload.until),now=Date.now();if(!Number.isFinite(until)||until>now+10000)return;

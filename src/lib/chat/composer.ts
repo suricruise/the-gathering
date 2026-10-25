@@ -7,7 +7,7 @@ export function attachmentError(file: Pick<File, "size" | "type">): string | nul
   return null;
 }
 export function mentionAt(text: string, caret: number) {
-  const match = /(?:^|\s)@([a-z0-9_]{0,23})$/i.exec(text.slice(0, caret));
+  const match = /(?:^|\s)@([a-z0-9_:]{0,29})$/i.exec(text.slice(0, caret));
   return match ? { query: match[1], start: caret - match[1].length - 1, end: caret } : null;
 }
 export const composerEmoji = [

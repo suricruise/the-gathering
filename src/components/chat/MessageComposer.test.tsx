@@ -134,3 +134,9 @@ it('emits a visible optimistic attempt and settles from an authoritative saved I
  const saved={...pending,id:pending.id,channel_id:channel,author_id:'self',parent_id:null} as unknown as ChatMessage;
  view.rerender(<MessageComposer {...props} committed={[saved]}/>);await screen.findByText('Message sent.');expect(onSent).toHaveBeenCalledWith(saved);expect(mocks.send).toHaveBeenCalledTimes(1);expect(screen.getByRole('textbox',{name:'Message general'})).toBeEnabled();
 });
+it('offers and keyboard-selects permitted administrator role mentions',async()=>{
+ const {ChatIdentity}=await import('./ChatIdentity');
+ render(<ChatIdentity.Provider value={{username:'owner',canMassMention:true,role:'owner'}}><MessageComposer channelId={channel} channelName="general" userId="self" canPost connection="Live" parentId={null} hidden={false} onCancelReply={vi.fn()} onSent={vi.fn()} onTyping={vi.fn()} onLocked={vi.fn()}/></ChatIdentity.Provider>);
+ const input=screen.getByRole('textbox',{name:'Message general'});fireEvent.change(input,{target:{value:'@role:mod',selectionStart:9}});await screen.findByRole('option',{name:/@role:moderator/});fireEvent.keyDown(input,{key:'Tab'});expect(input).toHaveValue('@role:moderator ');expect(mocks.send).not.toHaveBeenCalled();
+});
+it('does not offer privileged mass mentions to an ordinary composer',async()=>{const{input}=setup();fireEvent.change(input,{target:{value:'@every',selectionStart:6}});await waitFor(()=>expect(mocks.members).toHaveBeenCalled());expect(screen.queryByRole('option',{name:/@everyone/})).toBeNull();});

@@ -1,4 +1,5 @@
 "use client";
+import { firstUnread } from "../../lib/chat/navigation";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
   getHistory,
@@ -34,6 +35,7 @@ export function ChatWorkspace({
   publishableKey: string;
   sharedMessage?: string;
 }) {
+  const [jumping,setJumping]=useState(false);
   const chat = useChannelChat({
     channelId,
     userId,
@@ -146,6 +148,7 @@ export function ChatWorkspace({
   useEffect(() => {
     if (chat.denied) {
       pageRequest.current++;
+      setJumping(false);setLoading(false);
       setThread(null);
       setThreadOpen(false);
       setThreadLocked(false);
@@ -210,6 +213,17 @@ export function ChatWorkspace({
     finally{if(request===pageRequest.current)setLoading(false);}
   }
   useEffect(()=>()=>{pageRequest.current++;},[]);
+  async function jumpUnread(){
+    if(jumping)return;const request=++pageRequest.current;setJumping(true);setError("");
+    try{const result=await firstUnread(channelId);if(request!==pageRequest.current)return;
+      if(result.denied){chat.lock();return;}if(result.error){setError(result.error);return;}if(!result.data){setError("You’re up to date.");return;}
+      if(result.data.parent_id){merge([result.data]);openThread(result.data);return;}
+      const resultPage=await getConversationPage({channelId,mode:"initial"});if(request!==pageRequest.current)return;
+      if(resultPage.denied){chat.lock();return;}if(!resultPage.data){setError(resultPage.error??"Unread history unavailable.");return;}
+      const page=resultPage.data;merge(page.messages);chat.applyState(page);setSearchResults(null);setFloor(page.messages[0]?.created_seq??"0");setCeiling(page.messages.at(-1)?.created_seq??"0");setRootBefore(page.messages[0]?.created_seq??null);setOlder(page.has_older??false);setHasNewer(page.has_newer??false);wasNearBottom.current=false;setFollowing(false);
+      const target=page.first_unread_id??page.messages.at(-1)?.id;if(target){setHighlight(target);requestAnimationFrame(()=>{const list=channelList.current,row=document.getElementById(`message-${target}`);if(list&&row)list.scrollTop+=row.getBoundingClientRect().top-list.getBoundingClientRect().top;setViewportVersion(value=>value+1);});}
+    }catch{if(request===pageRequest.current)setError("Unread messages could not be loaded.");}finally{if(request===pageRequest.current)setJumping(false);}
+  }
   async function runSearch(more = false) {
     if (search.trim().length < 2) {
       setError("Enter at least two characters.");
@@ -272,6 +286,7 @@ export function ChatWorkspace({
             Reconnect
           </button>
         )}
+        <button type="button" className="chat-text-button" disabled={jumping||composerLocked||threadLocked||chat.denied||!chat.unread} onClick={()=>void jumpUnread()}>Jump to first unread</button>
         <button
           className="chat-text-button"
           onClick={() => { void markAllRead(channelId).then(result=>{if(result.data)chat.applyState(result.data);else setError(result.error??"Read state unavailable.");}).catch(()=>setError("Read state unavailable. Please retry.")); }}

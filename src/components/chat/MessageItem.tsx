@@ -1,9 +1,10 @@
 "use client";
 import Link from "next/link";
-import { MoreHorizontal } from "lucide-react";
-import { useState } from "react";
+import { MoreHorizontal, SmilePlus, Reply, MessagesSquare, Copy, Pin } from "lucide-react";
+import { useRef, useState } from "react";
 import { ProfileAvatar } from "../ui";
 import { changeMessage, reactToMessage } from "../../lib/chat/actions";
+import { setMessagePin } from "../../lib/chat/pins";
 import { loadLinkPreviews } from "../../lib/chat/preview-action";
 import { messageLinks } from "../../lib/chat/validation";
 import { reactionEmoji, type ChatMessage } from "../../lib/chat/types";
@@ -32,12 +33,18 @@ export function MessageItem({
   grouped?: boolean;
   localTime?: boolean;
 }) {
+  const menu = useRef<HTMLDetailsElement>(null);
+  const reactionMenu = useRef<HTMLDetailsElement>(null);
+  const editInput = useRef<HTMLTextAreaElement>(null);
+  const mutation = useRef(false);
   const [editing, setEditing] = useState(false);
   const [text, setText] = useState(m.body);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
   const mutate = async (operation: "edit" | "delete", reason = "") => {
+    if (mutation.current) return;
+    mutation.current = true;
     setBusy(true);
     setError("");
     try {
@@ -54,10 +61,13 @@ export function MessageItem({
     } catch {
       setError("The change did not finish. Please retry.");
     } finally {
+      mutation.current = false;
       setBusy(false);
     }
   };
   const react = async (emoji: string, active: boolean) => {
+    if (mutation.current) return;
+    mutation.current = true;
     setBusy(true);
     setError("");
     try {
@@ -67,6 +77,7 @@ export function MessageItem({
     } catch {
       setError("Reaction unavailable. Please retry.");
     } finally {
+      mutation.current = false;
       setBusy(false);
     }
   };
@@ -83,6 +94,27 @@ export function MessageItem({
       setBusy(false);
     }
   };
+  const copy = async (link: boolean) => {
+    setError(""); setNotice("");
+    try {
+      if (!navigator.clipboard) throw Error();
+      await navigator.clipboard.writeText(link ? `${location.origin}/channels/${m.channel_id}?message=${m.id}` : m.body);
+      setNotice(link ? "Message link copied." : "Message text copied.");
+    } catch { setError("Copy unavailable in this browser."); }
+  };
+  const pin = async () => {
+    if (mutation.current) return;
+    mutation.current = true; setBusy(true); setError("");
+    try { const result = await setMessagePin({ id: m.id, active: !m.pinned_at });
+      if (result.data) { onMerge([result.data]); setNotice(result.data.pinned_at ? "Message pinned." : "Message unpinned."); }
+      else setError(result.error ?? "Pin unavailable.");
+    } catch { setError("Pin unavailable. Please retry."); }
+    finally { mutation.current = false; setBusy(false); }
+  };
+  function beginEdit() {
+    setText(m.body); setEditing(true); setError("");
+    requestAnimationFrame(() => editInput.current?.focus());
+  }
   return (
     <article
       id={`message-${m.id}`}
@@ -111,9 +143,10 @@ export function MessageItem({
           {m.edited_at && !m.deleted_at && <small>edited</small>}
         </header>}
         {grouped && m.edited_at && !m.deleted_at && <small>edited</small>}
+        {m.pinned_at && !m.deleted_at && <small className="message-pin-label"><Pin size={12} aria-hidden="true" /> Pinned</small>}
         {m.reply_to_id && <small className="muted">Reply in thread</small>}
         {m.deleted_at ? (
-          <p className="muted">Message deleted</p>
+          <div><p className="muted">Message deleted</p>{m.reply_count > 0 && <button type="button" className="chat-text-button" disabled={replyDisabled} onClick={() => onReply(m)}>View thread · {m.reply_count}</button>}</div>
         ) : (
           <>
             {editing ? (
@@ -126,6 +159,8 @@ export function MessageItem({
                 <label className="field">
                   Edit message
                   <textarea
+                    ref={editInput}
+                    disabled={busy}
                     value={text}
                     onChange={(e) => setText(e.target.value)}
                     maxLength={4000}
@@ -139,7 +174,8 @@ export function MessageItem({
                   <button
                     type="button"
                     className="button secondary"
-                    onClick={() => setEditing(false)}
+                    disabled={busy}
+                    onClick={() => { setEditing(false); menu.current?.querySelector("summary")?.focus(); }}
                   >
                     Cancel edit
                   </button>
@@ -204,7 +240,13 @@ export function MessageItem({
                 </button>
               ))}
             </div>
-            <details className="chat-message-menu"><summary aria-label="Message actions"><MoreHorizontal size={19} aria-hidden="true" /></summary>
+            <div className="message-hover-toolbar" role="group" aria-label="Quick message actions">
+              <button type="button" aria-label="Add emoji reaction" title="Add reaction" disabled={!canPost || busy} onClick={() => { if(menu.current) menu.current.open = true; if(reactionMenu.current) reactionMenu.current.open = true; requestAnimationFrame(() => reactionMenu.current?.querySelector("button")?.focus()); }}><SmilePlus size={17} /></button>
+              <button type="button" aria-label="Reply to message" title="Reply" disabled={replyDisabled} onClick={() => onReply(m)}><Reply size={17} /></button>
+              <button type="button" aria-label="Start thread" title="Start thread" disabled={replyDisabled} onClick={() => onReply(m)}><MessagesSquare size={17} /></button>
+              <button type="button" aria-label="Copy message text" title="Copy text" onClick={() => void copy(false)}><Copy size={17} /></button>
+            </div>
+            <details ref={menu} className="chat-message-menu" onKeyDown={(event) => { if(event.key === "Escape" && menu.current) { menu.current.open=false; menu.current.querySelector("summary")?.focus(); } }}><summary aria-label="Message actions"><MoreHorizontal size={19} aria-hidden="true" /></summary>
             <div className="chat-actions">
               <button
                 type="button"
@@ -216,7 +258,7 @@ export function MessageItem({
                   : `Reply${m.reply_count ? ` · ${m.reply_count}` : ""}`}
               </button>
               {canPost && (
-                <details className="reaction-picker">
+                <details className="reaction-picker" ref={reactionMenu}>
                   <summary>Add reaction</summary>
                   <div>
                     {reactionEmoji.map((emoji) => (
@@ -244,10 +286,7 @@ export function MessageItem({
                 <button
                   type="button"
                   className="chat-text-button"
-                  onClick={() => {
-                    setText(m.body);
-                    setEditing(true);
-                  }}
+                  onClick={beginEdit}
                 >
                   Edit
                 </button>
@@ -265,34 +304,27 @@ export function MessageItem({
                     {m.author_id !== userId && (
                       <label className="field">
                         Moderation reason
-                        <input name="reason" maxLength={300} />
+                        <input name="reason" maxLength={300} required />
                       </label>
                     )}
                     <p>This removes the message content for everyone.</p>
                     <button className="button secondary" disabled={busy}>
                       Confirm delete
                     </button>
+                    <button type="button" className="chat-text-button" disabled={busy} onClick={(event) => { const details = event.currentTarget.closest("details"); if(details) { details.open = false; details.querySelector("summary")?.focus(); } }}>Cancel deletion</button>
                   </form>
                 </details>
               )}
               <button
                 type="button"
                 className="chat-text-button"
-                onClick={() => {
-                  if (!navigator.clipboard) {
-                    setError("Copy unavailable in this browser.");
-                    return;
-                  }
-                  void navigator.clipboard
-                    .writeText(
-                      `${location.origin}/channels/${m.channel_id}?message=${m.id}`,
-                    )
-                    .then(() => setNotice("Message link copied."))
-                    .catch(() => setError("Copy unavailable in this browser."));
-                }}
+                onClick={() => void copy(true)}
               >
                 Copy link
               </button>
+              <button type="button" className="chat-text-button" onClick={() => void copy(false)}>Copy text</button>
+              <button type="button" className="chat-text-button" disabled={replyDisabled} onClick={() => onReply(m)}>{m.reply_count ? "View thread" : "Start thread"}</button>
+              {moderator && <button type="button" className="chat-text-button" disabled={busy} onClick={() => void pin()}>{m.pinned_at ? "Unpin message" : "Pin message"}</button>}
               <Link href={`/reports?type=message&target=${m.id}`} className="chat-text-button">Report message</Link>
               {messageLinks(m.body).length > m.previews.length && (
                 <button

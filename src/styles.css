@@ -6592,3 +6592,24 @@ select:focus-visible,
 /* PWA notices live outside the shell; keep them away from the chat composer. */
 body:has(.app-shell.channel-mode) .pwa-status { top: max(8px, env(safe-area-inset-top)); bottom: auto; }
 body:has(.app-shell.channel-mode) .pwa-status:not(.pwa-update) { pointer-events: none; }
+
+/* Stage 4: compact hover actions; native disclosures remain reachable by keyboard/touch. */
+.community-chat-workspace .message-hover-toolbar { position: absolute; right: 36px; top: 0; display: flex; padding: 2px; border: 1px solid #3c4260; border-radius: 8px; background: #171d2e; z-index: 2; visibility: hidden; }
+.community-chat-workspace .message-hover-toolbar button { display: grid; place-items: center; width: 32px; height: 32px; border: 0; background: transparent; color: #c8c0e7; border-radius: 5px; cursor: pointer; }
+.community-chat-workspace .message-hover-toolbar button:hover { background: #39304f; color: white; }
+.community-chat-workspace .message-hover-toolbar button:focus-visible { outline: 2px solid #73deed; }
+.community-chat-workspace .chat-message:hover .message-hover-toolbar, .community-chat-workspace .chat-message:focus-within .message-hover-toolbar { visibility: visible; }
+.community-chat-workspace .chat-message:has(.chat-message-menu[open]) .message-hover-toolbar { visibility: hidden; }
+.community-chat-workspace .chat-message-menu[open] > .chat-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+.community-chat-workspace .chat-message-menu .chat-actions button, .community-chat-workspace .chat-message-menu .chat-actions a, .community-chat-workspace .chat-message-menu .chat-actions summary { min-height: 36px; padding: 8px; }
+.community-chat-workspace .chat-reactions button[aria-pressed=true] { background: #373055; border-color: #b7a3f8; color: #f0eaff; }
+.community-chat-workspace .message-pin-label { display: flex; align-items: center; gap: 4px; color: #c7b6f8; font-size: 11px; }
+.community-chat-workspace .message-pins-panel { font-size: 14px; line-height: 1.5; color: #edf0fb; background: #131a2c; border: 1px solid #525d80; border-radius: 14px; width: min(560px, calc(100vw - 24px)); max-height: 80dvh; overflow-y: auto; padding: 18px; }
+.community-chat-workspace .message-pins-panel::backdrop { background: #050813aa; }
+.community-chat-workspace .message-pins-panel header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.community-chat-workspace .message-pins-panel h2 { margin: 0; font-size: 18px; }
+.community-chat-workspace .message-pins-panel ul { list-style: none; padding: 0; }
+.community-chat-workspace .message-pins-panel li { padding: 14px 0; border-top: 1px solid #343b52; overflow-wrap: anywhere; }
+.community-chat-workspace .message-pins-panel a { color: #c5b2ff; margin-right: 15px; }
+.community-chat-workspace .message-pins-panel button, .community-chat-workspace .message-pins-panel a { min-height: 44px; display: inline-flex; align-items: center; }
+@media(hover:none), (max-width:760px) { .community-chat-workspace .message-hover-toolbar { display: none; } .community-chat-workspace .chat-message-menu .chat-actions button, .community-chat-workspace .chat-message-menu .chat-actions a, .community-chat-workspace .chat-message-menu .chat-actions summary { min-height: 44px; } }

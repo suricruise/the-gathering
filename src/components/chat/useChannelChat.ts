@@ -21,6 +21,7 @@ export function useChannelChat({
   const [status, setStatus] = useState("Connecting");
   const [denied, setDenied] = useState(false);
   const [canPost, setCanPost] = useState(false);
+  const [refreshVersion, setRefreshVersion] = useState(0);
   const [role, setRole] = useState("member");
   const [typing, setTyping] = useState<
     Record<string, { name: string; until: number }>
@@ -59,6 +60,7 @@ export function useChannelChat({
       merge(result.data.messages);
       setUnread(result.data.unread_count);
       setLastRead(result.data.last_read_seq);
+      setRefreshVersion((value) => value + 1);
     }
   }, [channelId, lock, merge]);
   const catchUp = useCallback(async () => {
@@ -247,6 +249,7 @@ export function useChannelChat({
   );
   return {
     messages,
+    refreshVersion,
     merge,
     status,
     denied,

@@ -1,3 +1,4 @@
+import type { Locator } from "@playwright/test";
 import { test, expect, adminClient, userClient, signIn } from "./helpers";
 import { randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -9,7 +10,7 @@ test("two authenticated browsers exchange, thread, edit, react, attach, reconnec
   member,
   browser,
 }) => {
-  test.setTimeout(150000);
+  test.setTimeout(180000);
   const connectionString = readFileSync(
     ".local-stack/database-url",
     "utf8",
@@ -129,6 +130,47 @@ test("two authenticated browsers exchange, thread, edit, react, attach, reconnec
     const firstId = await firstArticle.getAttribute("data-message-id");
     expect(firstId).toBeTruthy();
     firstArticle = page.locator(`[data-message-id="${firstId}"]`);
+    // Stage 4: real clipboard, hover/focus toolbar, permission-gated pins and thread entry.
+    await page.context().grantPermissions(["clipboard-read", "clipboard-write"]);
+    await page.bringToFront();
+    if (test.info().project.name === "desktop") {
+      await firstArticle.hover();
+      await expect(firstArticle.getByRole("group", { name: "Quick message actions" })).toBeVisible();
+      await firstArticle.getByRole("button", { name: "Add emoji reaction", exact: true }).click();
+      await firstArticle.getByRole("button", { name: "React 👀", exact: true }).click();
+      await expect(second.locator(`[data-message-id="${firstId}"]`).getByRole("button", { name: "👀 reaction, 1", exact: true })).toBeVisible();
+    }
+    await openActions(firstArticle);
+    await firstArticle.getByRole("button", { name: "Copy text", exact: true }).click();
+    await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe("Hello from Jordan, **live**.");
+    await firstArticle.getByRole("button", { name: "Copy link", exact: true }).click();
+    await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe(`http://127.0.0.1:4173/channels/${channel}?message=${firstId}`);
+    await firstArticle.getByRole("button", { name: "Pin message", exact: true }).click();
+    await expect(firstArticle.getByText("Pinned", { exact: true })).toBeVisible();
+    await second.getByRole("button", { name: "Pinned messages", exact: true }).click();
+    const peerPins = second.getByRole("dialog", { name: "Pinned messages", exact: true });
+    await expect(peerPins.locator(`[data-pinned-id="${firstId}"]`)).toBeVisible();
+    await expect(peerPins.getByRole("button", { name: "Unpin message" })).toHaveCount(0);
+    const pinsAccessibility = await new AxeBuilder({ page: second }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze();
+    expect(pinsAccessibility.violations.map((v) => v.id)).toEqual([]);
+    await second.screenshot({ path: test.info().outputPath("pinned-messages.png") });
+    await firstArticle.getByRole("button", { name: "Unpin message", exact: true }).click();
+    await expect(peerPins.locator(`[data-pinned-id="${firstId}"]`)).toHaveCount(0);
+    await firstArticle.getByRole("button", { name: "Pin message", exact: true }).click();
+    await expect(peerPins.locator(`[data-pinned-id="${firstId}"]`)).toBeVisible();
+    await page.getByRole("button", { name: "Pinned messages", exact: true }).click();
+    const ownerPins = page.getByRole("dialog", { name: "Pinned messages", exact: true });
+    await ownerPins.getByRole("button", { name: "Unpin message", exact: true }).click();
+    await expect(peerPins.locator(`[data-pinned-id="${firstId}"]`)).toHaveCount(0);
+    await page.getByRole("button", { name: "Close pins", exact: true }).click();
+    await firstArticle.getByRole("button", { name: "Pin message", exact: true }).click();
+    await expect(peerPins.locator(`[data-pinned-id="${firstId}"]`)).toBeVisible();
+    await peerPins.getByRole("link", { name: "Go to message", exact: true }).click();
+    await expect(second).toHaveURL(new RegExp(`message=${firstId}`));
+    await expect(second.locator(`[data-message-id="${firstId}"]`)).toHaveClass(/highlighted/);
+    await firstArticle.getByRole("button", { name: "Start thread", exact: true }).click();
+    await expect(page.getByRole("textbox", { name: "Thread reply", exact: true })).toBeVisible();
+    await page.getByRole("button", { name: "Cancel reply", exact: true }).click();
     await composeSecond.fill("A live response from Taylor.");
     await second
       .getByRole("button", { name: "Send message", exact: true })
@@ -137,12 +179,12 @@ test("two authenticated browsers exchange, thread, edit, react, attach, reconnec
       page.getByText("A live response from Taylor.", { exact: true }),
     ).toBeVisible();
     const incoming = second.locator(`[data-message-id="${firstId}"]`);
-    await incoming.getByLabel("Message actions", { exact: true }).click();
+    await openActions(incoming);
     await incoming.getByRole("button", { name: "Reply", exact: true }).click();
     await second.getByRole("textbox", { name: "Thread reply", exact: true }).fill("Keep this draft");
     await second.getByRole("button", { name: "Cancel reply", exact: true }).click();
     await expect(composeSecond).toHaveValue("Keep this draft");
-    await incoming.getByLabel("Message actions", { exact: true }).click();
+    await openActions(incoming);
     await incoming.getByRole("button", { name: "Reply", exact: true }).click();
     await second
       .getByRole("textbox", { name: "Thread reply", exact: true })
@@ -156,7 +198,7 @@ test("two authenticated browsers exchange, thread, edit, react, attach, reconnec
     await expect(
       second.getByText("Thread reply delivered live.", { exact: true }),
     ).toBeVisible();
-    await firstArticle.getByLabel("Message actions", { exact: true }).click();
+    await openActions(firstArticle);
     await expect(
       firstArticle.getByRole("button", { name: "Reply · 1", exact: true }),
     ).toBeVisible();
@@ -170,10 +212,14 @@ test("two authenticated browsers exchange, thread, edit, react, attach, reconnec
       await p
         .getByRole("button", { name: "Back to channel", exact: true })
         .click();
-    await firstArticle.getByLabel("Message actions", { exact: true }).click();
+    await openActions(firstArticle);
     await firstArticle
       .getByRole("button", { name: "Edit", exact: true })
       .click();
+    await firstArticle.getByRole("textbox", { name: "Edit message", exact: true }).fill("Cancelled edit");
+    await firstArticle.getByRole("button", { name: "Cancel edit", exact: true }).click();
+    await expect(incoming.getByText("Cancelled edit", { exact: true })).toHaveCount(0);
+    await firstArticle.getByRole("button", { name: "Edit", exact: true }).click();
     await firstArticle
       .getByRole("textbox", { name: "Edit message", exact: true })
       .fill("Edited message in real time.");
@@ -183,7 +229,7 @@ test("two authenticated browsers exchange, thread, edit, react, attach, reconnec
     await expect(
       incoming.getByText("Edited message in real time.", { exact: true }),
     ).toBeVisible();
-    await incoming.getByLabel("Message actions", { exact: true }).click();
+    await openActions(incoming);
     await incoming
       .locator("summary")
       .filter({ hasText: /^Add reaction$/ })
@@ -194,6 +240,14 @@ test("two authenticated browsers exchange, thread, edit, react, attach, reconnec
     await expect(
       firstArticle.getByRole("button", { name: "👍 reaction, 1", exact: true }),
     ).toBeVisible();
+    // Both members contribute to the same persisted reaction; own toggles preserve the peer.
+    await openActions(firstArticle);
+    await firstArticle.locator("summary").filter({ hasText: /^Add reaction$/ }).click();
+    await firstArticle.getByRole("button", { name: "React 👍", exact: true }).click();
+    await expect(incoming.getByRole("button", { name: "👍 reaction, 2, selected", exact: true })).toBeVisible();
+    await incoming.getByRole("button", { name: "👍 reaction, 2, selected", exact: true }).click();
+    await expect(firstArticle.getByRole("button", { name: "👍 reaction, 1, selected", exact: true })).toBeVisible();
+    await expect(incoming.getByRole("button", { name: "👍 reaction, 1", exact: true })).toBeVisible();
     await second
       .getByRole("button", { name: "Mark read", exact: true })
       .click();
@@ -290,7 +344,7 @@ test("two authenticated browsers exchange, thread, edit, react, attach, reconnec
     const taylor = page
       .locator(".chat-message")
       .filter({ hasText: "A live response from Taylor." });
-    await taylor.getByLabel("Message actions", { exact: true }).click();
+    await openActions(taylor);
     await taylor
       .locator("summary")
       .filter({ hasText: /^Delete message$/ })
@@ -305,6 +359,16 @@ test("two authenticated browsers exchange, thread, edit, react, attach, reconnec
     await expect(
       second.getByText("A live response from Taylor.", { exact: true }),
     ).toHaveCount(0);
+    // Ordinary member reporting goes through the existing authenticated report workflow.
+    await openActions(incoming);
+    await expect(incoming.getByRole("button", { name: "Edit", exact: true })).toHaveCount(0);
+    await expect(incoming.getByRole("button", { name: "Pin message", exact: true })).toHaveCount(0);
+    await incoming.getByRole("link", { name: "Report message", exact: true }).click();
+    await second.getByRole("textbox", { name: "What happened?", exact: true }).fill("Two-account interaction report test");
+    await second.getByRole("button", { name: "Submit report", exact: true }).click();
+    await expect(second.getByText(/Report submitted. Reference:/)).toBeVisible();
+    await second.goto(`/channels/${channel}`);
+    await expect(second.locator(".chat-connection")).toHaveText("● Live");
     const a11y = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
       .analyze();
@@ -323,6 +387,24 @@ test("two authenticated browsers exchange, thread, edit, react, attach, reconnec
       path: test.info().outputPath("live-chat.png"),
       fullPage: true,
     });
+    // Deleting a pinned root keeps its existing replies reachable and removes it from pins.
+    await page.reload();
+    await expect(page.locator(".chat-connection")).toHaveText("● Live");
+    firstArticle = page.locator(`[data-message-id="${firstId}"]`);
+    await openActions(firstArticle);
+    await firstArticle.locator("summary").filter({ hasText: /^Delete message$/ }).click();
+    await firstArticle.getByRole("button", { name: "Cancel deletion", exact: true }).click();
+    await expect(second.getByText("Edited message in real time.", { exact: true })).toBeVisible();
+    await firstArticle.locator("summary").filter({ hasText: /^Delete message$/ }).click();
+    await firstArticle.getByRole("button", { name: "Confirm delete", exact: true }).click();
+    await expect(second.locator(`[data-message-id="${firstId}"]`).getByText("Message deleted", { exact: true })).toBeVisible();
+    await second.getByRole("button", { name: "Pinned messages", exact: true }).click();
+    await expect(second.getByRole("dialog", { name: "Pinned messages", exact: true }).locator(`[data-pinned-id="${firstId}"]`)).toHaveCount(0);
+    await second.getByRole("button", { name: "Close pins", exact: true }).click();
+    await second.locator(`[data-message-id="${firstId}"]`).getByRole("button", { name: "View thread · 1", exact: true }).click();
+    await expect(second.getByText("Thread reply delivered live.", { exact: true })).toBeVisible();
+    await expect(second.getByRole("textbox", { name: "Thread reply", exact: true })).toBeDisabled();
+    await second.getByRole("button", { name: "Back to channel", exact: true }).click();
     const ownerClient = userClient();
     await ownerClient.auth.signInWithPassword({
       email: member.email,
@@ -357,3 +439,8 @@ test("two authenticated browsers exchange, thread, edit, react, attach, reconnec
     await db.end();
   }
 });
+
+async function openActions(article: Locator) {
+  if (await article.locator(".chat-message-menu").getAttribute("open") === null)
+    await article.getByLabel("Message actions", { exact: true }).click();
+}

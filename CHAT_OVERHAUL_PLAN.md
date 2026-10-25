@@ -317,3 +317,7 @@ The later Stage 2 user request explicitly authorized the workspace implementatio
 ## Stage 3 composer follow-through
 
 The user's later request explicitly calls the composer overhaul **Stage 3**, superseding the proposed stage numbering for this scope. It is implemented incrementally in `MessageComposer` using the existing send/file/member-directory actions and same-ID reconciliation. See `docs/CHAT_COMPOSER.md` and the current development log. No new database migration or provider is required. Simultaneous thread/search panes, persistent drafts, virtualization, expanded attachment formats and an approved GIF-search provider remain separate follow-ups.
+
+## Stage 4 interaction follow-through
+
+The subsequent user request explicitly authorizes Stage 4 message interactions. Existing reactions/edit/delete/report/thread relationships are reused; the desktop hover toolbar and mobile/keyboard action menu extend MessageItem. One additive migration (`202611080001`) adds persisted channel pins and limited edit/pin audit metadata to existing messages/logs. See `docs/MESSAGE_INTERACTIONS.md` and the development log for verification, setup and remaining acceptance. No providers, IDs, communities or messages are replaced.

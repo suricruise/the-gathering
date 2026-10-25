@@ -22,6 +22,7 @@ export type ChatMessage = {
   body: string;
   created_at: string;
   edited_at: string | null;
+  pinned_at?: string | null;
   deleted_at: string | null;
   created_seq: string;
   version: string;

@@ -8,6 +8,7 @@ import {
 import type { ChatMessage, ChatPage } from "../../lib/chat/types";
 import { useChannelChat } from "./useChannelChat";
 import { MessageComposer } from "./MessageComposer";
+import { PinnedMessages } from "./PinnedMessages";
 import { MessageItem } from "./MessageItem";
 import { groupWithPrevious, messageDay, messageDateLabel } from "../../lib/chat/presentation";
 import { reconcileMessages } from "../../lib/chat/reconcile";
@@ -101,6 +102,7 @@ export function ChatWorkspace({
       .then((result) => {
         if (!active) return;
         if (result.data?.channel_id === channelId) {
+          setHighlight(sharedMessage);
           merge([result.data]);
           if (result.data.parent_id) void openThread(result.data);
           setTimeout(
@@ -240,6 +242,7 @@ export function ChatWorkspace({
           {chat.status === "Live" ? "● Live" : chat.status}
         </span>
         <span>{chat.unread} unread</span>
+        {!chat.denied && <PinnedMessages channel={channelId} revision={chat.refreshVersion} moderator={moderator} onMerge={(messages) => { merge(messages); void chat.refresh(); }} />}
         <button className="chat-text-button" aria-expanded={searchOpen} disabled={composerLocked} onClick={() => { setSearchOpen(!searchOpen); if (searchOpen) setSearchResults(null); }}>Search channel</button>
         {chat.status !== "Live" && (
           <button className="chat-text-button" onClick={chat.retryConnection}>
@@ -315,6 +318,7 @@ export function ChatWorkspace({
           {thread && !searchResults && (
             <div className="chat-thread-heading">
               <h2>Thread</h2>
+              {root?.deleted_at && <small>Original message deleted. Existing replies remain available; new replies are closed.</small>}
               <span>
                 {root?.author_name}:{" "}
                 {root?.deleted_at
@@ -389,7 +393,7 @@ export function ChatWorkspace({
                   canPost={chat.canPost}
                   replyDisabled={composerLocked}
                   moderator={moderator}
-                  onMerge={merge}
+                  onMerge={(messages) => { merge(messages); void chat.refresh(); }}
                   onReply={(m) => {
                     setHighlight(m.id);
                     void openThread(m);
@@ -416,7 +420,7 @@ export function ChatWorkspace({
           </div>
           <MessageComposer
             channelId={channelId} channelName={channelName} userId={userId}
-            canPost={chat.canPost} connection={chat.status} hidden={!!searchResults}
+            canPost={chat.canPost && !(thread && root?.deleted_at)} connection={chat.status} hidden={!!searchResults}
             parentId={thread} reply={allMessages.find((m) => m.id === replyTo) ?? root}
             onCancelReply={closeThread} onLocked={setComposerLocked}
             onTyping={chat.indicateTyping}

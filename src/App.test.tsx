@@ -1,3 +1,6 @@
+vi.mock("./lib/shell/actions",()=>({shellNavigation:vi.fn(async()=>({data:{communities:[],selected:null,context:null,hasMore:false}})),suggestedMembers:vi.fn(async()=>({data:{items:[],newMembers:[]}})),communityActivity:vi.fn(async()=>({data:{items:[]}}))}));
+vi.mock("./lib/chat/workspace",()=>({switchWorkspaceCommunity:vi.fn(),workspaceNavigation:vi.fn()}));
+vi.mock("next/form",()=>({default:({children,...props}:import("react").FormHTMLAttributes<HTMLFormElement>)=><form {...props}>{children}</form>}));
 vi.mock("./lib/people/rail", () => ({ railMembers: vi.fn(async()=>({data:{items:[]}})),communityPresence:vi.fn(async()=>({data:{share:false}})) }));
 vi.mock("./lib/communities/members", () => ({ communityMembers: vi.fn(async()=>({data:{community:{id:"fixture",name:"Fixture",slug:"fixture"},items:[],total:0}})), communityMemberAction: vi.fn() }));
 vi.mock("./lib/admin/actions", () => ({
@@ -12,7 +15,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { AnchorHTMLAttributes } from "react";
 const route = vi.hoisted(() => ({ pathname: "/home" }));
-vi.mock("next/navigation", () => ({ usePathname: () => route.pathname }));
+vi.mock("next/navigation", () => ({ usePathname: () => route.pathname, useRouter:()=>({push:vi.fn()}) }));
 vi.mock("next/link", () => ({
   default: ({ href, ...props }: AnchorHTMLAttributes<HTMLAnchorElement>) => (
     <a href={href} {...props} />
@@ -97,6 +100,8 @@ const profile: ProfileBundle = {
 };
 beforeEach(() => {
   route.pathname = "/home";
+  vi.stubGlobal("matchMedia",vi.fn(()=>({matches:false})));
+  HTMLDialogElement.prototype.close=vi.fn();
 });
 describe("Next.js interface foundation", () => {
   it("renders the authenticated home",()=>{renderPage();expect(screen.getByRole("heading",{name:/Good to see you, Jordan/})).toBeInTheDocument();});
@@ -105,22 +110,22 @@ describe("Next.js interface foundation", () => {
     const nav = screen.getByRole("navigation", { name: "Main navigation" });
     for (const item of navigation)
       expect(
-        within(nav).getByRole("link", { name: new RegExp(item.label) }),
+        within(nav).getAllByRole("link").find(link=>link.getAttribute("href")===item.to),
       ).toHaveAttribute("href", item.to);
   });
   it("displays the authenticated identity instead of the old demo profile", () => {
     renderPage();
-    expect(screen.getByText("Jordan Rivers")).toBeInTheDocument();
+    expect(screen.getAllByText("Jordan Rivers").length).toBeGreaterThan(0);
     expect(screen.queryByText("Alex Morgan")).not.toBeInTheDocument();
   });
   it("collapses and expands desktop navigation", async () => {
     renderPage();
     const user = userEvent.setup();
     await user.click(screen.getByRole("button", { name: "Collapse sidebar" }));
-    expect(document.querySelector(".app-shell")).toHaveClass("is-collapsed");
+    expect(document.querySelector(".app-shell")).toHaveClass("secondary-collapsed");
     await user.click(screen.getByRole("button", { name: "Expand sidebar" }));
     expect(document.querySelector(".app-shell")).not.toHaveClass(
-      "is-collapsed",
+      "secondary-collapsed",
     );
   });
   it("traps navigation drawer focus and restores it on Escape", async () => {

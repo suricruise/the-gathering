@@ -563,11 +563,13 @@ function InviteComposer({
   );
 }
 export function SpaceWorkspace({
+  initialCommunity,
   view,
   resource,
   context,
   unavailable,
 }: {
+  initialCommunity?:string;
   view: "faith" | "events" | "notifications" | "prayer" | "event";
   resource: string | null;
   context: Context | null;
@@ -576,7 +578,7 @@ export function SpaceWorkspace({
   const router = useRouter(),
     people = usePeople(),
     member = useMember();
-  const [community, setCommunity] = useState(context?.communities[0]?.id || "");
+  const [community, setCommunity] = useState(context?.communities.some(c=>c.id===initialCommunity)?initialCommunity!:context?.communities[0]?.id || "");
   const [filter, setFilter] = useState("all");
   const [before, setBefore] = useState<string | null>(null);
   const [data, setData] = useState<SpaceData | Event | null>(null);

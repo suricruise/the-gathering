@@ -116,21 +116,22 @@ export function MemberSafety({
     </div>
   );
 }
-export function Announcements() {
+export function Announcements({community}:{community?:string} = {}) {
   const [items, setItems] = useState<
     Array<{ id: string; title: string; body: string }>
   >([]);
   useEffect(() => {
     let live = true;
-    void memberAnnouncements()
+    setItems([]);
+    void memberAnnouncements(community)
       .then((r) => {
         if (live && r.data) setItems(r.data);
       })
-      .catch(() => {});
+      .catch(() => {if(live)setItems([]);});
     return () => {
       live = false;
     };
-  }, []);
+  }, [community]);
   return items.length ? (
     <section className="panel padded">
       <h2>Community announcements</h2>

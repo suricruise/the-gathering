@@ -93,15 +93,14 @@ export async function submitAppeal(input: unknown): Promise<Result> {
   });
   return r.error ? { error: failure(r.error.code) } : { data: r.data };
 }
-export async function memberAnnouncements(): Promise<
+export async function memberAnnouncements(community?: string): Promise<
   Result<Array<{ id: string; title: string; body: string }>>
 > {
   const c = await verified();
   if (!c) return { error: "Sign in again to continue." };
-  const r = await c
-    .from("site_announcements")
-    .select("id,title,body")
-    .order("updated_at", { ascending: false })
-    .limit(5);
+  if (community && !/^[a-f0-9-]{36}$/i.test(community)) return {error:"Invalid community."};
+  let query = c.from("site_announcements").select("id,title,body");
+  if (community) query = query.or(`community_id.is.null,community_id.eq.${community}`);
+  const r = await query.order("updated_at", { ascending: false }).limit(5);
   return r.error ? { error: "Announcements unavailable." } : { data: r.data };
 }

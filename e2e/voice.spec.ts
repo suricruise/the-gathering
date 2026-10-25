@@ -198,6 +198,13 @@ test("real voice exchanges decoded audio, persists navigation, mutes, reconnects
     console.log(
       "PASS real decoded audio energy in both authenticated browsers",
     );
+    const persistent = test.info().project.name === 'mobile' ? page.locator('.mobile-voice-status') : page.getByRole('complementary',{name:'Channel directory',exact:true}).locator('.workspace-voice-connection .voice-connection');
+    await expect(persistent).toContainText('Voice connected');
+    await persistent.getByRole('button',{name:'Deafen audio',exact:true}).click();
+    await expect(persistent.getByRole('button',{name:'Undeafen audio',exact:true})).toHaveAttribute('aria-pressed','true');
+    await persistent.getByRole('button',{name:'Undeafen audio',exact:true}).click();
+    await expect(persistent.getByRole('button',{name:'Mute microphone',exact:true})).toBeVisible();
+    await expect.poll(()=>audioEnergy(other),{timeout:15000}).toBeGreaterThan(0.00001);
     // Actual media has nonzero decoded energy in both directions.
     await panel(page)
       .getByRole("button", { name: "Mute microphone", exact: true })
@@ -230,6 +237,8 @@ test("real voice exchanges decoded audio, persists navigation, mutes, reconnects
     });
     if (await nav.isVisible())
       await nav.getByRole("link", { name: "Home", exact: true }).click();
+    else if(test.info().project.name === "desktop")
+      await page.locator(".desktop-community-rail").getByRole("link",{name:"The Gathering home",exact:true}).click();
     else
       await page
         .getByRole("navigation", { name: "Mobile navigation" })
@@ -238,6 +247,12 @@ test("real voice exchanges decoded audio, persists navigation, mutes, reconnects
         // the development-only Next issue badge over the mobile bottom corner.
         .press("Enter");
     await expect(page).toHaveURL(/\/home$/);
+    if(test.info().project.name==='desktop'){
+      await page.getByRole('button',{name:'Collapse sidebar',exact:true}).click();
+      await expect(page.locator('.shell-floating-connection')).toContainText('Voice connected');
+      await expect(page.locator('.shell-floating-connection').getByRole('button',{name:'Deafen audio',exact:true})).toBeVisible();
+      await page.getByRole('button',{name:'Expand sidebar',exact:true}).click();
+    }
     await expect(
       other.getByRole("heading", { name: "Connected participants (2)" }),
     ).toBeVisible();

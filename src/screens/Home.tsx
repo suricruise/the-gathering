@@ -55,23 +55,23 @@ export function Home({
           <div className="hero-mountain back" />
           <div className="hero-mountain front" />
           <span className="hero-emblem">
-            <Gamepad2 size={54} strokeWidth={1.3} />
+            <Users size={54} strokeWidth={1.3} />
           </span>
         </div>
         <div className="hero-copy">
           <span className="hero-eyebrow">
             <span />
-            MORE THAN A GAMING COMMUNITY
+            CONNECTION STARTS HERE
           </span>
           <h2>
-            Good games.
+            Find Your People.
             <br />
-            Even better people.
+            Find Your Place.
           </h2>
           <p>
-            Find your squad. Share your story.
+            Shared interests. Real conversations.
             <br />
-            Build connections that go beyond the game.
+            A place to connect, belong and grow.
           </p>
           <div className="button-row">
           <Link className="button light" to="/communities">
@@ -81,7 +81,7 @@ export function Home({
             <Link className="button secondary" to="/install"><Download size={17} /> Install app</Link>
           </div>
         </div>
-        <span className="hero-caption">PLAY TOGETHER. GROW TOGETHER.</span>
+        <span className="hero-caption">COME AS YOU ARE. CONNECT TOGETHER.</span>
       </section>
       <div className="quick-actions">
         <Link to="/squad-up">
@@ -122,7 +122,7 @@ export function Home({
           label="Explore communities"
         />
         <p className="section-subtitle">
-          Different games. Shared values. A place to belong.
+          Shared interests. Shared moments. A place to belong.
         </p>
         <div className="community-grid home-communities">
           {featured.slice(0, 3).map((community) => (

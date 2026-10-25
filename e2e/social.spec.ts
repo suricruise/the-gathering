@@ -34,6 +34,7 @@ test("real social sharing isolates audiences, persists media and interactions, a
   const post = (p: typeof page, id: string) =>
     p.locator(`[data-post-id="${id}"]`);
   const publish = async (p: typeof page, text: string) => {
+    const previousIds = await p.locator(".social-post-list .social-post").evaluateAll(nodes => nodes.map(node => node.getAttribute("data-post-id")));
     await composer(p).getByLabel("Your post", { exact: true }).fill(text);
     await composer(p)
       .getByRole("button", { name: "Publish post", exact: true })
@@ -43,6 +44,7 @@ test("real social sharing isolates audiences, persists media and interactions, a
       composer(p).getByLabel("Your post", { exact: true }),
     ).toHaveValue("");
     const card = p.locator(".social-post-list .social-post").first();
+    await expect.poll(async () => previousIds.includes(await card.getAttribute("data-post-id"))).toBe(false);
     await expect(card).toContainText(text.replaceAll("**", ""));
     return (await card.getAttribute("data-post-id"))!;
   };

@@ -13,9 +13,9 @@ import {
   X,
 } from "lucide-react";
 
-export function Brand({ compact = false }: { compact?: boolean }) {
+export function Brand({ compact = false, to = "/" }: { compact?: boolean;to?:string }) {
   return (
-    <Link className="brand" to="/" aria-label="The Gathering welcome">
+    <Link className="brand" to={to} aria-label="The Gathering welcome">
       <span className="brand-mark" aria-hidden="true">
         g<span>✦</span>
       </span>

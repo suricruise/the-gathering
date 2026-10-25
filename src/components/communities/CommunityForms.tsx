@@ -1,5 +1,5 @@
 "use client";
-import { useActionState, type ReactNode } from "react";
+import { useActionState, useEffect, type ReactNode } from "react";
 import Link from "next/link";
 import { communityAction } from "../../lib/communities/actions";
 import type { Community, Channel, Category } from "../../lib/communities/data";
@@ -17,6 +17,7 @@ export function CommandForm({
   className?: string;
 }) {
   const [state, action, pending] = useActionState(communityAction, {});
+  useEffect(()=>{if(state.notice)window.dispatchEvent(new Event("gathering:communities-changed"));},[state]);
   return (
     <form action={action} className={`community-form ${className}`}>
       {operation && <input type="hidden" name="operation" value={operation} />}

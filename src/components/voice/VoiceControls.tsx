@@ -72,6 +72,7 @@ export function PersistentVoiceBar({ mobile = false }: { mobile?: boolean }) {
           >
             {v.muted ? <MicOff size={17} /> : <Mic size={17} />}
           </button>
+          <button className="icon-button" disabled={v.busy} onClick={()=>void v.toggleDeafen()} aria-label={v.deafened?"Undeafen audio":"Deafen audio"} aria-pressed={v.deafened}>{v.deafened?<VolumeX size={17}/>:<Headphones size={17}/>}</button>
           <button
             className="icon-button"
             onClick={() => void v.leave()}

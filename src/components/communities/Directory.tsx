@@ -8,14 +8,15 @@ import type { Community } from "../../lib/communities/data";
 export function Directory({
   communities,
   approved,
-  memberships,
+  memberships, initialFilter="all", initialQuery="",
 }: {
+  initialFilter?:"all"|"joined";initialQuery?:string;
   communities: Community[];
   approved: boolean;
   memberships: { community_id: string; role_id: string; status: string }[];
 }) {
-  const [query, setQuery] = useState("");
-  const [filter, setFilter] = useState("all");
+  const [query, setQuery] = useState(initialQuery);
+  const [filter, setFilter] = useState(initialFilter);
   const joined = new Set(
     memberships.filter((m) => m.status === "active").map((m) => m.community_id),
   );
@@ -54,7 +55,7 @@ export function Directory({
           <select
             aria-label="Community filter"
             value={filter}
-            onChange={(e) => setFilter(e.target.value)}
+            onChange={(e) => setFilter(e.target.value as "all"|"joined")}
           >
             <option value="all">All communities</option>
             <option value="joined">My communities</option>

@@ -7,6 +7,7 @@ import type { Context } from "./types";
 export async function spacePage(
   view: "faith" | "events" | "notifications" | "prayer" | "event",
   resource?: string,
+  community?: string,
 ) {
   if (resource && !z.uuid().safeParse(resource).success) notFound();
   const { client } = await requireUser(
@@ -19,7 +20,8 @@ export async function spacePage(
   const r = await client.rpc("space_read", { p_view: "context" });
   return (
     <SpaceWorkspace
-      key={`${view}:${resource || ""}`}
+      key={`${view}:${resource || ""}:${community||""}`}
+      initialCommunity={community && z.uuid().safeParse(community).success ? community : undefined}
       view={view}
       resource={resource || null}
       context={r.data as Context | null}

@@ -23,6 +23,12 @@ for (const route of ["/", "/login", "/register", "/forgot-password", "/terms", "
 for (const route of [
   "/home",
   "/channels/general",
+  "/channels",
+  "/members",
+  "/announcements",
+  "/notifications",
+  "/reports",
+  "/appeals",
   "/voice",
   "/communities",
   "/squad-up",
@@ -111,6 +117,7 @@ test("navigation, disconnected services, and keyboard skip link", async ({
       .getByRole("link", { name: /introductions/ })
       .click();
   } else {
+    await page.locator(".desktop-community-rail").getByRole("link", {name:"The Gathering home",exact:true}).click();
     await page
       .getByRole("navigation", { name: "Main navigation", exact: true })
       .getByRole("link", { name: "Text channels" })

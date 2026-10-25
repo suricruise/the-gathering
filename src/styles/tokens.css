@@ -1,0 +1,132 @@
+:root {
+  /* Brand primitives: exact requested values. */
+  --palette-main: #171B32;
+  --palette-secondary: #292D4D;
+  --palette-sidebar: #5E518B;
+  --palette-brand: #9266DB;
+  --palette-cyan: #37CEDC;
+  --palette-magenta: #D854D6;
+
+  /* Background and surface hierarchy. */
+  --background-canvas: var(--palette-main);
+  --background-shell: #1C203B;
+  --surface-base: var(--palette-secondary);
+  --surface-raised: #343957;
+  --surface-overlay: #222641;
+  --surface-navigation: var(--palette-sidebar);
+  --surface-rail: #24213F;
+  --surface-chat: var(--palette-main);
+  --surface-input: #20243F;
+  --surface-hover: #363B60;
+  --surface-navigation-hover: #504475;
+  --surface-selected: #463763;
+  --surface-disabled: #30344D;
+  --scrim: rgb(9 12 28 / 72%);
+
+  /* Text. Use secondary/muted for readable supporting copy, not low opacity. */
+  --foreground-primary: #F4F2FC;
+  --foreground-secondary: #D1D3E4;
+  --foreground-muted: #BABDD2;
+  --foreground-subtle: #979DBB;
+  --foreground-on-accent: #0D1021;
+  --foreground-on-navigation: var(--foreground-primary);
+  --foreground-on-disabled: var(--foreground-muted);
+  --foreground-link: #CFB6FA;
+  --foreground-link-hover: #E4D5FF;
+
+  --border-subtle: #3F4568; /* Decorative dividers only. */
+  --border-control: #74799E;
+  --border-selected: var(--palette-cyan);
+  --focus-ring: var(--palette-cyan);
+  --focus-offset-color: var(--background-canvas);
+  --action-primary: var(--palette-brand);
+  --action-primary-hover: #A47BE6;
+  --action-primary-pressed: #9A70DE;
+  --action-secondary: var(--surface-raised);
+  --action-secondary-hover: #42486E;
+  --accent-cyan: var(--palette-cyan);
+  --accent-magenta: var(--palette-magenta);
+
+  --status-success: #6EDBA6;
+  --status-error: #FF9AA8;
+  --status-warning: #F0C878;
+  --status-info: #83DCEC;
+  --status-offline: var(--foreground-subtle);
+  --status-hidden: var(--foreground-muted);
+  --surface-success: #173B32;
+  --surface-error: #442535;
+  --surface-warning: #3E3426;
+  --surface-info: #183744;
+  --foreground-on-status: var(--foreground-primary);
+
+  --gradient-hero: linear-gradient(115deg,
+    var(--palette-brand), var(--palette-magenta) 52%, var(--palette-cyan));
+  --gradient-hero-scrim: linear-gradient(90deg,
+    rgb(13 16 33 / 86%), rgb(13 16 33 / 72%));
+  --gradient-navigation: linear-gradient(180deg,
+    var(--palette-sidebar), var(--surface-rail));
+  --gradient-selection: linear-gradient(135deg,
+    var(--palette-cyan), var(--palette-brand));
+  --shadow-card: 0 8px 24px rgb(9 12 28 / 24%);
+  --shadow-overlay: 0 20px 56px rgb(9 12 28 / 48%);
+  --shadow-accent: 0 0 20px rgb(55 206 220 / 16%);
+
+  /* A 4px scale with compact conversation spacing. */
+  --space-0: 0;
+  --space-1: .25rem;
+  --space-2: .5rem;
+  --space-3: .75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --font-body: "DM Sans", sans-serif;
+  --font-heading: "Manrope", sans-serif;
+  --text-xs: .75rem;
+  --text-sm: .875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-display: clamp(1.75rem, 3vw, 2.75rem);
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-display: 800;
+  --leading-body: 1.5;
+  --leading-compact: 1.4;
+  --leading-heading: 1.15;
+  --tracking-heading: -.025em;
+  --radius-control: .625rem;
+  --radius-panel: 1rem;
+  --radius-card: 1.25rem;
+  --radius-shell: 1.75rem;
+  --radius-pill: 999px;
+  --stroke-width: 1.75;
+  --icon-small: 1rem;
+  --icon-default: 1.25rem;
+  --icon-large: 1.5rem;
+  --avatar-small: 2rem;
+  --avatar-default: 2.5rem;
+  --avatar-profile: 5rem;
+  --control-min: 2.75rem;
+  --focus-width: 3px;
+  --focus-offset: 3px;
+  --rail-width: 4.5rem;
+  --context-width: 15rem;
+  --members-width: 16rem;
+  --topbar-height: 4rem;
+  --content-max: 90rem;
+  --motion-fast: 120ms;
+  --motion-normal: 180ms;
+  --motion-easing: cubic-bezier(.2, .8, .2, 1);
+  --layer-base: 0;
+  --layer-sticky: 10;
+  --layer-navigation: 20;
+  --layer-dialog: 40;
+  --layer-toast: 50;
+}

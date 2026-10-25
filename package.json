@@ -73,6 +73,7 @@
     "test:chat:reliability": "node scripts/test-chat-reliability.mjs",
     "test:chat:reliability:setup": "node scripts/test-chat-reliability-setup.mjs",
     "test:chat:navigation": "node scripts/test-chat-navigation.mjs",
+    "test:lounge": "node scripts/test-lounge-members.mjs && node scripts/test-lounge-members-setup.mjs",
     "test:channels:management": "node scripts/test-channel-management.mjs",
     "test:channels:management:setup": "node scripts/test-channel-management-setup.mjs",
     "test:chat:navigation:setup": "node scripts/test-chat-navigation-setup.mjs"

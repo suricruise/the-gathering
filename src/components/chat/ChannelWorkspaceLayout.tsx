@@ -51,7 +51,7 @@ export function ChannelWorkspaceLayout({community,channel,initial,children}:{com
  useEffect(()=>{if(people?.chatRevision)refreshCounts();},[people?.chatRevision,refreshCounts]);
  const identityReady=!!chatState,identityUsername=chatState?.username??"",identityCanMass=chatState?.can_mass_mention===true;
  const identity=useMemo(()=>identityReady?{username:identityUsername,canMassMention:identityCanMass,role:navigation.role}:null,[identityReady,identityUsername,identityCanMass,navigation.role]);
- const sidebar=(close?:()=>void)=><CommunityChannelSidebar data={navigation} name={community.name} slug={community.slug} active={channel.id} onNavigate={close} collapsed={chatState?.collapsed} onCollapse={collapse}/>;
+ const sidebar=(close?:()=>void)=><CommunityChannelSidebar data={navigation} name={community.name} slug={community.slug} image={community.community_headers?`/api/communities/${community.id}/header?v=${community.community_headers.version}`:`/covers/${community.cover}.svg`} active={channel.id} onNavigate={close} collapsed={chatState?.collapsed} onCollapse={collapse}/>;
  return <ChatIdentity.Provider value={identity}><div className={`community-chat-workspace ${showMembers?"with-members":""}`}>
  <div className="workspace-community-banner"><CommunityBanner community={community}/></div>
  <div className="community-chat-workspace-panes"><aside className="workspace-channels-desktop" aria-label="Channel directory">{sidebar()}</aside>

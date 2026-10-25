@@ -179,17 +179,19 @@ test("two authenticated browsers exchange, thread, edit, react, attach, reconnec
       page.getByText("A live response from Taylor.", { exact: true }),
     ).toBeVisible();
     const incoming = second.locator(`[data-message-id="${firstId}"]`);
+    await composeSecond.fill("Channel draft preserved");
     await openActions(incoming);
     await incoming.getByRole("button", { name: "Reply", exact: true }).click();
     await second.getByRole("textbox", { name: "Thread reply", exact: true }).fill("Keep this draft");
     await second.getByRole("button", { name: "Cancel reply", exact: true }).click();
-    await expect(composeSecond).toHaveValue("Keep this draft");
+    await expect(composeSecond).toHaveValue("Channel draft preserved");
     await openActions(incoming);
     await incoming.getByRole("button", { name: "Reply", exact: true }).click();
+    await expect(second.getByRole("textbox", { name: "Thread reply", exact: true })).toHaveValue("Keep this draft");
     await second
       .getByRole("textbox", { name: "Thread reply", exact: true })
       .fill("Thread reply delivered live.");
-    await second
+    await second.getByRole("region", { name: "Message thread", exact: true })
       .getByRole("button", { name: "Send message", exact: true })
       .click();
     await expect(
@@ -230,10 +232,7 @@ test("two authenticated browsers exchange, thread, edit, react, attach, reconnec
       incoming.getByText("Edited message in real time.", { exact: true }),
     ).toBeVisible();
     await openActions(incoming);
-    await incoming
-      .locator("summary")
-      .filter({ hasText: /^Add reaction$/ })
-      .click();
+    await openReactions(incoming);
     await incoming
       .getByRole("button", { name: "React 👍", exact: true })
       .click();
@@ -242,7 +241,7 @@ test("two authenticated browsers exchange, thread, edit, react, attach, reconnec
     ).toBeVisible();
     // Both members contribute to the same persisted reaction; own toggles preserve the peer.
     await openActions(firstArticle);
-    await firstArticle.locator("summary").filter({ hasText: /^Add reaction$/ }).click();
+    await openReactions(firstArticle);
     await firstArticle.getByRole("button", { name: "React 👍", exact: true }).click();
     await expect(incoming.getByRole("button", { name: "👍 reaction, 2, selected", exact: true })).toBeVisible();
     await incoming.getByRole("button", { name: "👍 reaction, 2, selected", exact: true }).click();
@@ -263,7 +262,7 @@ test("two authenticated browsers exchange, thread, edit, react, attach, reconnec
       page.getByRole("heading", { name: "Search results", exact: true }),
     ).toBeVisible();
     await expect(
-      page.getByText("Edited message in real time.", { exact: true }),
+      page.getByRole("region", { name: "Channel conversation", exact: true }).getByText("Edited message in real time.", { exact: true }),
     ).toBeVisible();
     await page
       .getByRole("button", { name: "Close search", exact: true })
@@ -275,7 +274,7 @@ test("two authenticated browsers exchange, thread, edit, react, attach, reconnec
       .toBuffer();
     // A failed upload cannot silently disappear or enable Send; retry is explicit.
     await page.route("**/api/chat/upload", async (route) => route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ error: "Test upload interruption" }) }), { times: 1 });
-    await page.getByLabel("Attach files", { exact: true }).setInputFiles({
+    await page.getByRole("region", { name: "Channel conversation", exact: true }).getByLabel("Attach files", { exact: true }).setInputFiles({
       name: "party.png",
       mimeType: "image/png",
       buffer: image,
@@ -283,16 +282,16 @@ test("two authenticated browsers exchange, thread, edit, react, attach, reconnec
     await expect(page.getByText("Test upload interruption", { exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: "Send message", exact: true })).toBeDisabled();
     await page.getByRole("button", { name: "Retry upload", exact: true }).click();
-    await expect(page.locator(".chat-staged-files")).toContainText(
+    await expect(page.getByRole("region", { name: "Channel conversation", exact: true }).locator(".chat-staged-files")).toContainText(
       "party.webp",
     );
     await expect(page.getByRole("img", { name: "Preview of party.webp", exact: true })).toBeVisible();
     // Native file drops use the identical secure upload endpoint.
-    await page.locator(".chat-composer").evaluate((element) => {
+    await page.getByRole("region", { name: "Channel conversation", exact: true }).locator(".chat-composer").evaluate((element) => {
       const data = new DataTransfer(); data.items.add(new File(["Squad notes"], "drop.txt", { type: "text/plain" }));
       element.dispatchEvent(new DragEvent("drop", { bubbles: true, dataTransfer: data }));
     });
-    await expect(page.locator(".chat-staged-files")).toContainText("drop.txt");
+    await expect(page.getByRole("region", { name: "Channel conversation", exact: true }).locator(".chat-staged-files")).toContainText("drop.txt");
     await expect(page.getByText("Ready to send", { exact: true })).toHaveCount(2);
 
     await compose.fill("A photo for our party.");
@@ -339,7 +338,7 @@ test("two authenticated browsers exchange, thread, edit, react, attach, reconnec
       /highlighted/,
     );
     await expect(
-      second.getByText("Edited message in real time.", { exact: true }),
+      second.getByRole("region", { name: "Channel conversation", exact: true }).getByText("Edited message in real time.", { exact: true }),
     ).toBeVisible();
     const taylor = page
       .locator(".chat-message")
@@ -394,7 +393,7 @@ test("two authenticated browsers exchange, thread, edit, react, attach, reconnec
     await openActions(firstArticle);
     await firstArticle.locator("summary").filter({ hasText: /^Delete message$/ }).click();
     await firstArticle.getByRole("button", { name: "Cancel deletion", exact: true }).click();
-    await expect(second.getByText("Edited message in real time.", { exact: true })).toBeVisible();
+    await expect(second.getByRole("region", { name: "Channel conversation", exact: true }).getByText("Edited message in real time.", { exact: true })).toBeVisible();
     await firstArticle.locator("summary").filter({ hasText: /^Delete message$/ }).click();
     await firstArticle.getByRole("button", { name: "Confirm delete", exact: true }).click();
     await expect(second.locator(`[data-message-id="${firstId}"]`).getByText("Message deleted", { exact: true })).toBeVisible();
@@ -443,4 +442,10 @@ test("two authenticated browsers exchange, thread, edit, react, attach, reconnec
 async function openActions(article: Locator) {
   if (await article.locator(".chat-message-menu").getAttribute("open") === null)
     await article.getByLabel("Message actions", { exact: true }).click();
+}
+
+async function openReactions(article: Locator) {
+  const picker = article.locator(".reaction-picker");
+  if (await picker.getAttribute("open") === null)
+    await picker.locator("summary").click();
 }

@@ -26,7 +26,7 @@ export function ChannelWorkspaceLayout({community,channel,initial,children}:{com
  <button className="icon-button workspace-channels-toggle" aria-label="Open channels" onClick={()=>channelsDialog.current?.showModal()}><Menu size={20}/></button>
  <div className="workspace-channel-title"><h1 aria-label={`${channel.kind === "text" ? "#" : "◉"} ${channel.name}`}>{channel.kind==="voice"?<Volume2 size={21}/>:<Hash size={21}/>}<span>{channel.name}</span>{channel.is_private&&<small>Private</small>}</h1>{channel.description&&<p>{channel.description}</p>}</div>
  <Link className="workspace-community-back" href={`/communities/${community.slug}`}>← {community.name}</Link>
- <button className="icon-button" aria-label={narrow?"Open community members":showMembers?"Hide community members":"Show community members"} aria-expanded={narrow?membersOpen:showMembers} onClick={()=>{if(narrow){setMembersOpen(true);membersDialog.current?.showModal();}else setShowMembers(!showMembers);}}>{showMembers&&!narrow?<PanelRightClose size={20}/>:<Users size={20}/>}</button>
+ <button className="icon-button workspace-members-toggle" aria-label={narrow?"Open community members":showMembers?"Hide community members":"Show community members"} aria-expanded={narrow?membersOpen:showMembers} onClick={()=>{if(narrow){setMembersOpen(true);membersDialog.current?.showModal();}else setShowMembers(!showMembers);}}>{showMembers&&!narrow?<PanelRightClose size={20}/>:<Users size={20}/>}</button>
  </header>{error&&<p className="workspace-navigation-error" role="alert">{error} <button className="chat-text-button" onClick={()=>void refresh()}>Retry navigation</button></p>}
  <div className="workspace-conversation-body">{children}</div>
  </section>

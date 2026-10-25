@@ -413,7 +413,7 @@ try {
     },
   );
   await check(
-    "moderator deletion clears content and records immutable metadata",
+    "author deletion clears content and records immutable metadata",
     async () => {
       await rpc(a, "change_channel_message", {
         p_id: msg,
@@ -422,15 +422,13 @@ try {
       });
       assert.equal((await rpc(a, "chat_message", { p_id: msg })).body, "");
       await admin();
-      assert.equal(
-        (
-          await db.query(
-            "select reason from private.message_moderation where message_id=$1",
-            [msg],
-          )
-        ).rows[0].reason,
-        "Rule enforcement",
+      const deletionAudit = await db.query(
+        "select actor_id,action,reason from private.message_moderation where message_id=$1 and action in ('author_delete','moderator_delete')",
+        [msg],
       );
+      assert.deepEqual(deletionAudit.rows, [
+        { actor_id: a, action: "author_delete", reason: "Rule enforcement" },
+      ]);
       await denied(() =>
         rpc(a, "change_channel_message", {
           p_id: msg,

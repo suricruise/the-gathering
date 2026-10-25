@@ -27,6 +27,7 @@ export type ChatMessage = {
   created_seq: string;
   version: string;
   reply_count: number;
+  thread_latest_at?: string | null;
   read_count: number;
   reactions: { emoji: string; count: number; mine: boolean }[];
   attachments: Attachment[];
@@ -49,3 +50,5 @@ export const reactionEmoji = [
   "👀",
   "✅",
 ] as const;
+
+export type ThreadPage = ChatPage & { root: ChatMessage };

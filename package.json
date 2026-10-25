@@ -67,7 +67,9 @@
     "test:workspace": "node scripts/test-channel-workspace.mjs",
     "test:workspace:setup": "node scripts/test-channel-workspace-setup.mjs",
     "test:interactions": "node scripts/test-message-interactions.mjs",
-    "test:interactions:setup": "node scripts/test-message-interactions-setup.mjs"
+    "test:interactions:setup": "node scripts/test-message-interactions-setup.mjs",
+    "test:threads": "node scripts/test-channel-threads.mjs",
+    "test:threads:setup": "node scripts/test-channel-threads-setup.mjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",

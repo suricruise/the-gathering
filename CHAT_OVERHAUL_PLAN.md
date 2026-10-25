@@ -321,3 +321,7 @@ The user's later request explicitly calls the composer overhaul **Stage 3**, sup
 ## Stage 4 interaction follow-through
 
 The subsequent user request explicitly authorizes Stage 4 message interactions. Existing reactions/edit/delete/report/thread relationships are reused; the desktop hover toolbar and mobile/keyboard action menu extend MessageItem. One additive migration (`202611080001`) adds persisted channel pins and limited edit/pin audit metadata to existing messages/logs. See `docs/MESSAGE_INTERACTIONS.md` and the development log for verification, setup and remaining acceptance. No providers, IDs, communities or messages are replaced.
+
+## Stage 5 thread follow-through
+
+The subsequent Stage 5 request authorizes simultaneous channel/thread panes. The existing parent/reply IDs, send pipeline, channel socket, secure files and Stage 3/4 controls are reused. ThreadPanel owns on-demand pages, a separate composer and stale-request cleanup; the main timeline stays mounted with a restored message anchor. Compact widths use a dedicated thread view. Additive version `202611090001` validates root/channel paging, projects recent activity and extends preference/block-aware participant notifications. See `docs/CHAT_THREADS.md` and the development log. No communities or message histories are recreated, and no new per-thread subscription/provider is introduced.

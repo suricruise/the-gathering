@@ -6613,3 +6613,32 @@ body:has(.app-shell.channel-mode) .pwa-status:not(.pwa-update) { pointer-events:
 .community-chat-workspace .message-pins-panel a { color: #c5b2ff; margin-right: 15px; }
 .community-chat-workspace .message-pins-panel button, .community-chat-workspace .message-pins-panel a { min-height: 44px; display: inline-flex; align-items: center; }
 @media(hover:none), (max-width:760px) { .community-chat-workspace .message-hover-toolbar { display: none; } .community-chat-workspace .chat-message-menu .chat-actions button, .community-chat-workspace .chat-message-menu .chat-actions a, .community-chat-workspace .chat-message-menu .chat-actions summary { min-height: 44px; } }
+
+/* Stage 5: one channel transport, two independent conversation panes. */
+.community-chat-workspace .chat-panes { flex: 1; min-height: 0; min-width: 0; display: flex; }
+.community-chat-workspace .chat-main-pane, .community-chat-workspace .chat-thread-panel { display: flex; flex-direction: column; flex: 1; min-height: 0; min-width: 0; }
+.community-chat-workspace .chat-main-pane[hidden], .community-chat-workspace .chat-thread-panel[hidden] { display: none; }
+.community-chat-workspace .chat-thread-panel { border-left: 1px solid #39415b; background: #101625; }
+.community-chat-workspace .has-thread .chat-thread-panel { flex: 0 0 44%; }
+.community-chat-workspace .thread-panel-header { padding: 12px; border-bottom: 1px solid #343b52; display: flex; gap: 10px; align-items: center; justify-content: space-between; }
+.community-chat-workspace .thread-panel-header h2 { margin: 0; font-size: 17px; }
+.community-chat-workspace .thread-panel-header p { margin: 3px 0 0; font-size: 12px; color: #b6bfd5; }
+.community-chat-workspace .thread-panel-header button { min-height: 44px; }
+.community-chat-workspace .thread-original { padding: 4px 0 12px; border-bottom: 1px solid #3b425c; }
+.community-chat-workspace .thread-reply-count { margin: 14px 0 8px; color: #c5b1f4; font-size: 12px; }
+.community-chat-workspace .thread-closed, .community-chat-workspace .thread-status { padding: 8px 12px; margin: 0; font-size: 12px; flex-shrink: 0; }
+.community-chat-workspace .thread-status button { min-height: 44px; }
+.community-chat-workspace .message-thread-summary { display: flex; gap: 5px; align-items: center; color: #c5b1f4; font-size: 11px; min-height: 32px; }
+.community-chat-workspace .has-thread .composer-help, .community-chat-workspace .has-thread .composer-gif { display: none; }
+.community-chat-workspace .has-thread .chat-composer-footer .button { margin-left: auto; }
+.community-chat-workspace:has(.has-thread) .workspace-members-desktop { display: none; }
+@media(min-width:1051px) {
+ .community-chat-workspace.with-members:has(.has-thread) .community-chat-workspace-panes { grid-template-columns: 226px minmax(0,1fr); }
+}
+@media(min-width:1001px) {
+ .community-chat-workspace:has(.has-thread) .workspace-members-toggle { display: none; }
+}
+@media(max-width:1000px) {
+ .community-chat-workspace .has-thread .chat-thread-panel { flex: 1; border-left: 0; }
+ .community-chat-workspace .message-thread-summary { min-height: 44px; flex-wrap: wrap; }
+}

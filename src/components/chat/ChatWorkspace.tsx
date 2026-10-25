@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   getHistory,
   getMessage,
@@ -8,6 +8,7 @@ import {
 import type { ChatMessage, ChatPage } from "../../lib/chat/types";
 import { useChannelChat } from "./useChannelChat";
 import { MessageComposer } from "./MessageComposer";
+import { ThreadPanel } from "./ThreadPanel";
 import { PinnedMessages } from "./PinnedMessages";
 import { MessageItem } from "./MessageItem";
 import { groupWithPrevious, messageDay, messageDateLabel } from "../../lib/chat/presentation";
@@ -41,15 +42,20 @@ export function ChatWorkspace({
   useEffect(() => setLocalTime(true), []);
   const [error, setError] = useState("");
   const [composerLocked, setComposerLocked] = useState(false);
-  const threadGeneration = useRef(0);
+  const [threadLocked, setThreadLocked] = useState(false);
+  const [threadOpen, setThreadOpen] = useState(false);
+  const [compact, setCompact] = useState(false);
+  const channelList = useRef<HTMLDivElement>(null);
+  const returnFocus = useRef<HTMLElement | null>(null);
+  const scrollAnchor = useRef<{ id: string; offset: number } | null>(null);
+  const pendingAnchor = useRef(false);
+  useEffect(() => { const media = matchMedia("(max-width: 1000px)"); const update = () => setCompact(media.matches); update(); media.addEventListener("change", update); return () => media.removeEventListener("change", update); }, []);
   const [thread, setThread] = useState<string | null>(null);
   const [replyTo, setReplyTo] = useState<string | null>(null);
   const [older, setOlder] = useState(initial.messages.length === 40);
   const [rootBefore, setRootBefore] = useState(
     initial.messages[0]?.created_seq ?? null,
   );
-  const [threadBefore, setThreadBefore] = useState<string | null>(null);
-  const [threadOlder, setThreadOlder] = useState(false);
   const [loading, setLoading] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -63,38 +69,35 @@ export function ChatWorkspace({
   const wasNearBottom = useRef(true);
   const seen = useRef("0");
   const roots = allMessages.filter((m) => m.parent_id === null);
-  const replies = allMessages.filter((m) => m.parent_id === thread);
-  const root = allMessages.find((m) => m.id === thread);
-  const openThread = useCallback(
-    async (m: ChatMessage) => {
-      const generation = ++threadGeneration.current;
-      const parent = m.parent_id ?? m.id;
-      setThread(parent);
-      setReplyTo(m.id);
-      setSearchResults(null);
-      setLoading(true);
-      setError("");
-      try {
-        if (m.parent_id && !allMessages.some((item) => item.id === parent)) {
-          const parentResult = await getMessage(parent);
-          if (parentResult.data?.channel_id === channelId)
-            merge([parentResult.data]);
-        }
-        const result = await getHistory({ channelId, parentId: parent });
-        if (generation !== threadGeneration.current) return;
-        if (result.data) {
-          merge(result.data.messages);
-          setThreadOlder(result.data.messages.length === 40);
-          setThreadBefore(result.data.messages[0]?.created_seq ?? null);
-        } else setError(result.error ?? "Thread unavailable.");
-      } catch {
-        if (generation === threadGeneration.current) setError("Thread unavailable. Please retry.");
-      } finally {
-        if (generation === threadGeneration.current) setLoading(false);
-      }
-    },
-    [channelId, merge, allMessages],
-  );
+  function captureAnchor() {
+    const list = channelList.current;
+    if (!list || !list.clientHeight) return;
+    const top = list.getBoundingClientRect().top;
+    const message = Array.from(list.querySelectorAll<HTMLElement>(".chat-message")).find((item) => item.getBoundingClientRect().bottom > top);
+    if (message) scrollAnchor.current = { id: message.id, offset: message.getBoundingClientRect().top - top };
+  }
+  useLayoutEffect(() => {
+    if (!pendingAnchor.current || !channelList.current?.clientHeight) return;
+    const anchor = scrollAnchor.current;
+    const element = anchor && document.getElementById(anchor.id);
+    if (element && anchor) channelList.current.scrollTop += element.getBoundingClientRect().top - channelList.current.getBoundingClientRect().top - anchor.offset;
+    pendingAnchor.current = false;
+  }, [threadOpen, compact]);
+  const openThread = useCallback((message: ChatMessage) => {
+    if (message.channel_id !== channelId) return;
+    if (composerLocked || threadLocked) { setError("Confirm the pending message before switching threads."); return; }
+    if (!threadOpen) {
+      captureAnchor(); pendingAnchor.current = true;
+      returnFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    }
+    setThread(message.parent_id ?? message.id); setReplyTo(message.id); setThreadOpen(true); setHighlight(message.id);
+    setSearchResults(null);
+  }, [channelId, composerLocked, threadLocked, threadOpen]);
+  function closeThread() {
+    if (threadLocked) return;
+    captureAnchor(); pendingAnchor.current = true; setThreadOpen(false);
+    requestAnimationFrame(() => returnFocus.current?.isConnected && returnFocus.current.focus({ preventScroll: true }));
+  }
   useEffect(() => {
     if (!sharedMessage) return;
     let active = true;
@@ -104,11 +107,12 @@ export function ChatWorkspace({
         if (result.data?.channel_id === channelId) {
           setHighlight(sharedMessage);
           merge([result.data]);
-          if (result.data.parent_id) void openThread(result.data);
+          if (result.data.parent_id) openThread(result.data);
+          else if (compact && threadOpen) closeThread();
           setTimeout(
             () =>
               document
-                .getElementById(`message-${sharedMessage}`)
+                .getElementById(`${result.data?.parent_id ? "thread-message" : "message"}-${sharedMessage}`)
                 ?.scrollIntoView({ block: "center" }),
             150,
           );
@@ -123,15 +127,17 @@ export function ChatWorkspace({
   }, [sharedMessage, channelId]);
   useEffect(() => {
     if (chat.denied) {
-      threadGeneration.current++;
       setThread(null);
+      setThreadOpen(false);
+      setThreadLocked(false);
       setSearchResults(null);
     }
   }, [chat.denied]);
   useEffect(() => {
+    if (compact && threadOpen) return;
     if (wasNearBottom.current && !sharedMessage && !searchResults)
       bottom.current?.scrollIntoView({ block: "nearest" });
-    const visible = thread ? replies : roots;
+    const visible = roots;
     const latest = visible.at(-1);
     if (
       !latest ||
@@ -155,40 +161,20 @@ export function ChatWorkspace({
     return () => clearTimeout(timer);
     // Message versions change after read notifications; created_seq prevents receipt loops.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allMessages, thread, searchResults, channelId]);
-  function closeThread() {
-    threadGeneration.current++;
-    setThread(null);
-    setReplyTo(null);
-    setLoading(false);
-  }
-  async function olderMessages(inThread: boolean) {
-    const generation = threadGeneration.current;
-    wasNearBottom.current = false;
-    setLoading(true);
-    setError("");
+  }, [allMessages, threadOpen, compact, searchResults, channelId]);
+  async function olderMessages() {
+    if (loading) return;
+    wasNearBottom.current = false; setLoading(true); setError("");
     try {
-      const result = await getHistory({
-        channelId,
-        parentId: inThread ? thread : null,
-        before: inThread ? threadBefore : rootBefore,
-      });
-      if (inThread && generation !== threadGeneration.current) return;
-      if (result.data) {
-        merge(result.data.messages);
-        if (inThread) {
-          setThreadOlder(result.data.messages.length === 40);
-          setThreadBefore(result.data.messages[0]?.created_seq ?? null);
-        } else {
-          setOlder(result.data.messages.length === 40);
-          setRootBefore(result.data.messages[0]?.created_seq ?? null);
-        }
+      const result = await getHistory({ channelId, before: rootBefore });
+      if(result.data) {
+        const element = channelList.current;
+        const height = element?.scrollHeight ?? 0, top = element?.scrollTop ?? 0;
+        merge(result.data.messages); setOlder(result.data.messages.length === 40); setRootBefore(result.data.messages[0]?.created_seq ?? null);
+        requestAnimationFrame(() => { if(element) element.scrollTop = top + element.scrollHeight - height; });
       } else setError(result.error ?? "History unavailable.");
-    } catch {
-      if (!inThread || generation === threadGeneration.current) setError("History unavailable. Please retry.");
-    } finally {
-      if (!inThread || generation === threadGeneration.current) setLoading(false);
-    }
+    } catch { setError("History unavailable. Please retry."); }
+    finally { setLoading(false); }
   }
   async function runSearch(more = false) {
     if (search.trim().length < 2) {
@@ -221,7 +207,7 @@ export function ChatWorkspace({
   const visible =
     searchResults?.map(
       (m) => allMessages.find((item) => item.id === m.id) ?? m,
-    ) ?? (thread ? replies : roots);
+    ) ?? roots;
   const firstUnreadId = visible.find(
     (m) =>
       m.author_id !== userId &&
@@ -231,7 +217,7 @@ export function ChatWorkspace({
   const moderator = ["owner", "administrator", "moderator"].includes(chat.role);
   return (
     <section
-      className="chat-workspace panel"
+      className={`chat-workspace panel ${threadOpen ? "has-thread" : ""}`}
       aria-label={`${channelName} messages`}
     >
       <div className="chat-toolbar">
@@ -242,8 +228,8 @@ export function ChatWorkspace({
           {chat.status === "Live" ? "● Live" : chat.status}
         </span>
         <span>{chat.unread} unread</span>
-        {!chat.denied && <PinnedMessages channel={channelId} revision={chat.refreshVersion} moderator={moderator} onMerge={(messages) => { merge(messages); void chat.refresh(); }} />}
-        <button className="chat-text-button" aria-expanded={searchOpen} disabled={composerLocked} onClick={() => { setSearchOpen(!searchOpen); if (searchOpen) setSearchResults(null); }}>Search channel</button>
+        {!chat.denied && <PinnedMessages channel={channelId} revision={chat.refreshVersion} moderator={moderator} onMerge={(messages) => { merge(messages); void chat.refresh().catch(() => {}); }} />}
+        <button className="chat-text-button" aria-expanded={searchOpen} disabled={composerLocked || threadLocked} onClick={() => { if (compact && threadOpen) closeThread(); setSearchOpen(!searchOpen); if (searchOpen) setSearchResults(null); }}>Search channel</button>
         {chat.status !== "Live" && (
           <button className="chat-text-button" onClick={chat.retryConnection}>
             Reconnect
@@ -279,7 +265,8 @@ export function ChatWorkspace({
           </p>
         </div>
       ) : (
-        <>
+        <div className="chat-panes">
+        <section className="chat-main-pane" aria-label="Channel conversation" hidden={compact && threadOpen}>
           {searchOpen && <form
             className="chat-search"
             onSubmit={(e) => {
@@ -291,7 +278,7 @@ export function ChatWorkspace({
               <span className="sr-only">Search this channel</span>
               <input
                 value={search}
-                disabled={composerLocked}
+                disabled={composerLocked || threadLocked}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search this channel…"
                 minLength={2}
@@ -301,7 +288,7 @@ export function ChatWorkspace({
             <button
               type="submit"
               className="button secondary"
-              disabled={loading || composerLocked}
+              disabled={loading || composerLocked || threadLocked}
             >
               Search
             </button>
@@ -315,36 +302,16 @@ export function ChatWorkspace({
               </button>
             )}
           </form>}
-          {thread && !searchResults && (
-            <div className="chat-thread-heading">
-              <h2>Thread</h2>
-              {root?.deleted_at && <small>Original message deleted. Existing replies remain available; new replies are closed.</small>}
-              <span>
-                {root?.author_name}:{" "}
-                {root?.deleted_at
-                  ? "Message deleted"
-                  : root?.body.slice(0, 100)}
-              </span>
-              <button
-                className="chat-text-button"
-                disabled={composerLocked}
-                onClick={closeThread}
-              >
-                Back to channel
-              </button>
-            </div>
-          )}
           {searchResults && (
             <h2 className="chat-result-title">Search results</h2>
           )}
           <div
+            ref={channelList}
             className="chat-message-list"
             aria-label={
               searchResults
                 ? "Search results"
-                : thread
-                  ? "Thread messages"
-                  : "Channel messages"
+                : "Channel messages"
             }
             tabIndex={0}
             onScroll={(e) => {
@@ -353,11 +320,11 @@ export function ChatWorkspace({
                 el.scrollHeight - el.scrollTop - el.clientHeight < 120;
             }}
           >
-            {!searchResults && (thread ? threadOlder : older) && (
+            {!searchResults && older && (
               <button
                 className="button secondary"
                 disabled={loading}
-                onClick={() => void olderMessages(!!thread)}
+                onClick={() => void olderMessages()}
               >
                 Load older messages
               </button>
@@ -367,9 +334,7 @@ export function ChatWorkspace({
                 <h2>
                   {searchResults
                     ? "No messages found"
-                    : thread
-                      ? "Start a reply"
-                      : "Start the conversation"}
+                    : "Start the conversation"}
                 </h2>
                 <p>
                   {searchResults
@@ -391,9 +356,9 @@ export function ChatWorkspace({
                   localTime={localTime}
                   userId={userId}
                   canPost={chat.canPost}
-                  replyDisabled={composerLocked}
+                  replyDisabled={composerLocked || threadLocked}
                   moderator={moderator}
-                  onMerge={(messages) => { merge(messages); void chat.refresh(); }}
+                  onMerge={(messages) => { merge(messages); void chat.refresh().catch(() => {}); }}
                   onReply={(m) => {
                     setHighlight(m.id);
                     void openThread(m);
@@ -420,13 +385,15 @@ export function ChatWorkspace({
           </div>
           <MessageComposer
             channelId={channelId} channelName={channelName} userId={userId}
-            canPost={chat.canPost && !(thread && root?.deleted_at)} connection={chat.status} hidden={!!searchResults}
-            parentId={thread} reply={allMessages.find((m) => m.id === replyTo) ?? root}
-            onCancelReply={closeThread} onLocked={setComposerLocked}
+            canPost={chat.canPost} connection={chat.status} hidden={!!searchResults || (compact && threadOpen)}
+            parentId={null}
+            onCancelReply={() => {}} onLocked={setComposerLocked}
             onTyping={chat.indicateTyping}
-            onSent={(message) => { merge([message]); wasNearBottom.current = true; void chat.refresh(); }}
+            onSent={(message) => { merge([message]); wasNearBottom.current = true; void chat.refresh().catch(() => {}); }}
           />
-        </>
+        </section>
+        {thread && <ThreadPanel key={thread} channelId={channelId} channelName={channelName} parentId={thread} targetId={replyTo ?? thread} active={threadOpen} messages={allMessages} userId={userId} canPost={chat.canPost} connection={chat.status} moderator={moderator} localTime={localTime} locked={threadLocked} highlight={highlight} onClose={closeThread} onReply={openThread} onMerge={(messages) => { merge(messages); void chat.refresh().catch(() => {}); }} onDenied={chat.lock} onTyping={chat.indicateTyping} onLocked={setThreadLocked} />}
+        </div>
       )}
       {loading && (
         <p role="status" className="padded">

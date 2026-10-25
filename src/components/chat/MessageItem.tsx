@@ -21,6 +21,7 @@ export function MessageItem({
   highlight = false,
   grouped = false,
   localTime = false,
+  scope = "channel",
 }: {
   message: ChatMessage;
   userId: string;
@@ -32,6 +33,7 @@ export function MessageItem({
   highlight?: boolean;
   grouped?: boolean;
   localTime?: boolean;
+  scope?: "channel" | "thread";
 }) {
   const menu = useRef<HTMLDetailsElement>(null);
   const reactionMenu = useRef<HTMLDetailsElement>(null);
@@ -117,8 +119,9 @@ export function MessageItem({
   }
   return (
     <article
-      id={`message-${m.id}`}
-      data-message-id={m.id}
+      id={`${scope === "thread" ? "thread-message" : "message"}-${m.id}`}
+      data-message-id={scope === "channel" ? m.id : undefined}
+      data-thread-message-id={scope === "thread" ? m.id : undefined}
       className={`chat-message ${highlight ? "highlighted" : ""} ${grouped ? "is-grouped" : ""}`}
       aria-label={`Message from ${m.author_name}`}
     >
@@ -144,6 +147,7 @@ export function MessageItem({
         </header>}
         {grouped && m.edited_at && !m.deleted_at && <small>edited</small>}
         {m.pinned_at && !m.deleted_at && <small className="message-pin-label"><Pin size={12} aria-hidden="true" /> Pinned</small>}
+        {scope === "channel" && !m.deleted_at && m.reply_count > 0 && <button type="button" className="message-thread-summary chat-text-button" disabled={replyDisabled} onClick={() => onReply(m)}>{m.reply_count} replies{m.thread_latest_at && <span> · Latest <time dateTime={m.thread_latest_at}>{messageTime(m.thread_latest_at, localTime)}</time></span>}</button>}
         {m.reply_to_id && <small className="muted">Reply in thread</small>}
         {m.deleted_at ? (
           <div><p className="muted">Message deleted</p>{m.reply_count > 0 && <button type="button" className="chat-text-button" disabled={replyDisabled} onClick={() => onReply(m)}>View thread · {m.reply_count}</button>}</div>
@@ -242,7 +246,7 @@ export function MessageItem({
             </div>
             <div className="message-hover-toolbar" role="group" aria-label="Quick message actions">
               <button type="button" aria-label="Add emoji reaction" title="Add reaction" disabled={!canPost || busy} onClick={() => { if(menu.current) menu.current.open = true; if(reactionMenu.current) reactionMenu.current.open = true; requestAnimationFrame(() => reactionMenu.current?.querySelector("button")?.focus()); }}><SmilePlus size={17} /></button>
-              <button type="button" aria-label="Reply to message" title="Reply" disabled={replyDisabled} onClick={() => onReply(m)}><Reply size={17} /></button>
+              <button type="button" aria-label="Reply to message" title="Reply in Thread" disabled={replyDisabled} onClick={() => onReply(m)}><Reply size={17} /></button>
               <button type="button" aria-label="Start thread" title="Start thread" disabled={replyDisabled} onClick={() => onReply(m)}><MessagesSquare size={17} /></button>
               <button type="button" aria-label="Copy message text" title="Copy text" onClick={() => void copy(false)}><Copy size={17} /></button>
             </div>
@@ -257,6 +261,7 @@ export function MessageItem({
                   ? "Reply"
                   : `Reply${m.reply_count ? ` · ${m.reply_count}` : ""}`}
               </button>
+              <button type="button" className="chat-text-button" disabled={replyDisabled} onClick={() => onReply(m)}>Reply in Thread</button>
               {canPost && (
                 <details className="reaction-picker" ref={reactionMenu}>
                   <summary>Add reaction</summary>

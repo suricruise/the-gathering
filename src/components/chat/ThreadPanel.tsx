@@ -8,10 +8,10 @@ import { PendingMessageRow } from "./PendingMessageRow";
 import { MessageComposer } from "./MessageComposer";
 import { groupWithPrevious, messageDay, messageDateLabel } from "../../lib/chat/presentation";
 const noVisible = () => {};
-export function ThreadPanel({ channelId, channelName, parentId, targetId, active, messages, userId, canPost, connection, moderator, localTime, locked, highlight, onClose, onReply, onMerge, onDenied, onTyping, onLocked, pending = [], onDelivery, watchVisible = noVisible }: {
+export function ThreadPanel({ channelId, channelName, parentId, targetId, active, messages, userId, canPost, canAttach, connection, moderator, localTime, locked, highlight, onClose, onReply, onMerge, onDenied, onTyping, onLocked, pending = [], onDelivery, watchVisible = noVisible }: {
   channelId: string; channelName: string; parentId: string; targetId: string; active: boolean;
   pending?: PendingMessage[]; onDelivery?: (change:DeliveryChange)=>void; watchVisible?: (scope:string,ids:string[])=>void;
-  messages: ChatMessage[]; userId: string; canPost: boolean; connection: string; moderator: boolean; localTime: boolean; locked: boolean; highlight: string;
+  messages: ChatMessage[]; userId: string; canPost: boolean; canAttach?: boolean; connection: string; moderator: boolean; localTime: boolean; locked: boolean; highlight: string;
   onClose: () => void; onReply: (message: ChatMessage) => void; onMerge: (messages: ChatMessage[]) => void; onDenied: () => void; onTyping: (active: boolean) => void; onLocked: (locked: boolean) => void;
 }) {
   const [floor, setFloor] = useState<string | null>(null), [before, setBefore] = useState<string | null>(null), [more, setMore] = useState(false);
@@ -105,6 +105,6 @@ export function ThreadPanel({ channelId, channelName, parentId, targetId, active
     {!!newMessages&&<button type="button" className="chat-new-messages" onClick={()=>{if(list.current)list.current.scrollTop=list.current.scrollHeight;nearBottom.current=true;setNewMessages(0);}}>{newMessages} New Messages · Jump to latest reply</button>}
     {loading && <p className="thread-status" role="status">Loading replies…</p>}
     {error && <p className="thread-status form-error" role="alert">{error} <button type="button" className="chat-text-button" onClick={() => setRetry((value) => value + 1)}>Retry thread</button></p>}
-    <MessageComposer channelId={channelId} channelName={channelName} userId={userId} canPost={canPost && !!root && !root.deleted_at && floor !== null} connection={connection} parentId={parentId} reply={messages.find((message) => message.id === targetId) ?? root} hidden={!active} committed={messages} onDelivery={onDelivery} onCancelReply={onClose} onSent={(message) => { onMerge([message]); }} onTyping={onTyping} onLocked={onLocked} />
+    <MessageComposer channelId={channelId} channelName={channelName} userId={userId} canPost={canPost && !!root && !root.deleted_at && floor !== null} canAttach={canAttach} connection={connection} parentId={parentId} reply={messages.find((message) => message.id === targetId) ?? root} hidden={!active} committed={messages} onDelivery={onDelivery} onCancelReply={onClose} onSent={(message) => { onMerge([message]); }} onTyping={onTyping} onLocked={onLocked} />
   </section>;
 }

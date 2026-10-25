@@ -676,7 +676,7 @@ export function AdminDashboard({ initial }: { initial: Context | null }) {
                 <CommunityForm act={act} />
               )}
               {view === "channels" && community && manager && (
-                <ChannelForm community={community} act={act} />
+                <><Link className="button secondary" href={`/communities/${community}/manage`}>Advanced channel settings & moderation</Link><ChannelForm community={community} act={act} /></>
               )}
               {view === "announcements" && manager && (
                 <AnnouncementForm community={community} act={act} />

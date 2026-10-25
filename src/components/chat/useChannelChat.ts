@@ -7,7 +7,7 @@ import { reconcileMessages } from "../../lib/chat/reconcile";
 import type { ChatMessage, ChatPage, ChatState, DeliveryChange, PendingMessage } from "../../lib/chat/types";
 export function useChannelChat({ channelId, userId, initial, url, publishableKey }: { channelId:string;userId:string;initial:ChatPage;url:string;publishableKey:string }) {
   const [messages,setMessages]=useState(initial.messages),[pending,setPending]=useState<PendingMessage[]>([]);
-  const [status,setStatus]=useState("Connecting"),[denied,setDenied]=useState(false),[canPost,setCanPost]=useState(false),[role,setRole]=useState("member");
+  const [status,setStatus]=useState("Connecting"),[denied,setDenied]=useState(false),[canPost,setCanPost]=useState(false),[canAttach,setCanAttach]=useState(false),[role,setRole]=useState("member");
   const [refreshVersion,setRefreshVersion]=useState(0),[generation,setGeneration]=useState(0),[recoveryPage,setRecoveryPage]=useState<ChatPage|null>(null);
   const [unread,setUnread]=useState(initial.unread_count),[lastRead,setLastRead]=useState(initial.last_read_seq);
   const [syncError,setSyncError]=useState("");
@@ -24,7 +24,7 @@ export function useChannelChat({ channelId, userId, initial, url, publishableKey
 epoch.current++;clearTimeout(retryTimer.current);clearTimeout(visibleTimer.current);};},[]);
   const valid=useCallback((token:number)=>alive.current&&allowed.current&&token===epoch.current,[]);
   const merge=useCallback((items:ChatMessage[])=>{if(alive.current&&allowed.current)setMessages(previous=>reconcileMessages(previous,items.filter(m=>m.channel_id===channelId)));},[channelId]);
-  const lock=useCallback(()=>{epoch.current++;allowed.current=false;wasDenied.current=true;socketReady.current=false;clearTimeout(retryTimer.current);setDenied(true);setCanPost(false);setMessages([]);setPending([]);setTyping({});setStatus("Access unavailable");},[]);
+  const lock=useCallback(()=>{epoch.current++;allowed.current=false;wasDenied.current=true;socketReady.current=false;clearTimeout(retryTimer.current);setDenied(true);setCanPost(false);setCanAttach(false);setMessages([]);setPending([]);setTyping({});setStatus("Access unavailable");},[]);
   const applyState=useCallback((data:ChatState)=>{
     if(!alive.current||!allowed.current||BigInt(data.last_read_seq)<BigInt(read.current)||BigInt(data.watermark)<BigInt(stateVersion.current))return;
     read.current=data.last_read_seq;stateVersion.current=data.watermark;setLastRead(data.last_read_seq);setUnread(data.unread_count);setRefreshVersion(value=>value+1);
@@ -83,7 +83,7 @@ epoch.current++;clearTimeout(retryTimer.current);clearTimeout(visibleTimer.curre
         if(response.status===401||response.status===403){lock();if(subscription&&socket)await socket.removeChannel(subscription);return;}
         if(!response.ok)throw Error("Session unavailable");const session=await response.json();if(stopped||token!==epoch.current)return;
         if(typeof session.topic!=="string"||typeof session.access_token!=="string")throw Error("Invalid session");
-        allowed.current=true;setCanPost(session.can_post===true);setRole(session.role??"member");
+        allowed.current=true;setCanPost(session.can_post===true);setCanAttach(session.can_attach===true);setRole(session.role??"member");
         if(wasDenied.current){const page=await getConversationPage({channelId});if(stopped||token!==epoch.current)return;if(!page.data)throw Error("History unavailable");setMessages(page.data.messages);cursor.current=page.data.watermark;setRecoveryPage(page.data);read.current=page.data.last_read_seq;stateVersion.current=page.data.watermark;wasDenied.current=false;}
         setDenied(false);
         if(!socket)socket=new RealtimeClient(new URL("/realtime/v1",url).href,{params:{apikey:publishableKey,eventsPerSecond:10}});
@@ -94,7 +94,7 @@ epoch.current++;clearTimeout(retryTimer.current);clearTimeout(visibleTimer.curre
         subscription=socket.channel(topic,{config:{private:true,broadcast:{self:false}}})
           .on("broadcast",{event:"changed"},invalidate)
           .on("broadcast",{event:"receipt"},()=>{if(!stopped){void refresh().catch(()=>{});void receiptSnapshot();}})
-          .on("broadcast",{event:"access_changed"},()=>{if(stopped)return;window.dispatchEvent(new Event("gathering:chat-access-changed"));epoch.current++;allowed.current=false;socketReady.current=false;setCanPost(false);setTyping({});setStatus("Reauthorizing");setGeneration(value=>value+1);})
+          .on("broadcast",{event:"access_changed"},()=>{if(stopped)return;window.dispatchEvent(new Event("gathering:chat-access-changed"));epoch.current++;allowed.current=false;socketReady.current=false;setCanPost(false);setCanAttach(false);setTyping({});setStatus("Reauthorizing");setGeneration(value=>value+1);})
           .on("broadcast",{event:"typing"},({payload})=>{
             if(stopped||!allowed.current||payload?.user_id===userId||typeof payload?.user_id!=="string"||payload.user_id.length>36||typeof payload?.name!=="string")return;
             const until=Date.parse(payload.until),now=Date.now();if(!Number.isFinite(until)||until>now+10000)return;
@@ -119,5 +119,5 @@ epoch.current++;clearTimeout(retryTimer.current);clearTimeout(visibleTimer.curre
     localTyping.current={active,last:active?now:previous.last};
     void fetch("/api/chat/typing",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({channel:channelId,active}),keepalive:true}).catch(()=>{});
   },[channelId]);
-  return {messages,pending,syncError,delivery,watchVisible,recoveryPage,refreshVersion,merge,status,denied,canPost,role,typing:Object.values(typing).map(t=>t.name),unread,lastRead,refresh,applyState,retryConnection:()=>setGeneration(value=>value+1),indicateTyping,lock};
+  return {messages,pending,syncError,delivery,watchVisible,recoveryPage,refreshVersion,merge,status,denied,canPost,canAttach,role,typing:Object.values(typing).map(t=>t.name),unread,lastRead,refresh,applyState,retryConnection:()=>setGeneration(value=>value+1),indicateTyping,lock};
 }

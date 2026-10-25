@@ -426,14 +426,14 @@ export function ChatWorkspace({
           </div>
           <MessageComposer
             channelId={channelId} channelName={channelName} userId={userId}
-            canPost={chat.canPost} connection={chat.status} hidden={!!searchResults || (compact && threadOpen)}
+            canPost={chat.canPost} canAttach={chat.canAttach} connection={chat.status} hidden={!!searchResults || (compact && threadOpen)}
             parentId={null} committed={allMessages} onDelivery={chat.delivery}
             onCancelReply={() => {}} onLocked={setComposerLocked}
             onTyping={chat.indicateTyping}
             onSent={(message) => { merge([message]); void chat.refresh().catch(() => {}); }}
           />
         </section>
-        {thread && <ThreadPanel key={thread} channelId={channelId} channelName={channelName} parentId={thread} targetId={replyTo ?? thread} active={threadOpen} messages={allMessages} pending={chat.pending} onDelivery={chat.delivery} watchVisible={chat.watchVisible} userId={userId} canPost={chat.canPost} connection={chat.status} moderator={moderator} localTime={localTime} locked={threadLocked} highlight={highlight} onClose={closeThread} onReply={openThread} onMerge={merge} onDenied={chat.lock} onTyping={chat.indicateTyping} onLocked={setThreadLocked} />}
+        {thread && <ThreadPanel key={thread} channelId={channelId} channelName={channelName} parentId={thread} targetId={replyTo ?? thread} active={threadOpen} messages={allMessages} pending={chat.pending} onDelivery={chat.delivery} watchVisible={chat.watchVisible} userId={userId} canPost={chat.canPost} canAttach={chat.canAttach} connection={chat.status} moderator={moderator} localTime={localTime} locked={threadLocked} highlight={highlight} onClose={closeThread} onReply={openThread} onMerge={merge} onDenied={chat.lock} onTyping={chat.indicateTyping} onLocked={setThreadLocked} />}
         </div>
       )}
       {loading && (

@@ -70,6 +70,7 @@ export function CommunityView({ data }: { data: CommunityDetailData }) {
           <div className="two-column">
             <section className="panel padded">
               <h2>Community channels</h2>
+              {staff && <Link className="button secondary" href={`/communities/${c.slug}/manage`}>Manage channels & moderation</Link>}
               <nav aria-label="Community channels">
                 {[
                   ...categories,

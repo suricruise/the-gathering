@@ -10,8 +10,8 @@ import type { Attachment, ChatMessage, DeliveryChange } from "../../lib/chat/typ
 
 type Staged = { id: string; file: File; state: "queued" | "uploading" | "ready" | "error"; percent: number; attachment?: Attachment; error?: string };
 type Attempt = { id: string; channelId: string; body: string; parentId: string | null; replyToId: string | null; attachments: string[] };
-export function MessageComposer({ channelId, channelName, userId, canPost, connection, parentId, reply, hidden, onCancelReply, onSent, onTyping, onLocked, committed, onDelivery }: {
-  channelId: string; channelName: string; userId: string; canPost: boolean; connection: string;
+export function MessageComposer({ channelId, channelName, userId, canPost, canAttach = true, connection, parentId, reply, hidden, onCancelReply, onSent, onTyping, onLocked, committed, onDelivery }: {
+  channelId: string; channelName: string; userId: string; canPost: boolean; canAttach?: boolean; connection: string;
   parentId: string | null; reply?: ChatMessage; hidden: boolean;
   committed?: ChatMessage[]; onDelivery?: (change: DeliveryChange) => void;
   onCancelReply: () => void; onSent: (message: ChatMessage) => void; onTyping: (active: boolean) => void; onLocked: (locked: boolean) => void;
@@ -81,8 +81,8 @@ export function MessageComposer({ channelId, channelName, userId, canPost, conne
   }, [selected, suggestions, listId, query]);
   // Stop uploads on access loss; server authorization remains authoritative.
   useEffect(() => {
-    if (!canPost) { for (const abort of uploads.current.values()) abort(); }
-  }, [canPost]);
+    if (!canPost || !canAttach) { for (const abort of uploads.current.values()) abort(); }
+  }, [canPost, canAttach]);
   useEffect(() => {
     if (!attempt || sending) return;
     const saved = committed?.find(message => message.id === attempt.id && message.channel_id === channelId && message.author_id === userId && message.parent_id === attempt.parentId);
@@ -109,7 +109,7 @@ export function MessageComposer({ channelId, channelName, userId, canPost, conne
     insert(`@${member.username} `, mention.start, mention.end); setDismissed(true);
   }
   async function startUpload(entry: Staged) {
-    if (!canPost || locked || uploads.current.has(entry.id)) return;
+    if (!canPost || !canAttach || locked || uploads.current.has(entry.id)) return;
     update(entries.current.map((item) => item.id === entry.id ? { ...item, state: "uploading", percent: 0, error: undefined } : item));
     const upload = uploadChatFile(channelId, entry.file, (percent) => {
       if (alive.current) update(entries.current.map((item) => item.id === entry.id ? { ...item, percent } : item));
@@ -123,6 +123,7 @@ export function MessageComposer({ channelId, channelName, userId, canPost, conne
     } finally { uploads.current.delete(entry.id); }
   }
   function addFiles(list: FileList | File[]) {
+    if(!canAttach){setError("Attachments are unavailable in this channel.");return;}
     if (disabled) return;
     const files = Array.from(list);
     if (entries.current.length + files.length > 4) { setError("Attach up to four files per message."); return; }
@@ -173,7 +174,7 @@ export function MessageComposer({ channelId, channelName, userId, canPost, conne
       <span className="composer-file-name">{entry.attachment?.filename ?? entry.file.name}</span>
       {entry.state === "uploading" && <span role="status"><progress max={100} value={entry.percent} aria-label={`Uploading ${entry.file.name}`} />{entry.percent === 100 ? "Processing…" : `Uploading ${entry.percent}%`}</span>}
       {entry.state === "ready" && <span className="muted">Ready to send</span>}
-      {entry.state === "error" && <><span role="alert">{entry.error}</span><button type="button" className="chat-text-button" disabled={disabled} onClick={() => void startUpload(entry)}>Retry upload</button></>}
+      {entry.state === "error" && <><span role="alert">{entry.error}</span><button type="button" className="chat-text-button" disabled={disabled || !canAttach} onClick={() => void startUpload(entry)}>Retry upload</button></>}
       <button type="button" className="chat-text-button" disabled={locked} onClick={() => { uploads.current.get(entry.id)?.(); uploads.current.delete(entry.id); update(entries.current.filter((item) => item.id !== entry.id)); }}>Remove attachment</button>
     </li>)}</ul>}
     <div className="composer-input-wrap">
@@ -197,9 +198,9 @@ export function MessageComposer({ channelId, channelName, userId, canPost, conne
       </label>
     </div>
     <div className="chat-composer-footer">
-      <label className="composer-icon composer-attach" title="Attach files"><Paperclip size={20} /><span className="sr-only">Attach files</span><input type="file" multiple accept={attachmentAccept} disabled={disabled || staged.length >= 4} onChange={(event) => { if (event.target.files) addFiles(event.target.files); event.target.value = ""; }} /></label>
-      <label className="composer-icon composer-attach" title="Attach images"><ImagePlus size={20} /><span className="sr-only">Attach images</span><input type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif" disabled={disabled || staged.length >= 4} onChange={(event) => { if (event.target.files) addFiles(event.target.files); event.target.value = ""; }} /></label>
-      <span id={`${listId}-help`} className="muted composer-help">{draft.length}/4000 · Enter to send · Shift+Enter for a new line · Markdown · Files up to 3 MB</span>
+      <label className="composer-icon composer-attach" title="Attach files"><Paperclip size={20} /><span className="sr-only">Attach files</span><input type="file" multiple accept={attachmentAccept} disabled={disabled || !canAttach || staged.length >= 4} onChange={(event) => { if (event.target.files) addFiles(event.target.files); event.target.value = ""; }} /></label>
+      <label className="composer-icon composer-attach" title="Attach images"><ImagePlus size={20} /><span className="sr-only">Attach images</span><input type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif" disabled={disabled || !canAttach || staged.length >= 4} onChange={(event) => { if (event.target.files) addFiles(event.target.files); event.target.value = ""; }} /></label>
+      <span id={`${listId}-help`} className="muted composer-help">{draft.length}/4000 · Enter to send · Shift+Enter for a new line · Markdown · {canAttach?"Files up to 3 MB":"Attachments unavailable in this channel"}</span>
       <button type="button" className="composer-icon" aria-label="Choose emoji" aria-haspopup="dialog" aria-expanded={emojiOpen} disabled={disabled} onClick={() => { setEmojiSearch(""); setEmojiOpen(true); emojiDialog.current?.showModal(); }}><Smile size={20} /></button>
       <button type="button" className="composer-icon composer-gif" disabled title="GIF search is not configured. Attach a GIF file instead.">GIF</button>
       <button type="submit" className="button primary" disabled={!canPost || sending || staged.some((item) => item.state !== "ready") || (!draft.trim() && !staged.length)}>{sending ? "Sending…" : attempt ? "Retry message" : "Send message"}</button>

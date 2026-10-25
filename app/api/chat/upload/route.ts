@@ -38,7 +38,7 @@ export async function POST(request: Request) {
     return fail("Choose a file and channel.");
   const access = await client.rpc("channel_access", {
     p_channel: channel,
-    p_permission: "post",
+    p_permission: "attach",
   });
   if (access.error || access.data !== true)
     return fail("Channel unavailable.", 403);

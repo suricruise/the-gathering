@@ -66,10 +66,11 @@ export default async function ChannelPage({
   if (!community) notFound();
   const navigation = await workspaceNavigation(id);
   if (!navigation.data) throw new Error(navigation.error || "Community navigation unavailable.");
-  const history =
+  let history =
     channel.kind === "text"
-      ? await client.rpc("chat_page", { p_channel: id })
+      ? await client.rpc("chat_conversation_page", { p_channel: id, p_mode: "initial" })
       : null;
+  if (history?.error && ["42883", "PGRST202"].includes(history.error.code)) history = await client.rpc("chat_page", { p_channel: id });
   const config = publicConfig();
   const voiceSettings =
     channel.kind === "voice"

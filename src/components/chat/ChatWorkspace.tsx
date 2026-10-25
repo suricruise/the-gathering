@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
   getHistory,
   getMessage,
@@ -8,6 +8,10 @@ import {
 import type { ChatMessage, ChatPage } from "../../lib/chat/types";
 import { useChannelChat } from "./useChannelChat";
 import { MessageComposer } from "./MessageComposer";
+import { getConversationPage, markAllRead } from "../../lib/chat/reliability";
+import { nearEnd, visibleAnchor, restoreAnchor } from "../../lib/chat/scrolling";
+import { MessageTimeline } from "./MessageTimeline";
+import { PendingMessageRow } from "./PendingMessageRow";
 import { ThreadPanel } from "./ThreadPanel";
 import { PinnedMessages } from "./PinnedMessages";
 import { MessageItem } from "./MessageItem";
@@ -52,7 +56,16 @@ export function ChatWorkspace({
   useEffect(() => { const media = matchMedia("(max-width: 1000px)"); const update = () => setCompact(media.matches); update(); media.addEventListener("change", update); return () => media.removeEventListener("change", update); }, []);
   const [thread, setThread] = useState<string | null>(null);
   const [replyTo, setReplyTo] = useState<string | null>(null);
-  const [older, setOlder] = useState(initial.messages.length === 40);
+  const [older, setOlder] = useState(initial.has_older ?? initial.messages.length === 40);
+  const [hasNewer,setHasNewer]=useState(initial.has_newer??false);
+  const [floor,setFloor]=useState(initial.messages[0]?.created_seq??"0");
+  const [ceiling,setCeiling]=useState(initial.messages.at(-1)?.created_seq??"0");
+  const [viewportVersion,setViewportVersion]=useState(0),[following,setFollowing]=useState(false);
+  const followedShape=useRef("");
+  const positioned=useRef(false),arrival=useRef(initial.latest_seq??initial.messages.at(-1)?.created_seq??"0");
+  const pageRequest=useRef(0);
+  const [newMessages,setNewMessages]=useState(0);
+
   const [rootBefore, setRootBefore] = useState(
     initial.messages[0]?.created_seq ?? null,
   );
@@ -68,10 +81,15 @@ export function ChatWorkspace({
   const bottom = useRef<HTMLDivElement>(null);
   const wasNearBottom = useRef(true);
   const seen = useRef("0");
-  const roots = allMessages.filter((m) => m.parent_id === null);
+  const allRoots = useMemo(()=>allMessages.filter((m) => m.parent_id === null),[allMessages]);
+  const roots = useMemo(()=>allRoots.filter(message=>message.id===sharedMessage||(BigInt(message.created_seq)>=BigInt(floor)&&(!hasNewer||BigInt(message.created_seq)<=BigInt(ceiling)))),[allRoots,sharedMessage,floor,hasNewer,ceiling]);
+  const pending = chat.pending.filter(message=>message.parentId===null&&!allMessages.some(saved=>saved.id===message.id));
+  useEffect(()=>{if(!chat.recoveryPage)return;const page=chat.recoveryPage;setFloor(page.messages[0]?.created_seq??"0");setCeiling(page.messages.at(-1)?.created_seq??"0");setOlder(page.has_older??false);setHasNewer(page.has_newer??false);setRootBefore(page.messages[0]?.created_seq??null);positioned.current=false;},[chat.recoveryPage]);
+
   function captureAnchor() {
     const list = channelList.current;
     if (!list || !list.clientHeight) return;
+    wasNearBottom.current=nearEnd(list);
     const top = list.getBoundingClientRect().top;
     const message = Array.from(list.querySelectorAll<HTMLElement>(".chat-message")).find((item) => item.getBoundingClientRect().bottom > top);
     if (message) scrollAnchor.current = { id: message.id, offset: message.getBoundingClientRect().top - top };
@@ -99,7 +117,7 @@ export function ChatWorkspace({
     requestAnimationFrame(() => returnFocus.current?.isConnected && returnFocus.current.focus({ preventScroll: true }));
   }
   useEffect(() => {
-    if (!sharedMessage) return;
+    if (!sharedMessage || chat.denied) return;
     let active = true;
     void getMessage(sharedMessage)
       .then((result) => {
@@ -118,69 +136,86 @@ export function ChatWorkspace({
           );
         } else setError("That message is unavailable.");
       })
-      .catch(() => setError("That message could not be loaded."));
+      .catch(() => { if(active) setError("That message could not be loaded."); });
     return () => {
       active = false;
     };
     // A shared link is loaded once per channel/message, not for every live update.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sharedMessage, channelId]);
+  }, [sharedMessage, channelId, chat.denied]);
   useEffect(() => {
     if (chat.denied) {
+      pageRequest.current++;
       setThread(null);
       setThreadOpen(false);
       setThreadLocked(false);
       setSearchResults(null);
     }
   }, [chat.denied]);
-  useEffect(() => {
-    if (compact && threadOpen) return;
-    if (wasNearBottom.current && !sharedMessage && !searchResults)
-      bottom.current?.scrollIntoView({ block: "nearest" });
-    const visible = roots;
-    const latest = visible.at(-1);
-    if (
-      !latest ||
-      !document.hasFocus() ||
-      document.visibilityState !== "visible" ||
-      !wasNearBottom.current ||
-      searchResults ||
-      BigInt(latest.created_seq) <= BigInt(seen.current)
-    )
-      return;
-    const timer = setTimeout(() => {
-      void markRead(channelId, latest.id)
-        .then((result) => {
-          if (result.data) {
-            seen.current = latest.created_seq;
-            return chat.refresh();
-          }
-        })
-        .catch(() => {});
-    }, 600);
-    return () => clearTimeout(timer);
-    // Message versions change after read notifications; created_seq prevents receipt loops.
+  useLayoutEffect(() => {
+    const list=channelList.current;
+    if(!list||!list.clientHeight||searchResults||(compact&&threadOpen))return;
+    const shape=`${roots.length}:${pending.length}`;const appended=followedShape.current!==shape;followedShape.current=shape;
+    if(!positioned.current){
+      positioned.current=true;
+      const id=initial.first_unread_id??roots.find(message=>message.author_id!==userId&&!message.deleted_at&&BigInt(message.created_seq)>BigInt(initial.last_read_seq))?.id;
+      const target=id&&document.getElementById(`message-${id}`);
+      if(target&&!sharedMessage){list.scrollTop+=target.getBoundingClientRect().top-list.getBoundingClientRect().top;wasNearBottom.current=nearEnd(list);}
+      else if(!sharedMessage&&!hasNewer){list.scrollTop=list.scrollHeight;wasNearBottom.current=true;}
+      setFollowing(wasNearBottom.current&&!hasNewer);setViewportVersion(value=>value+1);
+    }else if(appended&&wasNearBottom.current&&!hasNewer&&!sharedMessage){list.scrollTop=list.scrollHeight;}
+    // Follow only on list shape changes; edits/reactions must not move a reader.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allMessages, threadOpen, compact, searchResults, channelId]);
-  async function olderMessages() {
-    if (loading) return;
-    wasNearBottom.current = false; setLoading(true); setError("");
-    try {
-      const result = await getHistory({ channelId, before: rootBefore });
-      if(result.data) {
-        const element = channelList.current;
-        const height = element?.scrollHeight ?? 0, top = element?.scrollTop ?? 0;
-        merge(result.data.messages); setOlder(result.data.messages.length === 40); setRootBefore(result.data.messages[0]?.created_seq ?? null);
-        requestAnimationFrame(() => { if(element) element.scrollTop = top + element.scrollHeight - height; });
-      } else setError(result.error ?? "History unavailable.");
-    } catch { setError("History unavailable. Please retry."); }
-    finally { setLoading(false); }
+  },[roots.length,pending.length,searchResults,compact,threadOpen,hasNewer,sharedMessage,initial.first_unread_id,initial.last_read_seq,userId]);
+  useEffect(()=>{
+    const next=allRoots.filter(message=>BigInt(message.created_seq)>BigInt(arrival.current));
+    if(!next.length)return;
+    arrival.current=next.at(-1)!.created_seq;
+    if(!wasNearBottom.current||hasNewer)setNewMessages(value=>value+next.length);
+    // A message version/reaction does not count as a new arrival.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[allMessages]);
+  useEffect(()=>{
+    const list=channelList.current;if(!list)return;
+    const changed=()=>setViewportVersion(value=>value+1);
+    const content=list.querySelector(".message-timeline");
+    const resize=typeof ResizeObserver!=="undefined"?new ResizeObserver(()=>{if(positioned.current&&wasNearBottom.current&&!hasNewer&&!searchResults&&!(compact&&threadOpen)&&!sharedMessage)list.scrollTop=list.scrollHeight;changed();}):null;
+    if(content)resize?.observe(content);resize?.observe(list);
+    window.addEventListener("focus",changed);document.addEventListener("visibilitychange",changed);
+    return()=>{resize?.disconnect();window.removeEventListener("focus",changed);document.removeEventListener("visibilitychange",changed);};
+  },[hasNewer,searchResults,compact,threadOpen,sharedMessage]);
+  useEffect(()=>{
+    if((compact&&threadOpen)||searchResults||!positioned.current||!wasNearBottom.current||!document.hasFocus()||document.visibilityState!=="visible")return;
+    const latest=roots.at(-1);const list=channelList.current;const row=latest&&document.getElementById(`message-${latest.id}`);
+    if(!latest||!list||!row||BigInt(latest.created_seq)<=BigInt(chat.lastRead)||BigInt(latest.created_seq)<=BigInt(seen.current)||row.getBoundingClientRect().bottom>list.getBoundingClientRect().bottom+4)return;
+    const timer=setTimeout(()=>{if(!document.hasFocus()||document.visibilityState!=="visible"||!wasNearBottom.current)return;void markRead(channelId,latest.id).then(result=>{if(result.data){seen.current=latest.created_seq;return chat.refresh();}}).catch(()=>{});},600);
+    return()=>clearTimeout(timer);
+    // Roots and DOM visibility, never pending sends/hidden thread views, advance the receipt.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[allMessages,chat.lastRead,viewportVersion,compact,threadOpen,searchResults,channelId]);
+  async function pageHistory(mode:"before"|"after"|"latest") {
+    if(loading)return;const request=++pageRequest.current;
+    const list=channelList.current,anchor=list?visibleAnchor(list):null;
+    const previousCount=roots.length;
+    wasNearBottom.current=mode==="latest";setFollowing(mode==="latest");setLoading(true);setError("");
+    try{
+      const result=await getConversationPage({channelId,mode,cursor:mode==="before"?rootBefore:mode==="after"?ceiling:null});
+      if(request!==pageRequest.current)return;
+      if(result.denied){chat.lock();return;}if(!result.data){setError(result.error??"History unavailable.");return;}
+      const page=result.data;merge(page.messages);
+      if(mode!=="after"){setFloor(page.messages[0]?.created_seq??floor);setRootBefore(page.messages[0]?.created_seq??rootBefore);setOlder(page.has_older??false);}
+      if(mode!=="before"){setCeiling(page.messages.at(-1)?.created_seq??ceiling);setHasNewer(page.has_newer??false);}
+      requestAnimationFrame(()=>{if(!list)return;if(mode==="latest"){list.scrollTop=list.scrollHeight;setNewMessages(0);}else if(previousCount+page.messages.length<=120)restoreAnchor(list,anchor);setViewportVersion(value=>value+1);});
+    }catch{if(request===pageRequest.current)setError("History unavailable. Please retry.");}
+    finally{if(request===pageRequest.current)setLoading(false);}
   }
+  useEffect(()=>()=>{pageRequest.current++;},[]);
   async function runSearch(more = false) {
     if (search.trim().length < 2) {
       setError("Enter at least two characters.");
       return;
     }
+    const request=++pageRequest.current;
     setLoading(true);
     setError("");
     try {
@@ -189,6 +224,8 @@ export function ChatWorkspace({
         search: search.trim(),
         before: more ? searchBefore : null,
       });
+      if(request!==pageRequest.current)return;
+      if (result.denied){chat.lock();return;}
       if (result.data) {
         setSearchResults((previous) =>
           more
@@ -199,9 +236,9 @@ export function ChatWorkspace({
         setSearchMore(result.data.messages.length === 40);
       } else setError(result.error ?? "Search unavailable.");
     } catch {
-      setError("Search unavailable.");
+      if(request===pageRequest.current)setError("Search unavailable.");
     } finally {
-      setLoading(false);
+      if(request===pageRequest.current)setLoading(false);
     }
   }
   const visible =
@@ -237,21 +274,7 @@ export function ChatWorkspace({
         )}
         <button
           className="chat-text-button"
-          onClick={() => {
-            const latest = allMessages.at(-1);
-            if (latest)
-              void markRead(channelId, latest.id)
-                .then((result) => {
-                  if (result.error) {
-                    setError(result.error);
-                    return;
-                  }
-                  return chat.refresh();
-                })
-                .catch(() =>
-                  setError("Read status could not be updated. Please retry."),
-                );
-          }}
+          onClick={() => { void markAllRead(channelId).then(result=>{if(result.data)chat.applyState(result.data);else setError(result.error??"Read state unavailable.");}).catch(()=>setError("Read state unavailable. Please retry.")); }}
         >
           Mark read
         </button>
@@ -316,15 +339,18 @@ export function ChatWorkspace({
             tabIndex={0}
             onScroll={(e) => {
               const el = e.currentTarget;
-              wasNearBottom.current =
-                el.scrollHeight - el.scrollTop - el.clientHeight < 120;
+              if(!el.clientHeight||(compact&&threadOpen))return;
+              wasNearBottom.current = nearEnd(el);
+              setFollowing(wasNearBottom.current&&!hasNewer);
+              if(wasNearBottom.current&&!hasNewer)setNewMessages(0);
+              setViewportVersion(value=>value+1);
             }}
           >
             {!searchResults && older && (
               <button
                 className="button secondary"
                 disabled={loading}
-                onClick={() => void olderMessages()}
+                onClick={() => void pageHistory("before")}
               >
                 Load older messages
               </button>
@@ -343,8 +369,8 @@ export function ChatWorkspace({
                 </p>
               </div>
             )}
-            {visible.map((m, index) => (
-              <div key={m.id}>
+            <MessageTimeline messages={visible} targetId={highlight} scrollRef={channelList} scope="channel" onVisible={chat.watchVisible} renderMessage={(m,index)=>(
+              <div>
                 {(index === 0 || messageDay(m.created_at, localTime) !== messageDay(visible[index-1].created_at, localTime)) && <div className="chat-day-divider" role="separator" aria-label={messageDateLabel(m.created_at, localTime)}><span>{messageDateLabel(m.created_at, localTime)}</span></div>}
                 {!searchResults &&
                   m.id === firstUnreadId && (
@@ -358,15 +384,14 @@ export function ChatWorkspace({
                   canPost={chat.canPost}
                   replyDisabled={composerLocked || threadLocked}
                   moderator={moderator}
-                  onMerge={(messages) => { merge(messages); void chat.refresh().catch(() => {}); }}
-                  onReply={(m) => {
-                    setHighlight(m.id);
-                    void openThread(m);
-                  }}
+                  onMerge={merge}
+                  onReply={openThread}
                   highlight={highlight === m.id}
                 />
               </div>
-            ))}
+            )} />
+            {!searchResults&&hasNewer&&<button type="button" className="button secondary" disabled={loading} onClick={()=>void pageHistory("after")}>Load newer messages</button>}
+            {!searchResults&&pending.map(message=><PendingMessageRow key={message.id} message={message}/>)}
             {searchResults && searchMore && (
               <button
                 className="button secondary"
@@ -378,6 +403,7 @@ export function ChatWorkspace({
             )}
             <div ref={bottom} />
           </div>
+          {!searchResults&&(!following||hasNewer)&&<button type="button" className="new-messages-button" disabled={loading} onClick={()=>void pageHistory("latest")}>New Messages{newMessages?` · ${newMessages}`:""} · Jump to latest</button>}
           <div className="chat-typing" role="status">
             {chat.typing.length
               ? `${chat.typing.slice(0, 3).join(", ")} ${chat.typing.length === 1 ? "is" : "are"} typing…`
@@ -386,13 +412,13 @@ export function ChatWorkspace({
           <MessageComposer
             channelId={channelId} channelName={channelName} userId={userId}
             canPost={chat.canPost} connection={chat.status} hidden={!!searchResults || (compact && threadOpen)}
-            parentId={null}
+            parentId={null} committed={allMessages} onDelivery={chat.delivery}
             onCancelReply={() => {}} onLocked={setComposerLocked}
             onTyping={chat.indicateTyping}
-            onSent={(message) => { merge([message]); wasNearBottom.current = true; void chat.refresh().catch(() => {}); }}
+            onSent={(message) => { merge([message]); void chat.refresh().catch(() => {}); }}
           />
         </section>
-        {thread && <ThreadPanel key={thread} channelId={channelId} channelName={channelName} parentId={thread} targetId={replyTo ?? thread} active={threadOpen} messages={allMessages} userId={userId} canPost={chat.canPost} connection={chat.status} moderator={moderator} localTime={localTime} locked={threadLocked} highlight={highlight} onClose={closeThread} onReply={openThread} onMerge={(messages) => { merge(messages); void chat.refresh().catch(() => {}); }} onDenied={chat.lock} onTyping={chat.indicateTyping} onLocked={setThreadLocked} />}
+        {thread && <ThreadPanel key={thread} channelId={channelId} channelName={channelName} parentId={thread} targetId={replyTo ?? thread} active={threadOpen} messages={allMessages} pending={chat.pending} onDelivery={chat.delivery} watchVisible={chat.watchVisible} userId={userId} canPost={chat.canPost} connection={chat.status} moderator={moderator} localTime={localTime} locked={threadLocked} highlight={highlight} onClose={closeThread} onReply={openThread} onMerge={merge} onDenied={chat.lock} onTyping={chat.indicateTyping} onLocked={setThreadLocked} />}
         </div>
       )}
       {loading && (
@@ -400,6 +426,7 @@ export function ChatWorkspace({
           Loading messages…
         </p>
       )}
+      {chat.syncError&&<p role="status" className="chat-sync-error">{chat.syncError}</p>}
       {error && (
         <p role="alert" className="form-error padded">
           {error}

@@ -17,6 +17,7 @@ const Context = createContext<{
   error: string;
   refresh: () => Promise<void>;
   status: string;
+  chatRevision: number;
 } | null>(null);
 export const usePeople = () => useContext(Context);
 export function PeopleProvider({
@@ -26,6 +27,8 @@ export function PeopleProvider({
   config: { url: string; key: string };
   children: ReactNode;
 }) {
+  const [chatRevision,setChatRevision]=useState(0);
+  const summary=useCallback(()=>setChatRevision(value=>value+1),[]);
   const [home, setHome] = useState<PeopleHome | null>(null),
     [error, setError] = useState("");
   const refresh = useCallback(async () => {
@@ -42,18 +45,18 @@ export function PeopleProvider({
       setError("People unavailable. Please retry.");
     }
   }, []);
-  const status = usePrivateUpdates(config, null, refresh);
+  const status = usePrivateUpdates(config, null, refresh, summary);
   useEffect(() => {
     void refresh();
-    const pulse = () => {
-      if (document.visibilityState === "visible") void heartbeat();
-    };
+    let last=0;
+    const pulse=()=>{if(document.visibilityState==="visible"&&navigator.onLine&&Date.now()-last>=15000){last=Date.now();void heartbeat();}};
+    window.addEventListener("online",pulse);window.addEventListener("focus",pulse);document.addEventListener("visibilitychange",pulse);
     pulse();
     const t = setInterval(pulse, 45000);
-    return () => clearInterval(t);
+    return () => {clearInterval(t);window.removeEventListener("online",pulse);window.removeEventListener("focus",pulse);document.removeEventListener("visibilitychange",pulse);};
   }, [refresh]);
   return (
-    <Context.Provider value={{ home, error, refresh, status }}>
+    <Context.Provider value={{ home, error, refresh, status, chatRevision }}>
       {children}
     </Context.Provider>
   );

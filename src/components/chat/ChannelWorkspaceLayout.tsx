@@ -6,9 +6,13 @@ import type { Community } from "../../lib/communities/data";
 import { workspaceNavigation, type WorkspaceChannel, type WorkspaceNavigation } from "../../lib/chat/workspace";
 import { CommunityBanner } from "../communities/CommunityBanner";
 import { CommunityChannelSidebar } from "./CommunityChannelSidebar";
+import { usePeople } from "../people/PeopleProvider";
+import { getCommunityChatState } from "../../lib/chat/reliability";
 import { WorkspaceMembers } from "./WorkspaceMembers";
 export function ChannelWorkspaceLayout({community,channel,initial,children}:{community:Community;channel:WorkspaceChannel;initial:WorkspaceNavigation;children:ReactNode}){
  const [navigation,setNavigation]=useState(initial),[error,setError]=useState(""),[showMembers,setShowMembers]=useState(true),[narrow,setNarrow]=useState(false),[membersOpen,setMembersOpen]=useState(false);
+ const people=usePeople();
+ const countsRequest=useRef(0),countsTimer=useRef<ReturnType<typeof setTimeout>|undefined>(undefined),countsBusy=useRef(false),countsAgain=useRef(false);
  const channelsDialog=useRef<HTMLDialogElement>(null),membersDialog=useRef<HTMLDialogElement>(null),request=useRef(0);
  const refresh=useCallback(async()=>{const token=++request.current;try{const r=await workspaceNavigation(channel.id);if(token!==request.current)return;if(r.data){setNavigation(r.data);setError("");}else{setError(r.error||"Navigation unavailable.");if(r.denied)setNavigation(old=>({...old,channels:[],categories:[],unread:[],mentions:[]}));}}catch{if(token===request.current)setError("Navigation unavailable. Please retry.");}},[channel.id]);
  useEffect(()=>{setNavigation(initial);setError("");},[initial]);
@@ -18,6 +22,16 @@ export function ChannelWorkspaceLayout({community,channel,initial,children}:{com
  // eslint-disable-next-line react-hooks/exhaustive-deps
  request.current++;
  };},[refresh]);
+ useEffect(()=>()=>{countsRequest.current++;clearTimeout(countsTimer.current);countsTimer.current=undefined;countsAgain.current=false;
+ },[community.id]);
+ const refreshCounts=useCallback(()=>{
+  if(countsTimer.current)return;
+  if(countsBusy.current){countsAgain.current=true;return;}
+  countsTimer.current=setTimeout(()=>{countsTimer.current=undefined;countsBusy.current=true;const token=countsRequest.current;
+   void getCommunityChatState(community.id).then(result=>{if(token!==countsRequest.current)return;if(result.data)setNavigation(old=>({...old,unread:result.data!.unread,mentions:result.data!.mentions}));else if(result.denied)void refresh();}).catch(()=>{}).finally(()=>{countsBusy.current=false;if(countsAgain.current&&token===countsRequest.current){countsAgain.current=false;refreshCounts();}});
+  },120);
+ },[community.id,refresh]);
+ useEffect(()=>{if(people?.chatRevision)refreshCounts();},[people?.chatRevision,refreshCounts]);
  const sidebar=(close?:()=>void)=><CommunityChannelSidebar data={navigation} name={community.name} slug={community.slug} active={channel.id} onNavigate={close}/>;
  return <div className={`community-chat-workspace ${showMembers?"with-members":""}`}>
  <div className="workspace-community-banner"><CommunityBanner community={community}/></div>

@@ -34,9 +34,12 @@ test("threads keep the channel visible, page safely, isolate composers and deliv
     const main = page.getByRole('region',{name:'Channel conversation',exact:true}), thread = page.getByRole('region',{name:'Message thread',exact:true});
     await main.getByRole('textbox',{name:'Message thread-chat',exact:true}).fill('Main draft stays here');
     const article = page.locator(`[data-message-id="${alpha}"]`); await actions(article);
+    const replyAction=article.getByRole('button',{name:'Reply in Thread',exact:true});
+    // Establish the position after the browser brings the action into view.
+    await replyAction.scrollIntoViewIfNeeded();
     const channelList = main.getByLabel('Channel messages',{exact:true});
     const position = await channelList.evaluate(element => { const top=element.getBoundingClientRect().top; const first=Array.from(element.querySelectorAll<HTMLElement>('.chat-message')).find(row=>row.getBoundingClientRect().bottom>top)!; return { id:first.id, offset:first.getBoundingClientRect().top-top }; });
-    await article.getByRole('button',{name:'Reply in Thread',exact:true}).click();
+    await replyAction.click();
     await expect(thread).toBeVisible(); await expect(thread.locator('.thread-original')).toContainText('Thread alpha original');
     if(mobile) await expect(main).toBeHidden(); else { await expect(main).toBeVisible(); const mainBox=await main.boundingBox(),threadBox=await thread.boundingBox(); expect(threadBox!.x).toBeGreaterThan(mainBox!.x); }
     await expect(thread.locator('[data-thread-message-id]')).toHaveCount(41);
@@ -59,8 +62,8 @@ test("threads keep the channel visible, page safely, isolate composers and deliv
     const peerLive=peerThread.locator(`[data-thread-message-id="${liveId}"]`); await actions(peerLive); await peerLive.getByRole('button',{name:'Edit',exact:true}).click(); await peerLive.getByRole('textbox',{name:'Edit message',exact:true}).fill('Edited thread reply'); await peerLive.getByRole('button',{name:'Save edit',exact:true}).click(); await expect(live.getByText('Edited thread reply',{exact:true})).toBeVisible();
     await actions(live); await live.locator('summary').filter({hasText:/^Add reaction$/}).click(); await live.getByRole('button',{name:'React 👍',exact:true}).click(); await expect(peerLive.getByRole('button',{name:'👍 reaction, 1',exact:true})).toBeVisible();
     await peerLive.locator('summary').filter({hasText:/^Delete message$/}).click(); await peerLive.getByRole('button',{name:'Confirm delete',exact:true}).click(); await expect(live.getByText('Message deleted',{exact:true})).toBeVisible();
-    await thread.getByRole('button',{name:'Back to channel',exact:true}).click(); await openRoot(beta); await expect(thread.locator('.thread-original')).toContainText('Thread beta original'); await expect(thread.getByRole('textbox',{name:'Thread reply',exact:true})).toHaveValue(''); await thread.getByRole('textbox',{name:'Thread reply',exact:true}).fill('Beta side conversation'); await thread.getByRole('button',{name:'Send message',exact:true}).click(); await expect(thread.getByText('Beta side conversation',{exact:true})).toBeVisible(); await expect(peerThread.getByText('Beta side conversation',{exact:true})).toHaveCount(0);
-    await thread.getByRole('button',{name:'Back to channel',exact:true}).click(); await openRoot(alpha); await expect(thread.getByText('Historical reply 65',{exact:true})).toBeVisible(); await expect(thread.getByText('Beta side conversation',{exact:true})).toHaveCount(0);
+    await thread.getByRole('button',{name:'Back to channel',exact:true}).click(); await openRoot(beta); await expect(thread.locator('.thread-original')).toContainText('Thread beta original'); await expect(thread.getByRole('textbox',{name:'Thread reply',exact:true})).toHaveValue(''); await thread.getByRole('textbox',{name:'Thread reply',exact:true}).fill('Beta side conversation'); await thread.getByRole('button',{name:'Send message',exact:true}).click(); await expect(thread.locator('[data-thread-message-id]').getByText('Beta side conversation',{exact:true})).toBeVisible(); await expect(peerThread.getByText('Beta side conversation',{exact:true})).toHaveCount(0);
+    await thread.getByRole('button',{name:'Back to channel',exact:true}).click(); await openRoot(alpha); await expect(thread.getByText('Historical reply 65',{exact:true})).toBeVisible(); await expect(thread.locator('[data-thread-message-id]').getByText('Beta side conversation',{exact:true})).toHaveCount(0);
     await page.goto(`/channels/${channel}?message=${oldestReplyId}`);
     await expect(thread.getByText('Historical reply 1',{exact:true})).toBeVisible();
     await expect(thread.locator(`[data-thread-message-id="${oldestReplyId}"]`)).toHaveClass(/highlighted/);

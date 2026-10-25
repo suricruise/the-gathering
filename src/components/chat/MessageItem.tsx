@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { MoreHorizontal, SmilePlus, Reply, MessagesSquare, Copy, Pin } from "lucide-react";
-import { useRef, useState } from "react";
+import { memo, useRef, useState } from "react";
 import { ProfileAvatar } from "../ui";
 import { changeMessage, reactToMessage } from "../../lib/chat/actions";
 import { setMessagePin } from "../../lib/chat/pins";
@@ -10,7 +10,7 @@ import { messageLinks } from "../../lib/chat/validation";
 import { reactionEmoji, type ChatMessage } from "../../lib/chat/types";
 import { messageTime, messageDateLabel } from "../../lib/chat/presentation";
 import { SafeMarkdown } from "./SafeMarkdown";
-export function MessageItem({
+export const MessageItem = memo(function MessageItem({
   message: m,
   userId,
   moderator,
@@ -354,4 +354,4 @@ export function MessageItem({
       </div>
     </article>
   );
-}
+});

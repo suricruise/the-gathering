@@ -367,6 +367,11 @@ test("two authenticated browsers exchange, thread, edit, react, attach, reconnec
     await second.getByRole("button", { name: "Submit report", exact: true }).click();
     await expect(second.getByText(/Report submitted. Reference:/)).toBeVisible();
     await second.goto(`/channels/${channel}`);
+    // Reopening now starts at the first unread root, not the oldest message.
+    if(await second.locator(`[data-message-id="${firstId}"]`).count()===0){
+      await second.getByRole('button',{name:'Load older messages',exact:true}).click();
+      await expect(second.locator(`[data-message-id="${firstId}"]`)).toHaveCount(1);
+    }
     await expect(second.locator(".chat-connection")).toHaveText("● Live");
     const a11y = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa", "wcag21aa"])

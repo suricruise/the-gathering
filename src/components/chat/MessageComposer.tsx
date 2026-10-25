@@ -5,13 +5,14 @@ import { sendMessage } from "../../lib/chat/actions";
 import { communityMembers, type DirectoryMember } from "../../lib/communities/members";
 import { attachmentAccept, attachmentError, composerEmoji, mentionAt } from "../../lib/chat/composer";
 import { uploadChatFile } from "../../lib/chat/upload-client";
-import type { Attachment, ChatMessage } from "../../lib/chat/types";
+import type { Attachment, ChatMessage, DeliveryChange } from "../../lib/chat/types";
 
 type Staged = { id: string; file: File; state: "queued" | "uploading" | "ready" | "error"; percent: number; attachment?: Attachment; error?: string };
 type Attempt = { id: string; channelId: string; body: string; parentId: string | null; replyToId: string | null; attachments: string[] };
-export function MessageComposer({ channelId, channelName, userId, canPost, connection, parentId, reply, hidden, onCancelReply, onSent, onTyping, onLocked }: {
+export function MessageComposer({ channelId, channelName, userId, canPost, connection, parentId, reply, hidden, onCancelReply, onSent, onTyping, onLocked, committed, onDelivery }: {
   channelId: string; channelName: string; userId: string; canPost: boolean; connection: string;
   parentId: string | null; reply?: ChatMessage; hidden: boolean;
+  committed?: ChatMessage[]; onDelivery?: (change: DeliveryChange) => void;
   onCancelReply: () => void; onSent: (message: ChatMessage) => void; onTyping: (active: boolean) => void; onLocked: (locked: boolean) => void;
 }) {
   const [draft, setDraft] = useState("");
@@ -21,6 +22,7 @@ export function MessageComposer({ channelId, channelName, userId, canPost, conne
   const sendingRef = useRef(false);
   const [attempt, setAttempt] = useState<Attempt | null>(null);
   const uncertain = useRef(false);
+  const failedId = useRef<string | null>(null);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [dragging, setDragging] = useState(false);
@@ -77,7 +79,17 @@ export function MessageComposer({ channelId, channelName, userId, canPost, conne
   useEffect(() => {
     if (!canPost) { for (const abort of uploads.current.values()) abort(); }
   }, [canPost]);
+  useEffect(() => {
+    if (!attempt || sending) return;
+    const saved = committed?.find(message => message.id === attempt.id && message.channel_id === channelId && message.author_id === userId && message.parent_id === attempt.parentId);
+    if (!saved) return;
+    onDelivery?.({ type: "settled", id: attempt.id }); onSent(saved);
+    setDraft(""); update([]); setAttempt(null); uncertain.current = false; failedId.current = null;
+    setError(""); setNotice(saved.deleted_at ? "Message was saved and later removed." : "Message sent.");
+    // These callbacks may change identity, but an acknowledgement clears the attempt atomically.
+  }, [attempt, sending, committed, channelId, userId, onDelivery, onSent]);
   function changeDraft(value: string, position: number) {
+    if (failedId.current && !locked) { onDelivery?.({ type: "discard", id: failedId.current }); failedId.current = null; }
     setDraft(value); setCaret(position); setDismissed(false); setNotice(""); setError("");
     onTyping(!!value.trim()); clearTimeout(typingStop.current);
     typingStop.current = setTimeout(() => onTyping(false), 4000);
@@ -126,22 +138,28 @@ export function MessageComposer({ channelId, channelName, userId, canPost, conne
   async function submit() {
     if (sendingRef.current || !canPost || entries.current.some((item) => item.state !== "ready") || (!attempt && !draft.trim() && !entries.current.length)) return;
     const payload = attempt ?? { id: crypto.randomUUID(), channelId, body: draft, parentId, replyToId: parentId ? reply?.id ?? parentId : null, attachments: entries.current.map((item) => item.attachment!.id) };
+    if (failedId.current && failedId.current !== payload.id) onDelivery?.({ type: "discard", id: failedId.current });
+    failedId.current = null;
+    onDelivery?.({ type: "start", message: { id: payload.id, channelId, parentId: payload.parentId, replyToId: payload.replyToId, body: payload.body, attachments: entries.current.map(item => item.attachment!), status: "sending" } });
     sendingRef.current = true; setSending(true); setAttempt(payload); setError(""); setNotice(""); onTyping(false); clearTimeout(typingStop.current);
     try {
       const result = await sendMessage(payload);
       if (!alive.current) return;
       if (result.data) {
+        onDelivery?.({ type: "settled", id: payload.id });
         onSent(result.data); setDraft(""); setCaret(0); selection.current = { start: 0, end: 0 }; update([]); setAttempt(null); uncertain.current = false; setNotice("Message sent.");
       } else {
+        failedId.current = payload.id;
+        onDelivery?.({ type: "failed", id: payload.id, error: result.error ?? "Delivery was not confirmed." });
         if (result.delivery === "not_sent" && !uncertain.current) setAttempt(null);
         else uncertain.current = true;
         setError(result.error ?? "Message delivery was not confirmed. Retry safely with the same ID.");
       }
     } catch {
-      if (alive.current) { uncertain.current = true; setError("Message delivery was not confirmed. Retry uses the same ID to prevent duplicates."); }
+      if (alive.current) { failedId.current = payload.id; onDelivery?.({ type: "failed", id: payload.id, error: "Delivery was not confirmed. Retry below." }); uncertain.current = true; setError("Message delivery was not confirmed. Retry uses the same ID to prevent duplicates."); }
     } finally { sendingRef.current = false; if (alive.current) setSending(false); }
   }
-  return <form className={`chat-composer message-composer${dragging ? " is-dragging" : ""}`} hidden={hidden} onSubmit={(event) => { event.preventDefault(); void submit(); }}
+  return <form id={`composer-${parentId ? "thread" : "channel"}-${parentId ?? channelId}`} className={`chat-composer message-composer${dragging ? " is-dragging" : ""}`} hidden={hidden} onSubmit={(event) => { event.preventDefault(); void submit(); }}
     onDragOver={(event) => { if (event.dataTransfer.types.includes("Files")) { event.preventDefault(); if (!disabled) setDragging(true); } }}
     onDragLeave={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDragging(false); }}
     onDrop={(event) => { event.preventDefault(); setDragging(false); addFiles(event.dataTransfer.files); }}>

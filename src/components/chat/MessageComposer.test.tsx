@@ -126,3 +126,11 @@ it("aborts pending private uploads when the composer unmounts", async () => {
   fireEvent.change(screen.getByLabelText("Attach files"), { target: { files: [new File(["x"], "note.txt", { type: "text/plain" })] } });
   view.unmount(); expect(abort).toHaveBeenCalledOnce();
 });
+it('emits a visible optimistic attempt and settles from an authoritative saved ID after a lost response',async()=>{
+ mocks.send.mockRejectedValueOnce(Error('connection lost'));
+ const onDelivery=vi.fn(),onSent=vi.fn();const props={channelId:channel,channelName:'general',userId:'self',canPost:true,connection:'Live',parentId:null,hidden:false,onCancelReply:vi.fn(),onSent,onTyping:vi.fn(),onLocked:vi.fn(),onDelivery,committed:[] as ChatMessage[]};
+ const view=render(<MessageComposer {...props}/>);fireEvent.change(screen.getByRole('textbox',{name:'Message general'}),{target:{value:'recover committed message'}});fireEvent.click(screen.getByRole('button',{name:'Send message'}));
+ await screen.findByRole('button',{name:'Retry message'});const pending=onDelivery.mock.calls.find(([change])=>change.type==='start')![0].message;expect(pending.body).toBe('recover committed message');expect(onDelivery).toHaveBeenCalledWith(expect.objectContaining({type:'failed',id:pending.id}));
+ const saved={...pending,id:pending.id,channel_id:channel,author_id:'self',parent_id:null} as unknown as ChatMessage;
+ view.rerender(<MessageComposer {...props} committed={[saved]}/>);await screen.findByText('Message sent.');expect(onSent).toHaveBeenCalledWith(saved);expect(mocks.send).toHaveBeenCalledTimes(1);expect(screen.getByRole('textbox',{name:'Message general'})).toBeEnabled();
+});

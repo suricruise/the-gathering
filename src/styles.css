@@ -6642,3 +6642,18 @@ body:has(.app-shell.channel-mode) .pwa-status:not(.pwa-update) { pointer-events:
  .community-chat-workspace .has-thread .chat-thread-panel { flex: 1; border-left: 0; }
  .community-chat-workspace .message-thread-summary { min-height: 44px; flex-wrap: wrap; }
 }
+
+/* Stage 6: local delivery states are distinct from committed messages. */
+.community-chat-workspace .pending-message { opacity: .8; border-left: 2px solid #8c7ad1; margin-top: 8px; }
+.community-chat-workspace .pending-message.failed { border-left-color: #ed9aa9; }
+.community-chat-workspace .pending-avatar { font-size: 10px; width: 36px; height: 36px; display: grid; place-items: center; background: #352b52; border-radius: 10px; }
+.community-chat-workspace .pending-delivery { display: inline-block; margin-left: 8px; font-size: 11px; color: #d0bff8; }
+.community-chat-workspace .pending-message .form-error { font-size: 12px; }
+.community-chat-workspace .pending-message a { text-decoration: underline; color: #d6b9f7; }
+.community-chat-workspace .new-messages-button { flex-shrink: 0; align-self: center; min-height: 44px; padding: 8px 16px; margin: 3px 6px; border: 1px solid #8071ad; border-radius: 20px; background: #382c57; color: #f0e9ff; cursor: pointer; font-size: 12px; }
+.community-chat-workspace .chat-sync-error { flex-shrink: 0; padding: 6px 12px; margin: 0; font-size: 12px; color: #e9bea5; }
+.community-chat-workspace .chat-message-list { overflow-anchor: none; }
+.community-chat-workspace .message-timeline { width: 100%; }
+
+/* Contain separator margins so measured rows and pane anchors include their full height. */
+.message-timeline, .message-timeline > div { display: flow-root; }

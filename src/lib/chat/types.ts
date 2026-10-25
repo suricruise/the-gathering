@@ -38,6 +38,10 @@ export type ChatPage = {
   watermark: string;
   last_read_seq: string;
   unread_count: number;
+  first_unread_id?: string | null;
+  has_older?: boolean;
+  has_newer?: boolean;
+  latest_seq?: string;
 };
 export type ChatResult<T> = { data?: T; error?: string; denied?: boolean; delivery?: "sent" | "not_sent" | "unconfirmed" };
 export const reactionEmoji = [
@@ -52,3 +56,7 @@ export const reactionEmoji = [
 ] as const;
 
 export type ThreadPage = ChatPage & { root: ChatMessage };
+
+export type ChatState = Pick<ChatPage, "watermark" | "last_read_seq" | "unread_count">;
+export type PendingMessage = { id: string; channelId: string; parentId: string | null; replyToId: string | null; body: string; attachments: Attachment[]; status: "sending" | "failed"; error?: string };
+export type DeliveryChange = { type: "start"; message: PendingMessage } | { type: "failed"; id: string; error: string } | { type: "settled" | "discard"; id: string };

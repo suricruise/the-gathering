@@ -1,0 +1,6 @@
+import {act,renderHook} from '@testing-library/react';
+import {afterEach,expect,it,vi} from 'vitest';
+import {presenceLabel,usePresenceFreshness} from './presence';
+afterEach(()=>{vi.useRealTimers();vi.restoreAllMocks();});
+it('keeps hidden status private and distinguishes unavailable from offline',()=>{expect(presenceLabel(null,false)).toBe('Status hidden');expect(presenceLabel(true,false)).toBe('Status unavailable');expect(presenceLabel(false,true)).toBe('Offline');expect(presenceLabel(true,true)).toBe('Online');});
+it('expires cached presence and requires a fresh source after connectivity returns',()=>{vi.useFakeTimers();vi.spyOn(navigator,'onLine','get').mockReturnValue(true);const source:unknown[]=[];const view=renderHook(({value})=>usePresenceFreshness(value),{initialProps:{value:source}});expect(view.result.current).toBe(true);act(()=>{vi.advanceTimersByTime(20001);});expect(view.result.current).toBe(false);act(()=>{window.dispatchEvent(new Event('online'));});expect(view.result.current).toBe(false);view.rerender({value:[]});expect(view.result.current).toBe(true);vi.spyOn(navigator,'onLine','get').mockReturnValue(false);act(()=>{window.dispatchEvent(new Event('offline'));});expect(view.result.current).toBe(false);});

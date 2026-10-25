@@ -69,7 +69,9 @@
     "test:interactions": "node scripts/test-message-interactions.mjs",
     "test:interactions:setup": "node scripts/test-message-interactions-setup.mjs",
     "test:threads": "node scripts/test-channel-threads.mjs",
-    "test:threads:setup": "node scripts/test-channel-threads-setup.mjs"
+    "test:threads:setup": "node scripts/test-channel-threads-setup.mjs",
+    "test:chat:reliability": "node scripts/test-chat-reliability.mjs",
+    "test:chat:reliability:setup": "node scripts/test-chat-reliability-setup.mjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",
@@ -77,6 +79,7 @@
     "@livekit/components-react": "^2.9.24",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.118.0",
+    "@tanstack/react-virtual": "^3.14.22",
     "ipaddr.js": "^2.5.0",
     "livekit-client": "^2.23.0",
     "livekit-server-sdk": "^2.19.2",

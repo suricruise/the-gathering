@@ -56,7 +56,7 @@ async function until(test) {
   }
   throw Error("Realtime assertion timed out");
 }
-async function subscribe(client, topic, events) {
+async function subscribe(client, topic, events, event = "changed") {
   await client.realtime.setAuth(
     (await client.auth.getSession()).data.session.access_token,
   );
@@ -67,7 +67,7 @@ async function subscribe(client, topic, events) {
     );
     const channel = client
       .channel(topic, { config: { private: true } })
-      .on("broadcast", { event: "changed" }, ({ payload }) =>
+      .on("broadcast", { event }, ({ payload }) =>
         events.push(payload),
       )
       .subscribe((status) => {
@@ -95,6 +95,7 @@ try {
     });
     assert.equal(created.error, null);
     users.push(created.data.user.id);
+    await db.query("update public.profiles set username=$2,display_name='Realtime member',onboarding_completed_at=now() where id=$1",[created.data.user.id,'rt_'+created.data.user.id.slice(0,8)]);
     const c = make();
     assert.equal(
       (await c.auth.signInWithPassword({ email, password })).error,
@@ -359,6 +360,16 @@ try {
       );
     },
   );
+  await check("private per-member summaries synchronize cross-device read metadata without bodies",async()=>{
+    const summaries=[];
+    const device=make();clients.push(device);await device.auth.setSession((await b.auth.getSession()).data.session);
+    await subscribe(device,`people:${users[1]}`,summaries,"chat_summary");
+    const id=randomUUID();await rpc(a,"send_channel_message",{p_id:id,p_channel:general,p_body:"Summary privacy body"});
+    await until(()=>summaries.length>0);assert.deepEqual(Object.keys(summaries[0]),["id"]);assert.notEqual(summaries[0].id,id);
+    const count=summaries.length;await rpc(b,"chat_mark_all_read",{p_channel:general});await until(()=>summaries.length>count);
+    assert.equal((await rpc(b,"chat_state",{p_channel:general})).unread_count,0);assert.ok(summaries.every(payload=>Object.keys(payload).length===1&&typeof payload.id==="string"));
+    await assert.rejects(()=>subscribe(outsider,`people:${users[1]}`,[],"chat_summary"),/rejected/);
+  });
   await check(
     "membership revocation rotates topics and rejects the stale topic",
     async () => {

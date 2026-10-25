@@ -231,3 +231,5 @@ describe("Link preview SSRF boundary", () => {
     expect(Object.keys(p)).toEqual(["hostname", "title", "description"]);
   });
 });
+
+it("retains unchanged cache references while applying same-revision receipt metadata",()=>{const first=row("9007199254740994"),other={...row("9007199254740995"),id:"other",created_seq:"2"};const current=[first,other];expect(reconcileMessages(current,[])).toBe(current);expect(reconcileMessages(current,[{...first}])).toBe(current);expect(reconcileMessages(current,[row("9007199254740993","stale")])).toBe(current);const updated=reconcileMessages(current,[{...first,read_count:2}]);expect(updated[0].read_count).toBe(2);expect(updated[1]).toBe(other);});

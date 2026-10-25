@@ -5,8 +5,11 @@ export function usePrivateUpdates(
   config: { url: string; key: string },
   conversation: string | null,
   refresh: () => Promise<void>,
+  onChatSummary?: () => void,
 ) {
   const callback = useRef(refresh);
+  const summary = useRef(onChatSummary);
+  useEffect(()=>{summary.current=onChatSummary;},[onChatSummary]);
   useEffect(() => {
     callback.current = refresh;
   }, [refresh]);
@@ -15,10 +18,10 @@ export function usePrivateUpdates(
     let stopped = false,
       busy = false;
     let socket: RealtimeClient | undefined;
-    let debounce: ReturnType<typeof setTimeout>;
+    let debounce: ReturnType<typeof setTimeout> | undefined;
     const invalidate = () => {
-      clearTimeout(debounce);
-      debounce = setTimeout(() => void callback.current(), 100);
+      if (debounce) return;
+      debounce = setTimeout(() => { debounce = undefined; void callback.current(); }, 100);
     };
     async function connect() {
       if (stopped || busy) return;
@@ -50,6 +53,7 @@ export function usePrivateUpdates(
         socket
           .channel(session.topic, { config: { private: true } })
           .on("broadcast", { event: "changed" }, invalidate)
+          .on("broadcast", { event: "chat_summary" }, () => { if(!stopped) summary.current?.(); })
           .subscribe((state) => {
             if (stopped) return;
             setStatus(
@@ -59,7 +63,7 @@ export function usePrivateUpdates(
                   ? "Reconnecting"
                   : "Offline",
             );
-            if (state === "SUBSCRIBED") invalidate();
+            if (state === "SUBSCRIBED") { invalidate(); summary.current?.(); }
           });
       } catch {
         if (!stopped) setStatus(navigator.onLine ? "Reconnecting" : "Offline");

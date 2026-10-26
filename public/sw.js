@@ -1,6 +1,6 @@
 /* Generated from scripts/pwa/service-worker.js. Offline cache is an explicit public allowlist. */
 const CACHE_PREFIX = "gathering-pwa-";
-const CACHE_NAME = CACHE_PREFIX + "a51b3678caa0164a";
+const CACHE_NAME = CACHE_PREFIX + "5bf4b8c747adda7f";
 const PUBLIC_FILES = [
   "/offline.html", "/pwa/offline.css", "/pwa/offline.js",
   "/icons/icon-192.png", "/icons/icon-512.png", "/icons/maskable-512.png",

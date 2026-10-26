@@ -1,3 +1,5 @@
+vi.mock("./lib/communities/actions",()=>({communityAction:vi.fn(async()=>({notice:"Saved"}))}));
+vi.mock("./lib/discovery/actions",()=>({activeHangouts:async()=>({items:[]}),discoverySummary:async()=>({error:"Unavailable"}),setCommunityInterest:async()=>({notice:"Saved"})}));
 vi.mock("./lib/shell/actions",()=>({shellNavigation:vi.fn(async()=>({data:{communities:[],selected:null,context:null,hasMore:false}})),suggestedMembers:vi.fn(async()=>({data:{items:[],newMembers:[]}})),communityActivity:vi.fn(async()=>({data:{items:[]}}))}));
 vi.mock("./lib/chat/workspace",()=>({switchWorkspaceCommunity:vi.fn(),workspaceNavigation:vi.fn()}));
 vi.mock("next/form",()=>({default:({children,...props}:import("react").FormHTMLAttributes<HTMLFormElement>)=><form {...props}>{children}</form>}));

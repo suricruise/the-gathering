@@ -8,6 +8,7 @@ export type Community = {
   visibility: "public" | "discoverable" | "private";
   cover: string;
   display_order?: number;
+  interest_category?: string | null;
   community_headers?: { version: string } | null;
 };
 export type Channel = {
@@ -98,6 +99,8 @@ export async function communityDetail(slug: string) {
   if (error) throw new Error("Community services are unavailable.");
   if (!data) return null;
   const c = data as Community;
+  const interest = await client.from("communities").select("interest_category").eq("id",c.id).maybeSingle();
+  if(!interest.error)c.interest_category=interest.data?.interest_category??null;
   const [role, channels, categories] = await Promise.all([
     client.rpc("community_my_role", { p_community: c.id }),
     client

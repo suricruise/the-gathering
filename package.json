@@ -76,7 +76,8 @@
     "test:lounge": "node scripts/test-lounge-members.mjs && node scripts/test-lounge-members-setup.mjs",
     "test:channels:management": "node scripts/test-channel-management.mjs",
     "test:channels:management:setup": "node scripts/test-channel-management-setup.mjs",
-    "test:chat:navigation:setup": "node scripts/test-chat-navigation-setup.mjs"
+    "test:chat:navigation:setup": "node scripts/test-chat-navigation-setup.mjs",
+    "test:discovery": "node scripts/test-discovery.mjs && node scripts/test-discovery-setup.mjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",

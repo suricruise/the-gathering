@@ -10,6 +10,7 @@ import "@fontsource/manrope/latin-800.css";
 import "../src/styles/tokens.css";
 import "../src/styles.css";
 import "../src/styles/premium-shell.css";
+import "../src/styles/premium-discovery.css";
 import { PwaProvider } from "@/src/components/pwa/PwaProvider";
 export const metadata: Metadata = {
   title: {

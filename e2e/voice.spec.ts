@@ -247,6 +247,7 @@ test("real voice exchanges decoded audio, persists navigation, mutes, reconnects
         // the development-only Next issue badge over the mobile bottom corner.
         .press("Enter");
     await expect(page).toHaveURL(/\/home$/);
+    await expect(page.locator(`.lounge-happening a[href="/channels/${channel}"]`)).toContainText("2 connected");
     if(test.info().project.name==='desktop'){
       await page.getByRole('button',{name:'Collapse sidebar',exact:true}).click();
       await expect(page.locator('.shell-floating-connection')).toContainText('Voice connected');

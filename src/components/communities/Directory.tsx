@@ -1,37 +1,37 @@
 "use client";
+import {LoungeHero} from "../discovery/LoungeHero";
 import { useState } from "react";
-import Link from "next/link";
 import { Compass, Search } from "lucide-react";
+import { LoungeCommunityCard } from "../discovery/CommunityCard";
+import {interestCategories,filterCommunities,type DiscoveryCommunity} from "../../lib/discovery/model";
 import { EmptyState, PageHeading } from "../ui";
 import { CommandForm, CommunityFields } from "./CommunityForms";
-import type { Community } from "../../lib/communities/data";
+
 export function Directory({
   communities,
   approved,
-  memberships, initialFilter="all", initialQuery="",
+  memberships, initialFilter="all", initialQuery="", initialCategory="all", activityUnavailable=false,
 }: {
-  initialFilter?:"all"|"joined";initialQuery?:string;
-  communities: Community[];
+  initialFilter?:"all"|"joined";initialQuery?:string;initialCategory?:string;activityUnavailable?:boolean;
+  communities: DiscoveryCommunity[];
   approved: boolean;
   memberships: { community_id: string; role_id: string; status: string }[];
 }) {
   const [query, setQuery] = useState(initialQuery);
   const [filter, setFilter] = useState(initialFilter);
+  const [category,setCategory]=useState(initialCategory);
   const joined = new Set(
     memberships.filter((m) => m.status === "active").map((m) => m.community_id),
   );
-  const shown = communities.filter(
-    (c) =>
-      (filter !== "joined" || joined.has(c.id)) &&
-      `${c.name} ${c.description}`.toLowerCase().includes(query.toLowerCase()),
-  );
+  const shown = filterCommunities(communities,query,category,joined,filter==="joined");
   return (
-    <div className="page">
+    <div className="page lounge-explore-page">
       <PageHeading
         eyebrow="FIND YOUR PEOPLE"
         title="Your next gathering."
-        description="A shared game. A good conversation. A place to belong."
+        description="Conversations, shared interests and people who make you feel at home."
       />
+      <LoungeHero/>
       <section className="discovery-banner panel">
         <Compass size={32} />
         <div>
@@ -61,7 +61,9 @@ export function Directory({
             <option value="joined">My communities</option>
           </select>
         </label>
+        <label className="select-field">Interest<select aria-label="Interest category" value={category} onChange={e=>setCategory(e.target.value)}><option value="all">All interests</option>{interestCategories.map(([id,label])=><option value={id} key={id}>{label}</option>)}</select></label>
       </div>
+      {activityUnavailable&&<p role="status" className="muted">Community categories and activity counts are temporarily unavailable. Search, community details and memberships remain available.</p>}
       <p className="muted">
         Showing up to 200 accessible communities. Private communities appear
         after you join.
@@ -72,34 +74,13 @@ export function Directory({
       {shown.length ? (
         <div className="community-grid">
           {shown.map((c) => (
-            <article className="panel live-community-card" key={c.id}>
-              <div
-                className="community-cover"
-                style={{ backgroundImage: c.community_headers ? `url(/api/communities/${c.id}/header?v=${c.community_headers.version})` : `url(/covers/${c.cover}.svg)` }}
-              />
-              <div className="padded">
-                <span className="pill muted-pill">
-                  {c.visibility}
-                  {joined.has(c.id) ? " · Joined" : ""}
-                </span>
-                <h2>
-                  <Link href={`/communities/${c.slug}`}>{c.name}</Link>
-                </h2>
-                <p className="body-copy">{c.description}</p>
-                <Link
-                  className="button secondary"
-                  href={`/communities/${c.slug}`}
-                >
-                  Explore community
-                </Link>
-              </div>
-            </article>
+            <LoungeCommunityCard key={c.id} community={c} joined={joined.has(c.id)} heading="h2"/>
           ))}
         </div>
       ) : (
         <EmptyState
-          title="No communities found"
-          description="Try another search, or ask a host for an invitation. Private communities appear after you join."
+          title={activityUnavailable&&category!=="all"?"Interest filtering is unavailable":"No communities found"}
+          description={activityUnavailable&&category!=="all"?"Choose All interests to browse while categories are unavailable, or refresh to retry.":"Try another search, or ask a host for an invitation. Private communities appear after you join."}
         />
       )}
       <section className="panel padded community-section">

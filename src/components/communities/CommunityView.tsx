@@ -1,3 +1,4 @@
+import { InterestSettings } from "../discovery/InterestSettings";
 import { CommunityHeaderUpload } from "./CommunityHeaderUpload";
 import { CommunityBanner } from "./CommunityBanner";
 import Link from "next/link";
@@ -287,6 +288,7 @@ export function CommunityView({ data }: { data: CommunityDetailData }) {
                   <CommunityFields community={c} />
                 </CommandForm>
               </details>
+              <InterestSettings community={c.id} category={c.interest_category}/>
               <details>
                 <summary>Categories and ordering</summary>
                 {[...categories, { id: "", name: "", position: 0 }].map(

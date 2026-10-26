@@ -1,0 +1,10 @@
+'use client';
+import Link from 'next/link';import{ArrowUpRight,Users,Radio}from'lucide-react';import{CommandForm}from'../communities/CommunityForms';import{categoryLabel,type DiscoveryCommunity}from'../../lib/discovery/model';
+export function LoungeCommunityCard({community:c,joined=false,compact=false,heading='h3'}:{community:DiscoveryCommunity;joined?:boolean;compact?:boolean;heading?:'h2'|'h3'}){
+ const Heading=heading;const image=c.community_headers?`/api/communities/${c.id}/header?v=${encodeURIComponent(c.community_headers.version)}`:`/covers/${c.cover}.svg`;
+ return <article className={`panel live-community-card lounge-community-card ${compact?'lounge-card-horizontal':''}`}>
+ <Link href={`/communities/${c.slug}`} className="community-cover lounge-card-cover" aria-label={`View ${c.name}`}><img src={image} alt="" loading="lazy" decoding="async"/><span className="lounge-cover-shade"/><span className="pill lounge-card-category">{categoryLabel(c.stats?.category)}</span></Link>
+ <div className="padded"><div className="lounge-card-eyebrow"><span>{c.visibility}{joined?' · Joined':''}</span>{joined&&c.stats?.unread&&<span className="lounge-unread">Unread activity</span>}</div><Heading><Link href={`/communities/${c.slug}`}>{c.name}</Link></Heading><p className="body-copy">{c.description||'A place to connect and share what you love.'}</p>
+ <div className="lounge-card-counts">{c.stats?<><span><Users size={14}/>{c.stats.members} members</span>{c.stats.online!==null&&<span><Radio size={13}/>{c.stats.online} online at refresh</span>}</>:<span>Member counts unavailable</span>}</div>
+ <div className="lounge-card-actions"><Link className="text-link" href={`/communities/${c.slug}`}>{joined?'View community':'Explore community'}<ArrowUpRight size={15}/></Link>{!joined&&c.visibility==='public'&&<CommandForm communityId={c.id} operation="join" label="Join community"/>}{!joined&&c.visibility==='discoverable'&&<Link className="text-link" href={`/communities/${c.slug}`}>Invitation required</Link>}</div></div></article>;
+}

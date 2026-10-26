@@ -295,6 +295,13 @@ test("real voice exchanges decoded audio, persists navigation, mutes, reconnects
       await page.getByRole('dialog',{name:'All pages',exact:true}).getByRole('link',{name:'My profile',exact:true}).click();
     }else await page.getByRole('link',{name:'Open your profile',exact:true}).click();
     await expect(page).toHaveURL(/\/profile$/);
+    // Faith Circles uses the same persistent member-layout voice boundary.
+    if(test.info().project.name==='mobile'){
+      await page.getByRole('button',{name:'Open navigation',exact:true}).click();
+      await page.getByRole('dialog',{name:'All pages',exact:true}).getByRole('link',{name:'Faith Circles',exact:true}).click();
+    }else await page.getByRole('link',{name:'Faith Circles',exact:true}).click();
+    await expect(page).toHaveURL(/\/faith-circles$/);
+
     await expect(other.getByRole('heading',{name:'Connected participants (2)'})).toBeVisible();
     await expect.poll(()=>audioEnergy(other)).toBeGreaterThan(0.00001);
     await page.locator('a[aria-label="Open voice lounge"]:visible').first().click();

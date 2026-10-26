@@ -1,0 +1,10 @@
+'use client';
+import {useEffect,useRef,useState} from 'react';
+import {browseCircles} from '../../lib/faith-circles/actions';
+import type {CirclePage,Result} from '../../lib/faith-circles/types';
+import {CircleCard} from './CircleCard';
+export function CircleExplorer({initial}:{initial:Result<CirclePage>}){
+ const[data,setData]=useState(initial.data),[error,setError]=useState(initial.error??''),[busy,setBusy]=useState(false);const generation=useRef(0);useEffect(()=>()=>{generation.current++;},[]);
+ async function load(){if(busy)return;const token=++generation.current;setBusy(true);setError('');try{const r=await browseCircles({mode:'explore',after:data?.after??null,size:12});if(token!==generation.current)return;if(r.data)setData(old=>({items:old?[...new Map([...old.items,...r.data!.items].map(c=>[c.id,c])).values()]:r.data!.items,after:r.data!.after}));else setError(r.error||'Circles unavailable.');}catch{if(token===generation.current)setError('Circles unavailable. Please retry.');}finally{if(token===generation.current)setBusy(false);}}
+ return <section className="faith-section" aria-label="Explore Study Circles"><div className="section-heading"><h2>Explore Study Circles</h2></div><p className="muted">Find an approved-led Circle. Private Circles appear only after you join through an invitation.</p>{error&&<p role="status" className="form-error">{error} <button className="button secondary" disabled={busy} onClick={()=>void load()}>Retry Circles</button></p>}{data?.items.length?<div className="faith-circle-grid">{data.items.map(c=><CircleCard key={c.id} circle={c}/>)}</div>:!error&&<div className="panel padded"><h3>Your next Circle is still taking shape.</h3><p>No registered Circles are available to you yet. You can still explore communities or join a private Circle through an invitation.</p></div>}{data?.after&&!error&&<button className="button secondary" disabled={busy} onClick={()=>void load()}>{busy?'Loading Circles…':'Load more Circles'}</button>}{busy&&<p role="status">Loading permitted Circles…</p>}</section>;
+}

@@ -51,3 +51,10 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+## Faith Circles foundation
+
+- Read `FAITH_CIRCLES_BLUEPRINT.md` and `docs/FAITH_CIRCLES.md` before extending Circles. Each Circle reuses an existing community UUID, membership, channels, moderation and persistent voice provider; never convert/reseed communities automatically.
+- Keep approved study leadership separate from platform/community privileges. Initial association/approval writes are trusted-operator only; do not create a browser self-approval path or widen raw table grants.
+- Current study cards contain passage references only. New Bible translation text/API requires a confirmed license. Guided sessions/private responses/progress require the planned owner-only privacy and retention model before implementation.
+- Run `test:faith:circles`, `test:faith:circles:setup` and relevant community/Spaces/browser/voice regressions on the isolated local stack for Circle changes. Production migration/deployment still requires explicit approval.

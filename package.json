@@ -78,7 +78,9 @@
     "test:channels:management:setup": "node scripts/test-channel-management-setup.mjs",
     "test:chat:navigation:setup": "node scripts/test-chat-navigation-setup.mjs",
     "test:discovery": "node scripts/test-discovery.mjs && node scripts/test-discovery-setup.mjs",
-    "test:profiles:lounge": "node scripts/test-lounge-profiles.mjs"
+    "test:profiles:lounge": "node scripts/test-lounge-profiles.mjs",
+    "test:faith:circles": "node scripts/test-faith-circles.mjs",
+    "test:faith:circles:setup": "node scripts/test-faith-circles-setup.mjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",

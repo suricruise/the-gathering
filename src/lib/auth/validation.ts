@@ -84,7 +84,7 @@ export const profileSchema = z.object({
 export function safeNext(input: unknown, fallback = "/home") {
   if (
     typeof input !== "string" ||
-    !/^\/(?:home|onboarding|reset-password|profile|settings|channels|voice|communities|squad-up|feed|events|faith|messages|members)(?:\/[a-zA-Z0-9_-]{1,64})*$/.test(
+    !/^\/(?:home|onboarding|reset-password|profile|settings|channels|voice|communities|squad-up|feed|events|faith|faith-circles|messages|members)(?:\/[a-zA-Z0-9_-]{1,64})*$/.test(
       input,
     )
   )

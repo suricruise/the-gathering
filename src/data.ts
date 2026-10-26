@@ -7,6 +7,7 @@ import {
   PanelsTopLeft,
   CalendarDays,
   HeartHandshake,
+  BookOpen,
   MessagesSquare,
   UserRound,
   Users,
@@ -28,6 +29,7 @@ export const navigation = [
     section: "CONNECT",
   },
   { to: "/events", label: "Events", icon: CalendarDays, section: "CONNECT" },
+  { to: "/faith-circles", label: "Faith Circles", icon: BookOpen, section: "GROW" },
   {
     to: "/faith",
     label: "Faith & Life",

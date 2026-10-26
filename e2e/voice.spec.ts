@@ -59,7 +59,7 @@ test("real voice exchanges decoded audio, persists navigation, mutes, reconnects
   member,
   browser,
 }) => {
-  test.setTimeout(180000);
+  test.setTimeout(240000);
   const url = readFileSync(".local-stack/database-url", "utf8").trim();
   if (!["127.0.0.1", "localhost"].includes(new URL(url).hostname))
     throw Error("Local only");
@@ -267,15 +267,34 @@ test("real voice exchanges decoded audio, persists navigation, mutes, reconnects
       .locator('a[aria-label="Open voice lounge"]:visible')
       .first();
     await lounge.click();
-    await page.locator(`a[href="/channels/${channel}"]`).click();
+    await page.getByRole("region",{name:"Rooms in my communities",exact:true}).getByRole("link",{name:"Open room",exact:true}).and(page.locator(`a[href="/channels/${channel}"]`)).click();
     for(const textChannel of [textOne,textTwo]){
       const mobile=test.info().project.name==='mobile';if(mobile)await page.getByRole('button',{name:'Open channels',exact:true}).click();
       const directory=mobile?page.getByRole('dialog',{name:'Channels',exact:true}):page.getByRole('complementary',{name:'Channel directory',exact:true});
       await directory.locator(`a[href="/channels/${textChannel}"]`).click();
+      await expect(page).toHaveURL(new RegExp(`/channels/${textChannel}$`));
+      await expect(page.getByRole('heading',{name:textChannel===textOne?'# voice-text-one':'# voice-text-two',exact:true})).toBeVisible();
       await expect(page.locator('.chat-connection')).toHaveText('● Live');
       await expect(other.getByRole('heading',{name:'Connected participants (2)'})).toBeVisible();
       await expect.poll(()=>audioEnergy(other)).toBeGreaterThan(0.00001);
     }
+    if(test.info().project.name==='mobile')await page.getByRole('button',{name:'Open channels',exact:true}).click();
+    const overviewDirectory=test.info().project.name==='mobile'?page.getByRole('dialog',{name:'Channels',exact:true}):page.getByRole('complementary',{name:'Channel directory',exact:true});
+    await overviewDirectory.getByRole('link',{name:'Community overview',exact:true}).click();
+    await expect(page).toHaveURL(new RegExp(`/communities/voice-${suffix}$`));
+    await expect.poll(()=>audioEnergy(other)).toBeGreaterThan(0.00001);
+    await page.locator('.community-highlights').getByRole('link',{name:'Community events',exact:true}).click();
+    await expect(page).toHaveURL(/\/events\?community=/);
+    if(test.info().project.name==='mobile'){
+      await page.getByRole('button',{name:'Open navigation',exact:true}).click();
+      await page.getByRole('dialog',{name:'All pages',exact:true}).getByRole('link',{name:'My profile',exact:true}).click();
+    }else await page.getByRole('link',{name:'Open your profile',exact:true}).click();
+    await expect(page).toHaveURL(/\/profile$/);
+    await expect(other.getByRole('heading',{name:'Connected participants (2)'})).toBeVisible();
+    await expect.poll(()=>audioEnergy(other)).toBeGreaterThan(0.00001);
+    await page.locator('a[aria-label="Open voice lounge"]:visible').first().click();
+    await expect(page.getByRole('region',{name:'Recently joined rooms',exact:true}).locator(`[data-hangout-id="${channel}"]`)).toBeVisible();
+    await page.getByRole('region',{name:'Rooms in my communities',exact:true}).getByRole('link',{name:'Open room',exact:true}).and(page.locator(`a[href="/channels/${channel}"]`)).click();
     if(test.info().project.name==='mobile')await page.getByRole('button',{name:'Open channels',exact:true}).click();
     const returnDirectory=test.info().project.name==='mobile'?page.getByRole('dialog',{name:'Channels',exact:true}):page.getByRole('complementary',{name:'Channel directory',exact:true});
     await returnDirectory.locator(`a[href="/channels/${channel}"]`).click();

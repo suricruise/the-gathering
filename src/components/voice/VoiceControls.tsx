@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   ArrowUpRight,
   Mic,
@@ -18,6 +18,7 @@ import {
   useParticipantTracks,
 } from "@livekit/components-react";
 import { ConnectionState, Track, type Participant } from "livekit-client";
+import {communityMembers,type DirectoryMember} from "../../lib/communities/members";
 import { useVoice, voiceRequest } from "./VoiceProvider";
 export function voiceStateLabel(state: ConnectionState) {
   return (
@@ -130,7 +131,9 @@ function ParticipantRow({
   participant,
   canModerate,
   channel,
+  profile,
 }: {
+  profile?:DirectoryMember;
   participant: Participant;
   canModerate: boolean;
   channel: string;
@@ -147,7 +150,7 @@ function ParticipantRow({
     tracks[0] ?? { participant, source: Track.Source.Microphone },
   );
   const isMuted = !tracks.length || publicationMuted;
-  const [pending, setPending] = useState(false);
+  const [pending, setPending] = useState(false),[avatarFailed,setAvatarFailed]=useState(false);
   async function remove() {
     if (
       !window.confirm(
@@ -174,13 +177,14 @@ function ParticipantRow({
       data-participant-id={identity}
     >
       <span className="voice-avatar" aria-hidden="true">
-        {(name || "Member").slice(0, 2).toUpperCase()}
+        {profile?.avatar&&!avatarFailed?<img src={`/api/avatars/${identity}`} alt="" width={64} height={64} onError={()=>setAvatarFailed(true)}/>:<span>{(name || "Member").slice(0, 2).toUpperCase()}</span>}
       </span>
       <div>
         <strong>
           {name || "Member"}
           {participant.isLocal ? " (you)" : ""}
         </strong>
+        {profile?.role&&<span className="voice-participant-role">{profile.role}</span>}
         <small>
           {speaking ? "Speaking" : isMuted ? "Microphone muted" : "Listening"} ·
           Connection: {quality}
@@ -191,6 +195,7 @@ function ParticipantRow({
       ) : (
         <Mic size={16} aria-label="Microphone enabled" />
       )}
+      {profile?.profile_visible&&<Link className="text-link voice-profile-link" href={`/members/${identity}`}>View profile</Link>}
       {canModerate && !participant.isLocal && (
         <button
           className="button secondary"
@@ -225,6 +230,9 @@ export function VoiceRoomPanel({
     [newLimit, setNewLimit] = useState(limit),
     [newLocked, setNewLocked] = useState(locked),
     [notice, setNotice] = useState("");
+  const [people,setPeople]=useState<DirectoryMember[]>([]);
+  const connectedHere=v?.session?.channel===channel;
+  useEffect(()=>{if(!connectedHere){setPeople([]);return;}let live=true;const load=()=>{void communityMembers({channel,size:50}).then(r=>{if(live)setPeople(r.data?.items??[]);}).catch(()=>{if(live)setPeople([]);});};load();const timer=setInterval(()=>{if(document.visibilityState==='visible'&&navigator.onLine)load();},30000);return()=>{live=false;clearInterval(timer);};},[channel,connectedHere]);
   if (!v) return <p>Voice is available after signing in.</p>;
   const current = v.session?.channel === channel,
     canModerate = ["owner", "administrator", "moderator"].includes(role || ""),
@@ -256,6 +264,7 @@ export function VoiceRoomPanel({
       className="voice-room-panel panel padded"
       aria-label={`${name} voice room`}
     >
+      <p className="eyebrow">YOUR COMMUNITY HANGOUT</p>
       <div className="section-heading">
         <h2>{name}</h2>
         <span className="pill">{locked ? "Locked" : `${limit} places`}</span>
@@ -313,7 +322,7 @@ export function VoiceRoomPanel({
             Output selection depends on browser support. On mobile, use your
             system audio controls if no output devices are listed.
           </small>
-          <h3>Connected participants ({v.participants.length})</h3>
+          <h3>{v.state===ConnectionState.Connected?"Connected participants":"Room participants"} ({v.participants.length})</h3>
           <ul className="voice-participants">
             {v.participants.map((p) => (
               <ParticipantRow
@@ -321,6 +330,7 @@ export function VoiceRoomPanel({
                 participant={p}
                 channel={channel}
                 canModerate={canModerate}
+                profile={people.find(person=>person.id===p.identity)}
               />
             ))}
           </ul>

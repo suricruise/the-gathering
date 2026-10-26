@@ -1,3 +1,4 @@
+vi.mock("../../lib/communities/members",()=>({communityMembers:vi.fn(async()=>({data:{items:[]}}))}));
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, expect, it, vi } from "vitest";
 const m = vi.hoisted(() => ({ change: vi.fn(), react: vi.fn(), pin: vi.fn() }));

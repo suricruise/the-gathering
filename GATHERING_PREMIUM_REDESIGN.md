@@ -357,3 +357,7 @@ The later authorized Home/Explore milestone reuses the Phase 2 shell, community/
 ## Phase 4 implementation follow-through
 
 The authorized community/chat visual milestone reuses CommunityView, the existing contextual channel/member components and all chat/voice/auth providers. Large authorized covers, scoped overview activity/events/announcements/guidelines and semantic compact-chat styling are implemented without a new migration. Existing unread/thread/file/message/permission behavior remains. See `docs/PREMIUM_COMMUNITY_CHAT.md` and the development log for the exact executed verification, real audio through text-channel switching, bounded metadata reads, documented existing limitations and remaining device/hosted acceptance. Implementation does not authorize production SQL or release.
+
+## Phase 5 implementation follow-through
+
+The authorized Hangouts milestone evolves `/voice` with the existing LiveKit provider/admission/worker and current community permissions. Real room cards/activity, host-category-based types, permitted avatar previews, successful current-tab history, live suggestions and Gatherings accompany the styled participant grid and persistent controls. No general temporary-room creation or durable cross-device history is implied; their required backend extension and physical two-device acceptance are documented in `docs/PREMIUM_HANGOUTS.md`. See the development log for executed multi-account WebRTC results and remaining device/hosted/navigation-preference limitations. No new SQL or live release is included.

@@ -1,3 +1,4 @@
+vi.mock("../../lib/communities/members",()=>({communityMembers:vi.fn(async()=>({data:{items:[]}}))}));
 import{render,screen}from'@testing-library/react';import userEvent from'@testing-library/user-event';import{it,expect,vi}from'vitest';import type{AnchorHTMLAttributes}from'react';
 vi.mock('next/link',()=>({default:({href,...props}:AnchorHTMLAttributes<HTMLAnchorElement>)=><a href={href} {...props}/>}));
 vi.mock('../../lib/communities/actions',()=>({communityAction:vi.fn(async()=>({error:'Unavailable'}))}));

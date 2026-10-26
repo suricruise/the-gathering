@@ -50,6 +50,7 @@ type VoiceContextValue = {
   deafened: boolean;
   muted: boolean;
   participants: ReturnType<typeof useParticipants>;
+  recentChannels: string[];
   join: (id: string, name: string, microphone: boolean) => Promise<void>;
   leave: () => Promise<void>;
   toggleMic: () => Promise<void>;
@@ -77,6 +78,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
     room,
   });
   const participants = useParticipants({ room });
+  const [recentChannels,setRecentChannels]=useState<string[]>([]);
   const [session, setSession] = useState<Session | null>(null),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
@@ -151,6 +153,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
       }
       // A click can still be subject to autoplay restrictions after async auth.
       await room.startAudio().catch(() => undefined);
+      if(attempt===generation.current&&room.state===ConnectionState.Connected)setRecentChannels(old=>[channel,...old.filter(id=>id!==channel)].slice(0,8));
     } catch (e) {
       if (attempt === generation.current) {
         setError(
@@ -293,6 +296,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
           deafened,
           muted: !isMicrophoneEnabled,
           participants,
+          recentChannels,
           join,
           leave,
           toggleMic,

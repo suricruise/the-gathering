@@ -1,0 +1,18 @@
+{
+  "fixtureMessages": 5000,
+  "rawRootPage": {
+    "rows": 40,
+    "indexes": [
+      "messages_root_page"
+    ],
+    "planningMs": 0.538,
+    "executionMs": 0.034,
+    "sharedHitBlocks": 4
+  },
+  "authenticatedConversationRpc": {
+    "returnedMessages": 40,
+    "planningMs": 0.007,
+    "executionMs": 30.677
+  },
+  "limits": "Local warm-cache sample, one private member/channel. Not hosted concurrency or broad discovery ranking certification."
+}

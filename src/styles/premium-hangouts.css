@@ -1,6 +1,8 @@
 /* Existing LiveKit room/provider; semantic lounge presentation. */
 .hangouts-hero {position:relative;overflow:hidden;border:1px solid var(--border-control);border-radius:var(--radius-card);background:var(--gradient-hero);padding:clamp(24px,4vw,40px);margin:var(--space-6) 0 var(--space-8);}
-.hangouts-hero>div {position:relative;z-index:1;max-width:550px;}
+/* Keep small copy readable over the vivid gradient and decorative icon. */
+.premium-shell .hangouts-hero::before {content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:var(--gradient-hero-scrim);}
+.hangouts-hero>div {position:relative;z-index:2;max-width:550px;}
 .hangouts-hero h2 {font-size:clamp(28px,3vw,42px);line-height:1.16;letter-spacing:-.04em;margin:16px 0;}
 .hangouts-hero p {color:var(--foreground-primary);font-size:15px;line-height:1.7;margin-bottom:24px;}
 .hangouts-hero .eyebrow {color:var(--foreground-primary);font-size:10px;}

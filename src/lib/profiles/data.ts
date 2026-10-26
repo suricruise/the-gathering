@@ -10,6 +10,13 @@ export type MemberProfile = {
   onboarding_completed_at: string | null;
 };
 export type CatalogItem = { id: string; name: string };
+// The persistent shell needs identity only, not private preferences or game catalogs.
+export async function loadMemberIdentity(client: SupabaseClient, id: string) {
+  const { data, error } = await client.from("profiles")
+    .select("id,username,display_name,avatar_path").eq("id", id).single();
+  if (error || !data) throw new Error("Your member identity is unavailable. Please retry.");
+  return data as Pick<MemberProfile, "id" | "username" | "display_name" | "avatar_path">;
+}
 export async function loadMyProfile(client: SupabaseClient, id: string) {
   const [profile, preferences, games, platforms, gameCatalog, platformCatalog] =
     await Promise.all([

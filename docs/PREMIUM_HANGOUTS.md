@@ -74,7 +74,7 @@ After an explicitly approved release, use two distinct approved accounts on two 
 
 Physical separate-device/audio-hardware/Safari/background acceptance remains open as described above. No temporary-room or durable cross-device history feature is claimed. Previews and room discovery are bounded; large communities may show initials for participants outside the directory sample. Count/fullness/type suggestions are observations, not a token/admission guarantee: room suspensions, worker freshness and capacity remain authoritative at the existing endpoint.
 
-An existing **Navigation preferences unavailable** warning was visible during the expanded voice-navigation run while the actual room/audio and role checks passed. That shared navigation-preference behavior was not diagnosed or hidden by this milestone; a separate tested navigation-preference fix may be needed. No unrelated backend or permission change was substituted for it.
+During Phase 5 an existing **Navigation preferences unavailable** warning was observed while media/role checks passed. Phase 8 QA diagnosed a voice ID being sent to a deliberately text-only preference RPC. The client now omits text-only preference/search controls on voice rooms; shared categories persist via an accessible text channel, while voice-only category toggles remain local. The database guard, voice provider and grants are unchanged. See `PREMIUM_REDESIGN_COMPLETION.md` for executed regression coverage and remaining limits.
 
 ## Release and rollback
 

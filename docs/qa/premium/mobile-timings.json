@@ -1,0 +1,146 @@
+[
+  {
+    "width": 390,
+    "page": "home",
+    "heroContrastConservative": 6.895978160920389,
+    "ttfb": 332,
+    "dom": 674,
+    "totalWithAxeAndScreenshotMs": 4912
+  },
+  {
+    "width": 390,
+    "page": "explore",
+    "heroContrastConservative": null,
+    "ttfb": 81,
+    "dom": 443,
+    "totalWithAxeAndScreenshotMs": 3247
+  },
+  {
+    "width": 390,
+    "page": "community",
+    "heroContrastConservative": null,
+    "ttfb": 90,
+    "dom": 564,
+    "totalWithAxeAndScreenshotMs": 3876
+  },
+  {
+    "width": 390,
+    "page": "chat",
+    "heroContrastConservative": null,
+    "ttfb": 452,
+    "dom": 874,
+    "totalWithAxeAndScreenshotMs": 7539
+  },
+  {
+    "width": 390,
+    "page": "hangouts",
+    "heroContrastConservative": 6.895978160920389,
+    "ttfb": 85,
+    "dom": 357,
+    "totalWithAxeAndScreenshotMs": 2900
+  },
+  {
+    "width": 390,
+    "page": "voice-room",
+    "heroContrastConservative": null,
+    "ttfb": 182,
+    "dom": 476,
+    "totalWithAxeAndScreenshotMs": 3086
+  },
+  {
+    "width": 390,
+    "page": "profile",
+    "heroContrastConservative": null,
+    "ttfb": 142,
+    "dom": 438,
+    "totalWithAxeAndScreenshotMs": 3054
+  },
+  {
+    "width": 390,
+    "page": "profile-editor",
+    "heroContrastConservative": null,
+    "ttfb": 117,
+    "dom": 430,
+    "totalWithAxeAndScreenshotMs": 3304
+  },
+  {
+    "width": 390,
+    "page": "people",
+    "heroContrastConservative": null,
+    "ttfb": 111,
+    "dom": 260,
+    "totalWithAxeAndScreenshotMs": 2763
+  },
+  {
+    "width": 390,
+    "page": "messages",
+    "heroContrastConservative": null,
+    "ttfb": 82,
+    "dom": 245,
+    "totalWithAxeAndScreenshotMs": 1817
+  },
+  {
+    "width": 390,
+    "page": "events",
+    "heroContrastConservative": null,
+    "ttfb": 74,
+    "dom": 218,
+    "totalWithAxeAndScreenshotMs": 3071
+  },
+  {
+    "width": 390,
+    "page": "event",
+    "heroContrastConservative": null,
+    "ttfb": 185,
+    "dom": 395,
+    "totalWithAxeAndScreenshotMs": 2874
+  },
+  {
+    "width": 390,
+    "page": "notifications",
+    "heroContrastConservative": null,
+    "ttfb": 137,
+    "dom": 377,
+    "totalWithAxeAndScreenshotMs": 2799
+  },
+  {
+    "width": 390,
+    "page": "settings",
+    "heroContrastConservative": null,
+    "ttfb": 228,
+    "dom": 558,
+    "totalWithAxeAndScreenshotMs": 2527
+  },
+  {
+    "width": 390,
+    "page": "admin",
+    "heroContrastConservative": null,
+    "ttfb": 78,
+    "dom": 199,
+    "totalWithAxeAndScreenshotMs": 3809
+  },
+  {
+    "width": 390,
+    "page": "faith",
+    "heroContrastConservative": null,
+    "ttfb": 251,
+    "dom": 556,
+    "totalWithAxeAndScreenshotMs": 2755
+  },
+  {
+    "width": 390,
+    "page": "social",
+    "heroContrastConservative": null,
+    "ttfb": 100,
+    "dom": 266,
+    "totalWithAxeAndScreenshotMs": 1842
+  },
+  {
+    "width": 390,
+    "page": "squad-up",
+    "heroContrastConservative": null,
+    "ttfb": 63,
+    "dom": 173,
+    "totalWithAxeAndScreenshotMs": 1649
+  }
+]

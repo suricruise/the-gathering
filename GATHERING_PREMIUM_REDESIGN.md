@@ -365,3 +365,7 @@ The authorized Hangouts milestone evolves `/voice` with the existing LiveKit pro
 ## Phase 6 implementation follow-through
 
 The authorized profile/social-discovery milestone retains existing Auth, friendship/block/DM privacy and member-layout providers. Premium profile/mini-profile presentation, broader selectable interests, optional gaming onboarding, explicit full-interest sharing and authenticated public/mutual-community projections are implemented. Additive `202611160001` preserves historical values and default privacy choices; no production SQL or release is included. See `docs/PREMIUM_PROFILES.md` and the development log for installation, ranking, executed checks, rollback constraints and remaining hosted/device/scale acceptance.
+
+## Phase 8 QA follow-through
+
+The authorized final review preserves the existing app, all data/providers and server permissions. It diagnoses/fixes text-only navigation calls from voice rooms, reduces persistent-shell identity reads, protects hero text over gradients and corrects the flat People heading layout. `PREMIUM_REDESIGN_COMPLETION.md` records local functional/security/build coverage, screenshot evidence at desktop/tablet/mobile widths, actual network/error tests, query measurements, incomplete features and manual hosted/device acceptance. No production data change or live deployment is part of QA.

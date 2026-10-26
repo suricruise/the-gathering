@@ -178,6 +178,11 @@ test("real voice exchanges decoded audio, persists navigation, mutes, reconnects
       page.goto(`/channels/${channel}`),
       other.goto(`/channels/${channel}`),
     ]);
+    for (const p of [page, other]) {
+      await expect(p.getByRole("button", {name:"Search messages",exact:true})).toHaveCount(0);
+      await expect(p.getByText("Chat notifications",{exact:true})).toHaveCount(0);
+      await expect(p.getByText("Navigation preferences unavailable.",{exact:true})).toHaveCount(0);
+    }
     await page
       .getByRole("button", { name: "Join with microphone", exact: true })
       .click();

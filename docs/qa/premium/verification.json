@@ -1,0 +1,211 @@
+{
+  "baseline": "9b15c6d",
+  "date": "2026-10-26",
+  "scope": "Isolated local services and production Next build; no production mutation or deployment.",
+  "unitTests": 365,
+  "unitFiles": 65,
+  "browserUniquePassingScenarios": 130,
+  "browserRuns": [
+    {
+      "name": "functional regression",
+      "stats": {
+        "startTime": "2026-10-26T19:31:34.539Z",
+        "duration": 1138360.314,
+        "expected": 122,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      }
+    },
+    {
+      "name": "capture/header/order plus initial state harness",
+      "stats": {
+        "startTime": "2026-10-26T19:26:37.502Z",
+        "duration": 178906.892,
+        "expected": 6,
+        "skipped": 0,
+        "unexpected": 2,
+        "flaky": 0
+      }
+    },
+    {
+      "name": "corrected network-state harness",
+      "stats": {
+        "startTime": "2026-10-26T19:31:05.614Z",
+        "duration": 8873.472,
+        "expected": 2,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      }
+    },
+    {
+      "name": "final visual, People and Hangouts",
+      "stats": {
+        "startTime": "2026-10-26T20:21:04.019Z",
+        "duration": 162660.791,
+        "expected": 8,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      }
+    }
+  ],
+  "serviceChecks": [
+    {
+      "command": "npm run test:profiles:lounge",
+      "exitCode": 0,
+      "passedChecks": 12
+    },
+    {
+      "command": "npm run test:communities",
+      "exitCode": 0,
+      "passedChecks": 32
+    },
+    {
+      "command": "npm run test:community:headers",
+      "exitCode": 0,
+      "passedChecks": 12
+    },
+    {
+      "command": "npm run test:community:management",
+      "exitCode": 0,
+      "passedChecks": 13
+    },
+    {
+      "command": "npm run test:workspace",
+      "exitCode": 0,
+      "passedChecks": 7
+    },
+    {
+      "command": "npm run test:messaging",
+      "exitCode": 0,
+      "passedChecks": 24
+    },
+    {
+      "command": "npm run test:interactions",
+      "exitCode": 0,
+      "passedChecks": 10
+    },
+    {
+      "command": "npm run test:threads",
+      "exitCode": 0,
+      "passedChecks": 13
+    },
+    {
+      "command": "npm run test:chat:reliability",
+      "exitCode": 0,
+      "passedChecks": 7
+    },
+    {
+      "command": "npm run test:chat:navigation",
+      "exitCode": 0,
+      "passedChecks": 16
+    },
+    {
+      "command": "npm run test:channels:management",
+      "exitCode": 0,
+      "passedChecks": 16
+    },
+    {
+      "command": "npm run test:channels:management:setup",
+      "exitCode": 0,
+      "passedChecks": 3
+    },
+    {
+      "command": "npm run test:people",
+      "exitCode": 0,
+      "passedChecks": 25
+    },
+    {
+      "command": "npm run test:members",
+      "exitCode": 0,
+      "passedChecks": 15
+    },
+    {
+      "command": "npm run test:people:rail",
+      "exitCode": 0,
+      "passedChecks": 11
+    },
+    {
+      "command": "npm run test:members:rail",
+      "exitCode": 0,
+      "passedChecks": 8
+    },
+    {
+      "command": "npm run test:spaces",
+      "exitCode": 0,
+      "passedChecks": 26
+    },
+    {
+      "command": "npm run test:admin",
+      "exitCode": 0,
+      "passedChecks": 32
+    },
+    {
+      "command": "npm run test:social",
+      "exitCode": 0,
+      "passedChecks": 29
+    },
+    {
+      "command": "npm run test:squads",
+      "exitCode": 0,
+      "passedChecks": 38
+    },
+    {
+      "command": "npm run test:discovery",
+      "exitCode": 0,
+      "passedChecks": 15
+    },
+    {
+      "command": "npm run test:lounge",
+      "exitCode": 0,
+      "passedChecks": 9
+    },
+    {
+      "command": "npm run test:launch",
+      "exitCode": 0,
+      "passedChecks": 9
+    },
+    {
+      "command": "npm run test:realtime",
+      "exitCode": 0,
+      "passedChecks": 11
+    },
+    {
+      "command": "npm run test:people:realtime",
+      "exitCode": 0,
+      "passedChecks": 8
+    },
+    {
+      "command": "npm run test:spaces:realtime",
+      "exitCode": 0,
+      "passedChecks": 6
+    },
+    {
+      "command": "npm run test:voice",
+      "exitCode": 0,
+      "passedChecks": 18
+    },
+    {
+      "command": "npm run test:voice:worker",
+      "exitCode": 0,
+      "passedChecks": 6
+    }
+  ],
+  "screenshots": {
+    "pageViews": 54,
+    "networkStates": 6,
+    "widths": [
+      1440,
+      1024,
+      390
+    ]
+  },
+  "notes": [
+    "Initial baseline interrupted after 58 passes, two stale assertions, 68 unrun; unrun is not passed.",
+    "Network-state harness failures were corrected and both cases executed successfully.",
+    "122 functional cases ran before the last Hangouts/People CSS refinements. Eight affected cases passed on the final production build.",
+    "Physical devices/microphones, Safari, mobile OS keyboards/backgrounding, screen readers, hosted load and deployment are not certified."
+  ]
+}

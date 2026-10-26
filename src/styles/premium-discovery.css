@@ -1,5 +1,7 @@
 /* Home and Explore: semantic lounge surfaces, original CSS artwork and existing uploads. */
 .premium-shell .lounge-hero {position:relative;isolation:isolate;overflow:hidden;border-radius:var(--radius-panel);padding:clamp(24px,5vw,48px);min-height:310px;margin-bottom:var(--space-8);background:var(--gradient-hero);border:1px solid var(--border-control);box-shadow:var(--shadow-card);}
+/* The semantic scrim protects body copy over every gradient/artwork stop. */
+.premium-shell .lounge-hero::before {content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:var(--gradient-hero-scrim);}
 .lounge-hero-copy {position:relative;z-index:2;max-width:620px;}
 .lounge-hero h2 {font-size:clamp(30px,3.5vw,48px);line-height:1.14;letter-spacing:-.045em;margin:18px 0;color:var(--foreground-primary);}
 .lounge-hero p {font-size:var(--text-base);line-height:1.7;max-width:440px;color:var(--foreground-primary);margin-bottom:24px;}

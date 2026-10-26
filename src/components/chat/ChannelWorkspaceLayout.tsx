@@ -21,11 +21,12 @@ export function ChannelWorkspaceLayout({community,channel,initial,children}:{com
  const saveQueue=useRef(Promise.resolve());
  useEffect(()=>{setChatState(initial.chat);},[initial.chat,channel.id]);
  useEffect(()=>{setSearchOpen(false);searchDialog.current?.close();setNavError("");},[channel.id]);
- useEffect(()=>{const token=++navigationRequest.current;void saveNavigation({channel:channel.id}).then(r=>{if(token!==navigationRequest.current)return;if(r.data)setChatState(r.data);else setNavError(r.error??"Navigation preferences unavailable.");}).catch(()=>{if(token===navigationRequest.current)setNavError("Navigation preferences unavailable.");});return()=>{
+ useEffect(()=>{if(channel.kind!=="text")return;const token=++navigationRequest.current;void saveNavigation({channel:channel.id}).then(r=>{if(token!==navigationRequest.current)return;if(r.data)setChatState(r.data);else setNavError(r.error??"Navigation preferences unavailable.");}).catch(()=>{if(token===navigationRequest.current)setNavError("Navigation preferences unavailable.");});return()=>{
  // Monotonic request generation, not a DOM ref.
  // eslint-disable-next-line react-hooks/exhaustive-deps
- navigationRequest.current++;};},[channel.id]);
- const collapse=(collapsed:string[])=>{setChatState(old=>old?{...old,collapsed}:old);const token=++navigationRequest.current;saveQueue.current=saveQueue.current.then(async()=>{const r=await saveNavigation({channel:channel.id,collapsed});if(token!==navigationRequest.current)return;if(r.data)setChatState(r.data);setNavError(r.error??"");}).catch(()=>{if(token===navigationRequest.current)setNavError("Category preference could not be saved. Retry the toggle.");});};
+ navigationRequest.current++;};},[channel.id,channel.kind]);
+ const categoryChannel=channel.kind==="text"?channel.id:navigation.channels.find(c=>c.kind==="text")?.id;
+ const collapse=(collapsed:string[])=>{setChatState(old=>old?{...old,collapsed}:old);if(!categoryChannel)return;const token=++navigationRequest.current;saveQueue.current=saveQueue.current.then(async()=>{const r=await saveNavigation({channel:categoryChannel,collapsed});if(token!==navigationRequest.current)return;if(r.data)setChatState(r.data);setNavError(r.error??"");}).catch(()=>{if(token===navigationRequest.current)setNavError("Category preference could not be saved. Retry the toggle.");});};
 
 
  const countsRequest=useRef(0),countsTimer=useRef<ReturnType<typeof setTimeout>|undefined>(undefined),countsBusy=useRef(false),countsAgain=useRef(false);
@@ -58,11 +59,11 @@ export function ChannelWorkspaceLayout({community,channel,initial,children}:{com
  <section className="workspace-conversation" aria-label={`${channel.name} channel`}><header className="workspace-channel-header">
  <button className="icon-button workspace-channels-toggle" aria-label="Open channels" onClick={()=>channelsDialog.current?.showModal()}><Menu size={20}/></button>
  <div className="workspace-channel-title"><h1 aria-label={`${channel.kind === "text" ? "#" : "◉"} ${channel.name}`}>{channel.kind==="voice"?<Volume2 size={21}/>:<Hash size={21}/>}<span>{channel.name}</span>{channel.is_private&&<small>Private</small>}</h1>{channel.description&&<p title={channel.description}><span className="sr-only">Channel topic: </span>{channel.description}</p>}</div>
- <button type="button" className="chat-text-button" onClick={()=>{setSearchOpen(true);searchDialog.current?.showModal();}}>Search messages</button>
+ {channel.kind==="text"&&<button type="button" className="chat-text-button" onClick={()=>{setSearchOpen(true);searchDialog.current?.showModal();}}>Search messages</button>}
  <Link className="workspace-community-back" href={`/communities/${community.slug}`}>← {community.name}</Link>
  <button className="icon-button workspace-members-toggle" aria-label={narrow?"Open community members":showMembers?"Hide community members":"Show community members"} aria-expanded={narrow?membersOpen:showMembers} onClick={()=>{if(narrow){setMembersOpen(true);membersDialog.current?.showModal();}else setShowMembers(!showMembers);}}>{showMembers&&!narrow?<PanelRightClose size={20}/>:<Users size={20}/>}</button>
  </header>{error&&<p className="workspace-navigation-error" role="alert">{error} <button className="chat-text-button" onClick={()=>void refresh()}>Retry navigation</button></p>}
- {navError&&<p className="workspace-navigation-error" role="status">{navError}</p>}{chatState&&<ChatNotificationSettings channel={channel.id} value={chatState} onSave={setChatState}/>}
+ {navError&&<p className="workspace-navigation-error" role="status">{navError}</p>}{channel.kind==="text"&&chatState&&<ChatNotificationSettings channel={channel.id} value={chatState} onSave={setChatState}/>}
  <div className="workspace-conversation-body">{children}</div>
  </section>
  {showMembers&&!narrow&&<aside className="workspace-members-desktop" aria-label="Community members"><WorkspaceMembers key={channel.id} channel={channel.id}/><Link className="workspace-member-directory" href={`/members?community=${community.id}`}>Browse community members · Add friends</Link></aside>}

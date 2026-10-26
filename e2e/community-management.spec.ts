@@ -19,7 +19,7 @@ test("platform community management orders Home and Discover and confirms perman
   await order.getByLabel("Reason for this action").fill("Place this community first.");
   await order.getByRole("button",{name:"Save display order"}).click();
   await expect(page.getByRole("status").filter({hasText:"Saved."})).toBeVisible();
-  for(const route of ["/home","/communities"]){await page.goto(route);const names=page.locator("article").filter({has:page.getByRole("heading",{name:new RegExp(`${label}|${other}`)})});await expect(names).toHaveCount(2);await expect(names.first()).toContainText(label);}
+  for(const route of ["/home","/communities"]){await page.goto(route);const names=page.locator(route==="/home"?".home-section:has(h2:text-is(\"My communities\")) article":".community-grid article").filter({has:page.getByRole("heading",{name:new RegExp(`${label}|${other}`)})});await expect(names).toHaveCount(2);await expect(names.first()).toContainText(label);}
   await page.goto("/admin");await page.getByRole("button",{name:"Communities",exact:true}).click();
   await card.locator("summary").filter({hasText:"Permanently delete community"}).click();
   const deletion=card.locator("details").filter({has:page.getByText("Permanently delete community",{exact:true})});

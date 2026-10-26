@@ -29,10 +29,10 @@ test("community owners upload and remove private headers without exposing them",
     const header = page.getByRole("img", { name: "000 custom header test community header" });
     await expect(header).toHaveCSS("background-image", /api\/communities/);
     await page.goto("/communities");
-    await expect(page.locator("article").filter({ has: page.getByRole("heading", { name: "000 custom header test" }) }).locator(".community-cover")).toHaveCSS("background-image", /api\/communities/);
+    await expect(page.locator("article").filter({ has: page.getByRole("heading", { name: "000 custom header test" }) }).locator(".community-cover img")).toHaveAttribute("src", new RegExp(`/api/communities/${id}/header`));
     await page.goto("/home");
-    const homeCard = page.locator("article").filter({ has: page.getByRole("heading", { name: "000 custom header test" }) });
-    await expect(homeCard.locator(".community-cover")).toHaveCSS("background-image", new RegExp(`/api/communities/${id}/header`));
+    const homeCard = page.locator(".lounge-featured-grid article").filter({ has: page.getByRole("heading", { name: "000 custom header test" }) });
+    await expect(homeCard.locator(".community-cover img")).toHaveAttribute("src", new RegExp(`/api/communities/${id}/header`));
     for (const channel of [textChannel, voiceChannel]) {
       await page.goto(`/channels/${channel}`);
       await expect(header).toBeVisible();
@@ -61,7 +61,7 @@ test("community owners upload and remove private headers without exposing them",
     await expect(header).toHaveCSS("background-image", /covers\//);
     expect((await page.request.get(`/api/communities/${id}/header`)).status()).toBe(404);
     await page.goto("/home");
-    await expect(homeCard.locator(".community-cover")).toHaveCSS("background-image", /covers\//);
+    await expect(homeCard.locator(".community-cover img")).toHaveAttribute("src", /covers\//);
     for (const channel of [textChannel, voiceChannel]) {
       await page.goto(`/channels/${channel}`);
       await expect(header).toHaveCSS("background-image", /covers\//);

@@ -1,5 +1,5 @@
 import { requireUser } from "@/src/lib/auth/session";
-import { loadMyProfile } from "@/src/lib/profiles/data";
+import { loadMemberIdentity } from "@/src/lib/profiles/data";
 import { AppShell } from "@/src/components/AppShell";
 import { MemberProvider } from "@/src/components/MemberContext";
 import { VoiceProvider } from "@/src/components/voice/VoiceProvider";
@@ -12,7 +12,7 @@ export default async function MemberLayout({
   children: React.ReactNode;
 }) {
   const { client, user } = await requireUser();
-  const { profile } = await loadMyProfile(client, user.id);
+  const profile = await loadMemberIdentity(client, user.id);
   return (
     <MemberProvider
       member={{

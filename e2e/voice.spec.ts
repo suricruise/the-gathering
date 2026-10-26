@@ -68,6 +68,8 @@ test("real voice exchanges decoded audio, persists navigation, mutes, reconnects
   const community = randomUUID(),
     channel = randomUUID(),
     restricted = randomUUID(),
+    textOne = randomUUID(),
+    textTwo = randomUUID(),
     suffix = randomUUID().slice(0, 8),
     email = `voice-${suffix}@example.test`,
     password = `Gathering-${randomUUID()}`;
@@ -150,6 +152,7 @@ test("real voice exchanges decoded audio, persists navigation, mutes, reconnects
       "insert into public.channel_permission_overrides(community_id,channel_id,user_id,can_view) values($1,$2,$3,true)",
       [community, channel, otherId],
     );
+    await db.query("insert into public.channels(id,community_id,name,kind,is_private) values($1,$3,'voice-text-one','text',false),($2,$3,'voice-text-two','text',false)",[textOne,textTwo,community]);
     await signIn(other, email, password);
     const denied = await other.request.post("/api/voice/token", {
       data: { channel: restricted },
@@ -247,7 +250,8 @@ test("real voice exchanges decoded audio, persists navigation, mutes, reconnects
         // the development-only Next issue badge over the mobile bottom corner.
         .press("Enter");
     await expect(page).toHaveURL(/\/home$/);
-    await expect(page.locator(`.lounge-happening a[href="/channels/${channel}"]`)).toContainText("2 connected");
+    // Home room observations refresh once a minute; allow the documented snapshot interval.
+    await expect(page.locator(`.lounge-happening a[href="/channels/${channel}"]`)).toContainText("2 connected",{timeout:75000});
     if(test.info().project.name==='desktop'){
       await page.getByRole('button',{name:'Collapse sidebar',exact:true}).click();
       await expect(page.locator('.shell-floating-connection')).toContainText('Voice connected');
@@ -264,6 +268,17 @@ test("real voice exchanges decoded audio, persists navigation, mutes, reconnects
       .first();
     await lounge.click();
     await page.locator(`a[href="/channels/${channel}"]`).click();
+    for(const textChannel of [textOne,textTwo]){
+      const mobile=test.info().project.name==='mobile';if(mobile)await page.getByRole('button',{name:'Open channels',exact:true}).click();
+      const directory=mobile?page.getByRole('dialog',{name:'Channels',exact:true}):page.getByRole('complementary',{name:'Channel directory',exact:true});
+      await directory.locator(`a[href="/channels/${textChannel}"]`).click();
+      await expect(page.locator('.chat-connection')).toHaveText('● Live');
+      await expect(other.getByRole('heading',{name:'Connected participants (2)'})).toBeVisible();
+      await expect.poll(()=>audioEnergy(other)).toBeGreaterThan(0.00001);
+    }
+    if(test.info().project.name==='mobile')await page.getByRole('button',{name:'Open channels',exact:true}).click();
+    const returnDirectory=test.info().project.name==='mobile'?page.getByRole('dialog',{name:'Channels',exact:true}):page.getByRole('complementary',{name:'Channel directory',exact:true});
+    await returnDirectory.locator(`a[href="/channels/${channel}"]`).click();
     await expect(connected(page)).toHaveText("Voice connected");
     // Exercise the SDK's actual transport reconnect path by closing signaling.
     await page.context().setOffline(true);

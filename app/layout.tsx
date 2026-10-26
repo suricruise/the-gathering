@@ -11,6 +11,7 @@ import "../src/styles/tokens.css";
 import "../src/styles.css";
 import "../src/styles/premium-shell.css";
 import "../src/styles/premium-discovery.css";
+import "../src/styles/premium-community.css";
 import { PwaProvider } from "@/src/components/pwa/PwaProvider";
 export const metadata: Metadata = {
   title: {

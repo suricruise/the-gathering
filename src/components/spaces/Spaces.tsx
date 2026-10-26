@@ -373,12 +373,13 @@ function EventDateBadge({ value }: { value: string }) {
     <span className="event-date-day" aria-hidden="true">{new Intl.DateTimeFormat(locale, { day: "numeric", timeZone: zone }).format(date)}</span>
   </time>;
 }
-export function UpcomingEvents() {
+export function UpcomingEvents({community}:{community?:string}={}) {
   const [items, setItems] = useState<Event[] | null>(null);
   const [error, setError] = useState("");
   useEffect(() => {
     let active = true;
-    void readSpace<{ items: Event[] }>({ view: "events" }).then((r) => {
+    setItems(null);setError("");
+    void readSpace<{ items: Event[] }>({ view: "events", community:community??null }).then((r) => {
       if (!active) return;
       if (r.data)
         setItems(
@@ -391,7 +392,7 @@ export function UpcomingEvents() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [community]);
   return (
     <div className="space-upcoming">
       {error ? (
@@ -414,8 +415,8 @@ export function UpcomingEvents() {
         ))
       ) : (
         <p>
-          No upcoming events in your communities.{" "}
-          <Link href="/events">Explore events</Link>.
+          {community?"No upcoming community events.":"No upcoming events in your communities."}{" "}
+          <Link href={community?`/events?community=${community}`:"/events"}>Explore events</Link>.
         </p>
       )}
     </div>

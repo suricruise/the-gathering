@@ -1,3 +1,4 @@
+import { CommunityHighlights } from "./CommunityHighlights";
 import { InterestSettings } from "../discovery/InterestSettings";
 import { CommunityHeaderUpload } from "./CommunityHeaderUpload";
 import { CommunityBanner } from "./CommunityBanner";
@@ -28,10 +29,11 @@ export function CommunityView({ data }: { data: CommunityDetailData }) {
     member: 10,
   };
   return (
-    <div className="page live-community">
+    <div className="page live-community lounge-community-overview">
       <Link className="back-link" href="/communities">
         ← All communities
       </Link>
+      <div className="community-landing-hero">
       <CommunityBanner community={c} />
       <PageHeading
         eyebrow={`${c.visibility.toUpperCase()} COMMUNITY`}
@@ -66,6 +68,8 @@ export function CommunityView({ data }: { data: CommunityDetailData }) {
           </p>
         )}
       </div>
+      </div>
+      <CommunityHighlights key={c.id} community={c.id} member={!!role}/>
       {role ? (
         <>
           <div className="two-column">
@@ -114,7 +118,7 @@ export function CommunityView({ data }: { data: CommunityDetailData }) {
                 />
               )}
               <p className="muted">
-                Text messaging is connected. Voice rooms use LiveKit when configured.
+                Choose a conversation or pull up a chair in a voice room.
               </p>
             </section>
             <section className="panel padded">
@@ -279,7 +283,7 @@ export function CommunityView({ data }: { data: CommunityDetailData }) {
             </section>
           )}
           {admin && (
-            <section className="panel padded community-section">
+            <section id="community-settings" className="panel padded community-section">
               <h2>Community settings</h2>
               {c.community_headers !== undefined ? <CommunityHeaderUpload communityId={c.id} hasImage={!!c.community_headers} /> : <p role="status">Header uploads need the community-header database update. Existing cover artwork remains available.</p>}
               <details>

@@ -1,0 +1,12 @@
+// @vitest-environment node
+import{beforeEach,it,expect,vi}from'vitest';
+const m=vi.hoisted(()=>({client:vi.fn(),auth:vi.fn(),rpc:vi.fn(),from:vi.fn(),eq:vi.fn(),limit:vi.fn()}));
+vi.mock('../supabase/server',()=>({createClient:m.client}));
+import{communityOverview}from'./overview';
+const id='11111111-1111-4111-8111-111111111111';
+beforeEach(()=>{vi.clearAllMocks();m.client.mockResolvedValue({auth:{getUser:m.auth},rpc:m.rpc,from:m.from});m.auth.mockResolvedValue({data:{user:{id,email_confirmed_at:'now'}},error:null});m.rpc.mockImplementation(async(name:string)=>({data:name==='community_access'||name==='space_budget'?true:name==='community_my_role'?'member':{items:[]}}));const q={eq:m.eq,is:()=>q,gte:()=>q,order:()=>q,limit:m.limit,maybeSingle:async()=>({data:{guidelines:'Respect privacy.'}})};m.eq.mockReturnValue(q);m.limit.mockResolvedValue({data:[{channel_id:'one',created_at:'2026-10-25',channels:{name:'general'}},{channel_id:'one',created_at:'2026-10-24',channels:{name:'general'}}]});m.from.mockReturnValue({select:()=>q});});
+it('rejects invalid IDs before creating a client',async()=>{expect((await communityOverview('bad')).denied).toBe(true);expect(m.client).not.toHaveBeenCalled();});
+it('requires verified identity before querying access',async()=>{m.auth.mockResolvedValue({data:{user:null},error:null});expect((await communityOverview(id)).denied).toBe(true);expect(m.rpc).not.toHaveBeenCalled();});
+it('denies private or revoked access before reading any overview content',async()=>{m.rpc.mockResolvedValue({data:false});expect((await communityOverview(id)).denied).toBe(true);expect(m.from).not.toHaveBeenCalled();});
+it('public nonmembers receive no guidelines or channel activity',async()=>{m.rpc.mockImplementation(async(name:string)=>({data:name==='community_access'||name==='space_budget'?true:name==='community_my_role'?null:{items:[]}}));const r=await communityOverview(id);expect(r.data).toMatchObject({member:false,stats:null,guidelines:null,conversations:[]});expect(m.from).not.toHaveBeenCalled();});
+it('scopes and bounds normal authenticated reads, deduplicating conversation IDs without exposing message bodies',async()=>{const r=await communityOverview(id);expect(r.data?.guidelines).toBe('Respect privacy.');expect(r.data?.stats).toBeNull();expect(r.data?.conversations).toEqual([{id:'one',name:'general',updated_at:'2026-10-25'}]);expect(m.eq).toHaveBeenCalledWith('channels.community_id',id);expect(m.eq).toHaveBeenCalledWith('community_id',id);expect(m.limit).toHaveBeenCalledWith(80);});

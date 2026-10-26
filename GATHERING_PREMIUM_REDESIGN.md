@@ -353,3 +353,7 @@ The subsequent Phase 2 request explicitly authorizes the Premium Digital Lounge 
 ## Phase 3 implementation follow-through
 
 The later authorized Home/Explore milestone reuses the Phase 2 shell, community/auth/chat/voice services and existing covers. Original abstract hero artwork, visual cards, real permission-filtered activity, documented ranking, interest discovery, newly created public spaces and joined/unread communities are implemented. Additive version `202611140001` provides optional host-assigned categories and authorized summary reads without reclassifying/resetting existing data. See `docs/PREMIUM_HOME_EXPLORE.md` and the development log for executed tests, bounded personalized popularity semantics, guarded installation and remaining hosted/device/load acceptance. No production SQL or release is included in this implementation.
+
+## Phase 4 implementation follow-through
+
+The authorized community/chat visual milestone reuses CommunityView, the existing contextual channel/member components and all chat/voice/auth providers. Large authorized covers, scoped overview activity/events/announcements/guidelines and semantic compact-chat styling are implemented without a new migration. Existing unread/thread/file/message/permission behavior remains. See `docs/PREMIUM_COMMUNITY_CHAT.md` and the development log for the exact executed verification, real audio through text-channel switching, bounded metadata reads, documented existing limitations and remaining device/hosted acceptance. Implementation does not authorize production SQL or release.

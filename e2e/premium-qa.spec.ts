@@ -8,6 +8,7 @@ test('premium final QA captures authorized major routes at desktop, tablet and m
  test.setTimeout(300000);
  const url=readFileSync('.local-stack/database-url','utf8').trim();if(!['localhost','127.0.0.1'].includes(new URL(url).hostname))throw Error('Local only');
  const db=new pg.Client({connectionString:url});await db.connect();const community=randomUUID(),text=randomUUID(),voice=randomUUID(),category=randomUUID(),event=randomUUID(),slug='visual-'+community.slice(0,8);
+ const captureDir=process.env.PREMIUM_VISUAL_OUTPUT||'docs/qa/premium';
  const mobile=info.project.name==='mobile',widths=mobile?[390]:[1440,1024],errors:string[]=[],observations:unknown[]=[];
  page.on('pageerror',e=>errors.push(e.message));
  try{
@@ -20,7 +21,7 @@ test('premium final QA captures authorized major routes at desktop, tablet and m
  const client=userClient();await client.auth.signInWithPassword({email:member.email,password:member.password});
  expect((await client.rpc('send_channel_message',{p_id:randomUUID(),p_channel:text,p_body:'Local QA fixture — a real saved conversation message, not a production member post.'})).error).toBeNull();
  const routes=[['home','/home'],['explore','/communities'],['community',`/communities/${slug}`],['chat',`/channels/${text}`],['hangouts','/voice'],['voice-room',`/channels/${voice}`],['profile',`/members/${member.id}`],['profile-editor','/profile'],['people','/messages?tab=discover'],['messages','/messages?tab=conversations'],['events','/events'],['event',`/events/${event}`],['notifications','/notifications'],['settings','/settings'],['admin','/admin'],['faith','/faith'],['social','/feed'],['squad-up','/squad-up']];
- mkdirSync('docs/qa/premium',{recursive:true});
+ mkdirSync(captureDir,{recursive:true});
  for(const width of widths){
   await page.setViewportSize({width,height:width===390?844:1000});
   for(const [name,path]of routes){
@@ -44,12 +45,12 @@ test('premium final QA captures authorized major routes at desktop, tablet and m
    expect(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),`${name} overflow at ${width}`).toBe(false);
    const axe=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(axe.violations.map(v=>({id:v.id,targets:v.nodes.map(n=>n.target)})),`${name} accessibility at ${width}`).toEqual([]);
    const loaded=await page.locator('main img').evaluateAll(images=>images.filter(i=>i instanceof HTMLImageElement&&i.complete&&i.naturalWidth===0).length);expect(loaded,`${name} broken image at ${width}`).toBe(0);
-   await page.screenshot({path:`docs/qa/premium/${width}-${name}.jpg`,type:'jpeg',quality:75});
+   await page.screenshot({path:`${captureDir}/${width}-${name}.jpg`,type:'jpeg',quality:75});
    const timing=await page.evaluate(()=>{const n=performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming|undefined;return {ttfb:n?Math.round(n.responseStart-n.requestStart):null,dom:n?Math.round(n.domContentLoadedEventEnd-n.startTime):null};});
    observations.push({width,page:name,heroContrastConservative:heroContrast,...timing,totalWithAxeAndScreenshotMs:Date.now()-start});
   }
   await page.emulateMedia({colorScheme:'light'});await page.goto('/home');expect(await page.evaluate(()=>getComputedStyle(document.documentElement).colorScheme)).toBe('dark');await page.emulateMedia({colorScheme:'dark'});
  }
- writeFileSync(`docs/qa/premium/${mobile?'mobile':'desktop-tablet'}-timings.json`,JSON.stringify(observations,null,2)+'\n');expect(errors).toEqual([]);
+ writeFileSync(`${captureDir}/${mobile?'mobile':'desktop-tablet'}-timings.json`,JSON.stringify(observations,null,2)+'\n');expect(errors).toEqual([]);
  }finally{await db.query('delete from private.platform_roles where user_id=$1',[member.id]);await db.query('delete from public.communities where id=$1',[community]);await db.end();}
 });

@@ -7,17 +7,23 @@
   --palette-cyan: #37CEDC;
   --palette-magenta: #D854D6;
 
+  --palette-violet-deep: #704CB4;
+  --surface-navigation-mid: #473D6D;
+  --surface-navigation-footer: #2C2747;
+  --edge-highlight: rgb(229 222 255 / 7%);
+  --gradient-card: linear-gradient(145deg, rgb(184 160 232 / 6%), transparent 58%);
+
   /* Background and surface hierarchy. */
   --background-canvas: var(--palette-main);
-  --background-shell: #1C203B;
-  --surface-base: var(--palette-secondary);
-  --surface-raised: #343957;
-  --surface-overlay: #222641;
+  --background-shell: #1D223C;
+  --surface-base: #242A46;
+  --surface-raised: #303754;
+  --surface-overlay: #20263F;
   --surface-navigation: var(--palette-sidebar);
-  --surface-rail: #24213F;
+  --surface-rail: #211F37;
   --surface-chat: var(--palette-main);
-  --surface-input: #20243F;
-  --surface-hover: #363B60;
+  --surface-input: #1C223C;
+  --surface-hover: #343C5C;
   --surface-navigation-hover: #504475;
   --surface-selected: #463763;
   --surface-disabled: #30344D;
@@ -34,7 +40,7 @@
   --foreground-link: #CFB6FA;
   --foreground-link-hover: #E4D5FF;
 
-  --border-subtle: #3F4568; /* Decorative dividers only. */
+  --border-subtle: #3B4261; /* Decorative dividers only. */
   --border-control: #74799E;
   --border-selected: var(--palette-cyan);
   --focus-ring: var(--palette-cyan);
@@ -60,16 +66,18 @@
   --foreground-on-status: var(--foreground-primary);
 
   --gradient-hero: linear-gradient(115deg,
-    var(--palette-brand), var(--palette-magenta) 52%, var(--palette-cyan));
+    var(--palette-violet-deep), var(--palette-brand) 36%, var(--palette-magenta) 70%, var(--palette-cyan));
   --gradient-hero-scrim: linear-gradient(90deg,
-    rgb(13 16 33 / 86%), rgb(13 16 33 / 72%));
+    rgb(13 16 33 / 78%), rgb(13 16 33 / 68%));
   --gradient-navigation: linear-gradient(180deg,
-    var(--palette-sidebar), var(--surface-rail));
+    var(--palette-sidebar), var(--surface-navigation-mid) 56%, var(--surface-rail));
   --gradient-selection: linear-gradient(135deg,
     var(--palette-cyan), var(--palette-brand));
-  --shadow-card: 0 8px 24px rgb(9 12 28 / 24%);
-  --shadow-overlay: 0 20px 56px rgb(9 12 28 / 48%);
-  --shadow-accent: 0 0 20px rgb(55 206 220 / 16%);
+  --shadow-card: 0 2px 6px rgb(9 12 28 / 12%), 0 18px 42px rgb(9 12 28 / 22%), inset 0 1px var(--edge-highlight);
+  --shadow-navigation: inset -1px 0 var(--edge-highlight), 8px 0 28px rgb(9 12 28 / 10%);
+  --shadow-topbar: 0 4px 18px rgb(9 12 28 / 10%);
+  --shadow-overlay: 0 24px 64px rgb(9 12 28 / 40%);
+  --shadow-accent: 0 6px 18px rgb(9 12 28 / 26%);
 
   /* A 4px scale with compact conversation spacing. */
   --space-0: 0;
@@ -102,8 +110,8 @@
   --leading-heading: 1.15;
   --tracking-heading: -.025em;
   --radius-control: .625rem;
-  --radius-panel: 1rem;
-  --radius-card: 1.25rem;
+  --radius-panel: 1.125rem;
+  --radius-card: 1.375rem;
   --radius-shell: 1.75rem;
   --radius-pill: 999px;
   --stroke-width: 1.75;

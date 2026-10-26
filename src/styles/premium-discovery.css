@@ -1,32 +1,32 @@
 /* Home and Explore: semantic lounge surfaces, original CSS artwork and existing uploads. */
-.premium-shell .lounge-hero {position:relative;isolation:isolate;overflow:hidden;border-radius:var(--radius-panel);padding:clamp(24px,5vw,48px);min-height:310px;margin-bottom:var(--space-8);background:var(--gradient-hero);border:1px solid var(--border-control);box-shadow:var(--shadow-card);}
+.premium-shell .lounge-hero {position:relative;isolation:isolate;overflow:hidden;border-radius:var(--radius-panel);padding:clamp(24px,3vw,32px);min-height:280px;margin-bottom:var(--space-8);background:var(--gradient-hero);border:1px solid var(--border-subtle);box-shadow:var(--shadow-card);}
 /* The semantic scrim protects body copy over every gradient/artwork stop. */
 .premium-shell .lounge-hero::before {content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:var(--gradient-hero-scrim);}
 .lounge-hero-copy {position:relative;z-index:2;max-width:620px;}
-.lounge-hero h2 {font-size:clamp(30px,3.5vw,48px);line-height:1.14;letter-spacing:-.045em;margin:18px 0;color:var(--foreground-primary);}
-.lounge-hero p {font-size:var(--text-base);line-height:1.7;max-width:440px;color:var(--foreground-primary);margin-bottom:24px;}
+.lounge-hero h2 {font-size:clamp(30px,3vw,42px);line-height:1.12;letter-spacing:-.04em;margin:12px 0;color:var(--foreground-primary);}
+.lounge-hero p {font-size:var(--text-sm);line-height:1.7;max-width:420px;color:var(--foreground-primary);margin-bottom:24px;}
 .lounge-hero .eyebrow {color:var(--foreground-primary);font-size:10px;letter-spacing:.16em;}
 .lounge-hero .button.secondary {background:var(--surface-rail);color:var(--foreground-primary);}
-.lounge-hero-art {position:absolute;inset:0 0 0 45%;pointer-events:none;opacity:.65;}
+.lounge-hero-art {position:absolute;inset:0 0 0 45%;pointer-events:none;opacity:.9;}
 .lounge-hero-art span {position:absolute;width:330px;height:330px;border-radius:50%;right:-70px;top:-140px;border:32px solid var(--accent-cyan);opacity:.22;transform:rotate(-30deg);}
 .lounge-hero-art span:nth-child(2) {width:280px;height:280px;top:150px;right:15%;border:40px solid var(--accent-magenta);}
 .lounge-hero-art span:nth-child(3) {width:200px;height:200px;right:70px;top:50px;border:1px solid var(--foreground-primary);border-radius:45px;transform:rotate(30deg);background:var(--gradient-navigation);}
 .lounge-hero-art svg {position:absolute;right:130px;top:120px;color:var(--foreground-primary);}
 .lounge-featured-grid,.lounge-popular-grid,.lounge-happening-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-5);}
-.premium-shell .lounge-community-card {overflow:hidden;min-width:0;border-radius:var(--radius-panel);background:var(--surface-base);border:1px solid var(--border-control);box-shadow:var(--shadow-card);transition:border-color .18s,transform .18s;}
+.premium-shell .lounge-community-card {overflow:hidden;min-width:0;border-radius:var(--radius-card);background:var(--gradient-card),var(--surface-base);border:1px solid var(--border-subtle);box-shadow:var(--shadow-card);display:flex;flex-direction:column;transition:border-color var(--motion-normal),transform var(--motion-normal),box-shadow var(--motion-normal);}
 .premium-shell .lounge-community-card:hover {border-color:var(--accent-cyan);transform:translateY(-2px);}
-.premium-shell .lounge-card-cover {height:190px;display:block;position:relative;overflow:hidden;background:var(--gradient-hero);border-radius:0;}
-.lounge-card-cover img {width:100%;height:100%;object-fit:cover;display:block;}
+.premium-shell .lounge-card-cover {height:200px;display:block;position:relative;overflow:hidden;background:var(--gradient-hero);border-radius:0;}
+.lounge-card-cover img {width:100%;height:100%;object-fit:cover;display:block;transition:transform 240ms var(--motion-easing);}
 .lounge-cover-shade {position:absolute;inset:0;background:linear-gradient(transparent 40%,var(--surface-rail));opacity:.75;pointer-events:none;}
 .lounge-card-category {position:absolute;bottom:14px;left:16px;background:var(--surface-rail);color:var(--foreground-primary);border:1px solid var(--border-control);font-size:11px;}
-.lounge-community-card .padded {padding:var(--space-5);min-width:0;}
+.lounge-community-card .padded {padding:var(--space-6);min-width:0;flex:1;display:flex;flex-direction:column;}
 .lounge-community-card h2,.lounge-community-card h3 {font-size:21px;margin:10px 0;overflow-wrap:anywhere;}
 .lounge-community-card .body-copy {margin:0 0 18px;font-size:14px;color:var(--foreground-secondary);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;min-height:48px;}
 .lounge-card-eyebrow {display:flex;gap:var(--space-2);flex-wrap:wrap;font-size:11px;text-transform:capitalize;color:var(--foreground-muted);}
 .lounge-unread {color:var(--accent-cyan);}
-.lounge-card-counts {display:flex;flex-wrap:wrap;gap:var(--space-3);font-size:11px;color:var(--foreground-secondary);}
+.lounge-card-counts {margin-top:auto;display:flex;flex-wrap:wrap;gap:var(--space-3);font-size:11px;color:var(--foreground-secondary);}
 .lounge-card-counts>span {display:flex;gap:6px;align-items:center;}
-.lounge-card-actions {margin-top:18px;display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);flex-wrap:wrap;}
+.lounge-card-actions {margin-top:auto;padding-top:18px;display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);flex-wrap:wrap;}
 .lounge-card-actions a,.lounge-card-actions button {min-height:44px;display:inline-flex;align-items:center;gap:6px;}
 .lounge-card-actions .community-form {margin:0;min-width:0;}
 .lounge-card-actions .community-form .button {padding:8px 12px;font-size:12px;}
@@ -60,3 +60,30 @@
 .lounge-loading .lounge-featured-grid>div {height:200px;background:var(--surface-base);border:1px solid var(--border-control);border-radius:var(--radius-panel);margin-bottom:24px;}
 .lounge-snapshot-note {font-size:11px;color:var(--foreground-muted);line-height:1.6;}
 .lounge-loading-title {font:700 28px var(--font-heading);color:var(--foreground-primary);}
+
+/* Less chrome, more artwork: equal card rhythm without changing content order. */
+.premium-shell .lounge-home-page,.premium-shell .lounge-explore-page {max-width:1120px;margin-inline:auto;}
+.premium-shell .lounge-home-page>.page-heading {margin-bottom:var(--space-5);}
+.premium-shell .lounge-home-page .home-section {margin-top:var(--space-6);}
+.premium-shell .lounge-home-page .section-heading h2 {font-size:21px;letter-spacing:var(--tracking-heading);}
+.premium-shell .lounge-community-card:hover .lounge-card-cover img {transform:scale(1.025);}
+.premium-shell .lounge-cover-shade {background:linear-gradient(transparent 42%,var(--surface-overlay));opacity:.85;}
+.premium-shell .lounge-card-category {border-color:var(--border-subtle);border-radius:var(--radius-pill);padding:6px 10px;}
+.premium-shell .lounge-happening-grid>.panel {padding:var(--space-4) var(--space-5);background:var(--gradient-card),var(--surface-base);box-shadow:var(--shadow-card);}
+.premium-shell .lounge-happening .eyebrow {display:block;font-size:9px;letter-spacing:.12em;margin-bottom:6px;}
+.premium-shell .lounge-happening h3 {margin:0 0 8px;font-size:15px;}
+.premium-shell .lounge-happening p {margin:0;font-size:12px;line-height:1.6;}
+.premium-shell .lounge-happening li a {padding:6px 0;min-height:44px;}
+.premium-shell .lounge-happening li span {font-size:11px;}
+.premium-shell .lounge-happening {margin-top:var(--space-5);}
+.premium-shell .lounge-happening>.section-heading {margin-bottom:var(--space-3);}
+.premium-shell .lounge-snapshot-note {margin:var(--space-3) 0 var(--space-6);line-height:1.6;}
+.premium-shell .lounge-interest {border-color:var(--border-subtle);background:var(--gradient-card),var(--surface-base);}
+.premium-shell .lounge-card-horizontal .lounge-card-actions {padding-top:12px;}
+@media(max-width:760px){
+ .premium-shell .lounge-hero {min-height:0;padding:var(--space-6);}
+ .premium-shell .lounge-hero h2 {font-size:32px;}
+ .premium-shell .lounge-happening-grid {gap:var(--space-3);}
+ .premium-shell .lounge-community-card .padded {padding:var(--space-5);}
+}
+@media(prefers-reduced-motion:reduce){.premium-shell .lounge-community-card:hover .lounge-card-cover img{transform:none;}}

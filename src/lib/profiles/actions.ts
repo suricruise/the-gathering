@@ -30,13 +30,13 @@ export async function saveProfile(
   const p = parsed.data;
   if (
     complete &&
-    (!p.games.length || !p.platforms.length || !p.interests.length)
+    !p.interests.length
   )
     return {
       error:
-        "Choose at least one game, platform, and interest to finish onboarding.",
+        "Choose at least one interest to finish onboarding.",
     };
-  const { data, error } = await client.rpc("save_my_profile", {
+  const { data, error } = await client.rpc("save_lounge_profile", {
     p_username: p.username,
     p_display_name: p.displayName,
     p_bio: p.bio,
@@ -45,6 +45,7 @@ export async function saveProfile(
     p_games: p.games,
     p_platforms: p.platforms,
     p_complete: complete,
+    p_share_interests: formText(form, "shareInterests") === "on",
   });
   if (error || data !== true)
     return {

@@ -13,6 +13,7 @@ import "../src/styles/premium-shell.css";
 import "../src/styles/premium-discovery.css";
 import "../src/styles/premium-community.css";
 import "../src/styles/premium-hangouts.css";
+import "../src/styles/premium-profiles.css";
 import { PwaProvider } from "@/src/components/pwa/PwaProvider";
 export const metadata: Metadata = {
   title: {

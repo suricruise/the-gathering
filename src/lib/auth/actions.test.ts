@@ -114,7 +114,7 @@ describe("Server actions and account isolation", () => {
       }),
     );
     expect(mocks.rpc).toHaveBeenCalledWith(
-      "save_my_profile",
+      "save_lounge_profile",
       expect.not.objectContaining({ user_id: "victim-id" }),
     );
     expect(mocks.rpc.mock.calls[0][1]).not.toHaveProperty("role");

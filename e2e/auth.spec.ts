@@ -36,12 +36,10 @@ test("email registration → verification → onboarding → persistent profile"
     await page.getByLabel(/Username/).fill(username);
     await expect(page.getByRole("radio", { name: /Anyone with the link/ })).toBeChecked();
     await page.getByRole("button", { name: "Continue" }).click();
-    await page
-      .getByRole("checkbox", { name: "Minecraft", exact: true })
-      .check();
-    await page.getByRole("checkbox", { name: "PC", exact: true }).check();
+    await page.getByRole("checkbox", { name: "Music", exact: true }).check();
+    await page.getByRole("checkbox", { name: "Movies & Television", exact: true }).check();
     await page.getByRole("button", { name: "Continue" }).click();
-    await page.getByRole("checkbox", { name: "Co-op adventures" }).check();
+    // General-interest members may complete onboarding without games/platforms.
     await page
       .getByRole("button", { name: "Find my gathering", exact: true })
       .click();
@@ -64,7 +62,8 @@ test("email registration → verification → onboarding → persistent profile"
     );
     await expect(
       page.getByRole("checkbox", { name: "Minecraft", exact: true }),
-    ).toBeChecked();
+    ).not.toBeChecked();
+    await expect(page.getByRole("checkbox", {name:"Music",exact:true})).toBeChecked();
   } finally {
     if (!id) {
       const users = await adminClient().auth.admin.listUsers();

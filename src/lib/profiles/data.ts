@@ -22,7 +22,7 @@ export async function loadMyProfile(client: SupabaseClient, id: string) {
         .single(),
       client
         .from("user_preferences")
-        .select("interests,event_reminders,show_gaming_activity")
+        .select("interests,event_reminders,show_gaming_activity,share_profile_interests")
         .eq("user_id", id)
         .single(),
       client.from("user_games").select("game_id").eq("user_id", id),
@@ -42,6 +42,7 @@ export async function loadMyProfile(client: SupabaseClient, id: string) {
     profile: profile.data as MemberProfile,
     preferences: preferences.data as {
       interests: string[];
+      share_profile_interests: boolean;
       event_reminders: boolean;
       show_gaming_activity: boolean;
     },

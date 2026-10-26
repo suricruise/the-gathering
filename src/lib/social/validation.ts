@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { interests } from "../auth/validation";
+import { socialInterests as interests } from "./interests";
 import { hasUnsafeControls, seqSchema } from "../chat/validation";
 export const reactions = ["👍", "❤️", "😂", "🎉", "🙏", "🔥"] as const;
 export const reasons = [

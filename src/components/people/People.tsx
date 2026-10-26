@@ -1,4 +1,6 @@
 "use client";
+import { MemberRecommendations } from "../profiles/MemberRecommendations";
+import { interestLabels } from "../../lib/profiles/interests";
 import { CommunityPresencePreference } from "./CommunityPresencePreference";
 import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
@@ -90,7 +92,7 @@ export function PeoplePage({ tab: initial = "friends" }: { tab?: string }) {
       <article className="people-card" key={p.id}>
         <Avatar person={p} />
         <div>
-          <h3>{p.name}</h3>
+          <h3><Link href={`/members/${p.id}`}>{p.name}</Link></h3>
           <p>
             @{p.username} ·{" "}
             {p.online === null
@@ -100,7 +102,7 @@ export function PeoplePage({ tab: initial = "friends" }: { tab?: string }) {
                 : "Offline"}
           </p>
           {p.shared.length > 0 && (
-            <small>Shared interests: {p.shared.join(", ")}</small>
+            <small>Shared interests: {p.shared.map(i=>interestLabels[i]||i).join(", ")}</small>
           )}
         </div>
         <div className="people-actions">
@@ -219,6 +221,7 @@ export function PeoplePage({ tab: initial = "friends" }: { tab?: string }) {
       )}
       {tab === "discover" && (
         <section>
+          <MemberRecommendations/>
           <h2>Find your people</h2>
           <p><Link href="/members">Browse community members</Link> to add people you share a community with, even when their full profile is private.</p>
           <p>

@@ -91,6 +91,7 @@ const profile: ProfileBundle = {
     onboarding_completed_at: null,
   },
   preferences: {
+    share_profile_interests: false,
     interests: [],
     event_reminders: false,
     show_gaming_activity: false,
@@ -184,7 +185,7 @@ describe("Authentication and onboarding interface", () => {
       "12",
     );
   });
-  it("keeps profile private by default and collects games and interests in three steps", async () => {
+  it("preserves privacy and collects broad interests before optional gaming", async () => {
     render(<ProfileEditor data={profile} onboarding />);
     const user = userEvent.setup();
     expect(screen.getByRole("radio", { name: /Just me/ })).toBeChecked();
@@ -192,19 +193,16 @@ describe("Authentication and onboarding interface", () => {
     await user.type(screen.getByLabelText(/Username/), "jordan_gg");
     await user.click(screen.getByRole("button", { name: "Continue" }));
     expect(
-      screen.getByRole("heading", { name: "Find your kind of play." }),
+      screen.getByRole("heading", { name: "Your interests. Your connections." }),
     ).toBeInTheDocument();
-    await user.click(screen.getByRole("checkbox", { name: "Minecraft" }));
-    await user.click(screen.getByRole("checkbox", { name: "PC" }));
+    await user.click(screen.getByRole("checkbox", { name: "Music" }));
+    await user.click(screen.getByRole("checkbox", { name: "Movies & Television" }));
+    expect(screen.getByRole("checkbox", { name: /Show selected interests/ })).not.toBeChecked();
     await user.click(screen.getByRole("button", { name: "Continue" }));
-    await user.click(
-      screen.getByRole("checkbox", { name: "Co-op adventures" }),
-    );
-    expect(
-      screen.getByRole("button", { name: "Find my gathering" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("checkbox", { name: "Minecraft" })).not.toBeChecked();
+    expect(screen.getByRole("button", { name: "Find my gathering" })).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Back" }));
-    expect(screen.getByRole("checkbox", { name: "Minecraft" })).toBeChecked();
+    expect(screen.getByRole("checkbox", { name: "Music" })).toBeChecked();
   });
   it("deletion requires an explicit confirmation and password", async () => {
     render(

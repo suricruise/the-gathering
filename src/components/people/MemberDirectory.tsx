@@ -66,7 +66,7 @@ export function MemberDirectory({ community, channel, compact=false }: { communi
    <div className="member-identity">{p.avatar?<img src={`/api/avatars/${p.id}`} alt="" width={40} height={40} className="people-avatar"/>:<span className="people-avatar" aria-hidden="true">{(p.name||p.username).slice(0,1).toUpperCase()}</span>}<div><h3>{p.name||p.username}{p.self&&<small> · You</small>}</h3><p>@{p.username}</p><span className="member-role">{roleNames[p.role]||"Member"}</span></div></div>
    <p className="member-presence"><span className={`status-dot ${p.online===true?"online":p.online===false?"offline":"private"}`} aria-hidden="true"/>{p.online===null?"Status private":p.online?"Online":"Offline"}</p>
    <div className="member-actions">
-    {p.profile_visible?<Link href={p.self?"/profile":`/people/${encodeURIComponent(p.username)}`}>View profile</Link>:<span className="muted">Profile private</span>}
+    {p.profile_visible?<Link href={p.self?"/profile":`/members/${p.id}`}>View profile</Link>:<span className="muted">Profile private</span>}
     {!p.self&&<>
      {p.relationship==="none"&&(p.can_request?<button className="button secondary" disabled={busy} onClick={()=>void run(p,"request")}>Add friend</button>:<span className="muted">Requests off</span>)}
      {p.relationship==="outgoing"&&<><span className="member-request">Request sent</span><button className="button secondary" disabled={busy} onClick={()=>void run(p,"cancel")}>Cancel request</button></>}

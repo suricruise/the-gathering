@@ -1,3 +1,5 @@
+import {ProfileCover,ProfileConnections} from "@/src/components/profiles/ProfilePresentation";
+import {profileDetails} from "@/src/lib/profiles/lounge";
 import Link from "next/link";
 import { createClient } from "@/src/lib/supabase/server";
 import { publicConfig } from "@/src/lib/config";
@@ -21,8 +23,9 @@ export default async function VisibleProfile({
     });
     if (!error) profile = data?.[0];
   }
+  const details=profile?await profileDetails(username):{};
   return (
-    <div className="public-profile-page">
+    <div className="public-profile-page premium-profile-page">
       <header className="auth-header">
         <Brand />
         <Link href="/home" className="button secondary">
@@ -32,7 +35,8 @@ export default async function VisibleProfile({
       <main className="public-profile-card panel padded">
         {profile ? (
           <>
-            <span className="eyebrow">THE PERSON BEHIND THE PLAYER</span>
+            <ProfileCover name={profile.display_name}/>
+            <span className="eyebrow">A LITTLE OF THEIR STORY</span>
             {profile.has_avatar ? (
               <img
                 className="member-avatar-image"
@@ -49,7 +53,9 @@ export default async function VisibleProfile({
             <p className="body-copy">
               {profile.bio || "A little more of their story is still to come."}
             </p>
-            <h2>Favorite games</h2>
+            <Link className="button secondary" href={`/members/${profile.id}`}>Friend & message options</Link>
+            <ProfileConnections details={details.data} error={details.error}/>
+            <h2>Gaming favorites</h2>
             <div className="tag-row">
               {profile.favorite_games.map((game: string) => (
                 <span className="pill" key={game}>

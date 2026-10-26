@@ -14,16 +14,7 @@ import { saveProfile, uploadAvatar } from "../../lib/profiles/actions";
 import type { ProfileBundle } from "../../lib/profiles/data";
 import { interests } from "../../lib/auth/validation";
 import { ProfileAvatar } from "../ui";
-const labels: Record<string, string> = {
-  casual: "Chill & casual",
-  competitive: "Competitive",
-  "co-op": "Co-op adventures",
-  creative: "Building & creating",
-  faith: "Faith & growth",
-  conversation: "Real conversations",
-  events: "Community events",
-  streaming: "Streaming & sharing",
-};
+import { interestLabels as labels } from "../../lib/profiles/interests";
 export function ProfileEditor({
   data,
   onboarding = false,
@@ -37,6 +28,7 @@ export function ProfileEditor({
     username: data.profile.username ?? "",
     bio: data.profile.bio,
     visibility: data.profile.visibility,
+    shareInterests: data.preferences.share_profile_interests ?? false,
     games: data.games,
     platforms: data.platforms,
     interests: data.preferences.interests,
@@ -52,7 +44,7 @@ export function ProfileEditor({
   const formRef = useRef<HTMLFormElement>(null);
   const headings = [
     "Make it yours.",
-    "Find your kind of play.",
+    "Your interests. Your connections.",
     "Room for your whole life.",
   ];
   const advance = () => {
@@ -71,7 +63,7 @@ export function ProfileEditor({
             className="onboarding-progress"
             aria-label={`Step ${step + 1} of 3`}
           >
-            {["Your identity", "Your games", "Your people"].map(
+            {["Your identity", "Your interests", "Gaming, if you like"].map(
               (label, index) => (
                 <span key={label} className={index <= step ? "active" : ""}>
                   <i>{index < step ? <Check size={13} /> : index + 1}</i>
@@ -86,7 +78,7 @@ export function ProfileEditor({
             {step === 0
               ? "Choose how you’ll show up in the gathering."
               : step === 1
-                ? "From ranked matches to cozy nights, there’s a place for every kind of player."
+                ? "Choose the things you enjoy. There’s room for all of you."
                 : "Tell us what brings you here. You can always change this later."}
           </p>
         </>
@@ -129,7 +121,7 @@ export function ProfileEditor({
                   pattern="[a-z][a-z0-9_]{2,23}"
                   autoComplete="username"
                   required
-                  placeholder="your_gamer_handle"
+                  placeholder="your_handle"
                 />
               </span>
               <small>
@@ -197,13 +189,13 @@ export function ProfileEditor({
             ))}
           </fieldset>
         </section>
-        <section data-step="1" hidden={onboarding && step !== 1}>
+        <section data-step="2" hidden={onboarding && step !== 2}>
           <fieldset className="selection-fieldset">
             <legend>
               <Gamepad2 size={19} />
               Your favorite games
             </legend>
-            <p>Pick at least one for onboarding. Up to 12 favorites.</p>
+            <p>Optional · keep up to 12 favorite games.</p>
             <div className="selection-grid">
               {data.gameCatalog.map((game) => (
                 <label key={game.id} className="selection-card">
@@ -225,7 +217,7 @@ export function ProfileEditor({
           </fieldset>
           <fieldset className="selection-fieldset">
             <legend>Where do you play?</legend>
-            <p>Pick at least one gaming platform.</p>
+            <p>Optional · select your gaming platforms.</p>
             <div className="selection-grid platforms-grid">
               {data.platformCatalog.map((platform) => (
                 <label key={platform.id} className="selection-card">
@@ -243,7 +235,7 @@ export function ProfileEditor({
             </div>
           </fieldset>
         </section>
-        <section data-step="2" hidden={onboarding && step !== 2}>
+        <section data-step="1" hidden={onboarding && step !== 1}>
           <fieldset className="selection-fieldset">
             <legend>
               <HeartHandshake size={19} />
@@ -269,12 +261,12 @@ export function ProfileEditor({
               ))}
             </div>
           </fieldset>
+          <label className="member-check"><input type="checkbox" name="shareInterests" checked={draft.shareInterests} onChange={event => setDraft({...draft, shareInterests: event.target.checked})}/>Show selected interests to people who can view my profile</label>
           <div className="privacy-reminder">
             <LockKeyhole size={19} />
             <p>
               Privacy is your choice. Your email and birth date are never
-              included in community profiles. Your interest selections stay
-              private to your account.
+              included in community profiles. Your full interest list is shared only when you enable it above. Discovery can show overlapping interests to other discoverable members.
             </p>
           </div>
         </section>

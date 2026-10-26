@@ -361,3 +361,7 @@ The authorized community/chat visual milestone reuses CommunityView, the existin
 ## Phase 5 implementation follow-through
 
 The authorized Hangouts milestone evolves `/voice` with the existing LiveKit provider/admission/worker and current community permissions. Real room cards/activity, host-category-based types, permitted avatar previews, successful current-tab history, live suggestions and Gatherings accompany the styled participant grid and persistent controls. No general temporary-room creation or durable cross-device history is implied; their required backend extension and physical two-device acceptance are documented in `docs/PREMIUM_HANGOUTS.md`. See the development log for executed multi-account WebRTC results and remaining device/hosted/navigation-preference limitations. No new SQL or live release is included.
+
+## Phase 6 implementation follow-through
+
+The authorized profile/social-discovery milestone retains existing Auth, friendship/block/DM privacy and member-layout providers. Premium profile/mini-profile presentation, broader selectable interests, optional gaming onboarding, explicit full-interest sharing and authenticated public/mutual-community projections are implemented. Additive `202611160001` preserves historical values and default privacy choices; no production SQL or release is included. See `docs/PREMIUM_PROFILES.md` and the development log for installation, ranking, executed checks, rollback constraints and remaining hosted/device/scale acceptance.

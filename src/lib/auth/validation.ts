@@ -43,6 +43,7 @@ export const loginSchema = z.object({
   password: z.string().min(1).max(128),
 });
 export const interests = [
+  "gaming", "movies-tv", "music", "books-comics", "technology", "sports", "food", "outdoors",
   "casual",
   "competitive",
   "co-op",
@@ -76,7 +77,7 @@ export const profileSchema = z.object({
   displayName: z.string().trim().min(1).max(60),
   bio: z.string().trim().max(500),
   visibility: z.enum(["private", "members", "public"]),
-  interests: z.array(z.enum(interests)).max(8),
+  interests: z.array(z.enum(interests)).max(16),
   games: z.array(z.string().regex(/^[a-z0-9-]{1,50}$/)).max(12),
   platforms: z.array(z.string().regex(/^[a-z0-9-]{1,50}$/)).max(5),
 });

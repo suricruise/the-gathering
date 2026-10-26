@@ -14,7 +14,7 @@ import {
 } from "../../lib/social/actions";
 import { reactions, reasons, clipLink } from "../../lib/social/validation";
 import { messageLinks } from "../../lib/chat/validation";
-import { interests } from "../../lib/auth/validation";
+import { socialInterests as interests } from "../../lib/social/interests";
 import type {
   SocialPost,
   SocialPage,

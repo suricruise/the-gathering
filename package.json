@@ -80,7 +80,9 @@
     "test:discovery": "node scripts/test-discovery.mjs && node scripts/test-discovery-setup.mjs",
     "test:profiles:lounge": "node scripts/test-lounge-profiles.mjs",
     "test:faith:circles": "node scripts/test-faith-circles.mjs",
-    "test:faith:circles:setup": "node scripts/test-faith-circles-setup.mjs"
+    "test:faith:circles:setup": "node scripts/test-faith-circles-setup.mjs",
+    "test:faith:backend": "node scripts/test-faith-circles-backend.mjs",
+    "test:faith:backend:setup": "node scripts/test-faith-circles-backend-setup.mjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",

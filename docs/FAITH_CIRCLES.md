@@ -2,6 +2,10 @@
 
 “Grow in the Word. Grow Together.”
 
+## Phase 2 update
+
+The study backend now exists: approved authoring/publishing, released sessions/questions, private progress, owner-private or explicitly shared structured answers, join requests/co-leaders and existing prayer integration. See [the backend guide](FAITH_CIRCLES_BACKEND.md). The foundation UI still needs the later guided-study and authoring screens. Earlier foundation-only scope/verification below describes that release, not a claim that the new backend is absent.
+
 ## What is available
 
 Open **Faith Circles** in navigation (mobile: More). The landing page has approved featured study references, paginated Circle discovery, My Circles, current-study shortcuts, scheduled linked study Hangouts and prayer access. Each Circle is an explicit association with one existing community. Covers, membership, roles, channel permissions, private prayers and actual LiveKit controls remain owned by existing services.

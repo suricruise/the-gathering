@@ -1,6 +1,19 @@
 # Development log
 
 
+
+## 2026-10-26 — Faith Circles Phase 2 backend and database
+
+Extended the explicit community-backed foundation through additive migration `202611180001` and a guarded Phase-2-only installer. Community UUIDs, names/images/privacy, memberships, channels, Auth and LiveKit remain authoritative. Added normalized studies, ordered/released sessions, questions, private-by-default structured answers, owner-only completion, unique join requests and a restricted co-leader overlay/view. Existing prayers gain a bounded title and safe removal lifecycle; no duplicate prayer/chat/user/voice infrastructure, historical reclassification or seed.
+
+Implemented typed server-only services and a strictly validated mutation action using current Supabase Auth. RLS and transactional checks enforce private membership, approved publishing, complete original/licensed-content attestation, published-edition immutability, revisions, release gates, blocked/banned/suspended identities, owner edits and idempotent progress/answer retries. Moderators can hide explicitly shared answers with a reason; private reflections/progress remain inaccessible to them. Existing community invitations and scoped join-request approval preserve membership audits and cannot elevate platform/community roles. Compatible Circle audit/creator-cleanup fixes preserve account deletion even after leadership changes/revocation. Personal bodies are not copied to audit logs or notifications.
+
+Executed locally: **391 unit tests / 67 files**, **32 new transactional backend authorization/lifecycle checks**, three installer parity/rerun/ambiguous-state checks, **20 foundation + 32 community + 26 Spaces + 24 messaging** regression checks, lint, typecheck, optimized production build and client-secret bundle check all passed. Final Playwright run passed **4/4 in 50.5 seconds**: two actual authenticated Supabase API checks (private invitations, publishing rejection, private responses and concurrent completion retries) plus actual desktop/mobile Circle UI, membership, private denial and live-chat navigation. API checks run under the two viewport projects but do not claim a new mobile study UI. The final build started successfully with `next start`.
+
+Initial checks caught a PL/pgSQL alias ambiguity, control-regex lint rule and stale fixture actor attribution; these were corrected rather than bypassing authorization. New account cleanup, invitation scope, cancellation/reopening, released-session pagination and shared-answer privacy checks pass. Only isolated local schema/data fixtures were used; fixtures roll back or clean up their own generated records. No production SQL, push or deployment performed.
+
+See `docs/FAITH_CIRCLES_BACKEND.md` for model adaptations, service contracts, setup, rollback/retention and limits. Guided-session/authoring/leader-approval UI, dedicated study-content reporting, licensed Bible API, study notifications, granular export/offboarding and hosted-load/Safari/physical-device acceptance remain future work. This stage is not a declaration of production readiness.
+
 ## 2026-10-26 — Faith Circles blueprint and initial foundation
 
 Created `FAITH_CIRCLES_BLUEPRINT.md` before implementation after reviewing community/membership roles, authenticated chat/voice, profiles, events, prayer privacy and administration. Faith Circles explicitly associate with existing communities; no communities or accounts were created/reclassified in production. Added protected operator-approved leader metadata, safe authenticated listing/detail/scheduled-Hangout projections, default-deny RLS/grants, read budgets, association validation and existing audit-log integration. Additive migration `202611170001` and guarded single-purpose installer are prepared; installed only on the isolated local stack.

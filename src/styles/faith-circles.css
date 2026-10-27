@@ -132,3 +132,15 @@
 .room-discussion-dialog small,.room-discussion-dialog time{display:block;}
 
 @media(max-width:760px){.faith-study-room{padding-bottom:calc(180px + env(safe-area-inset-bottom));}}
+.circle-conversation-links{display:flex;flex-wrap:wrap;gap:var(--space-3,12px)}
+.circle-prayer-form{display:grid;gap:var(--space-4,16px);margin-block:20px;max-width:760px}
+.circle-prayer-form label{display:grid;gap:8px}.circle-prayer-form .check-label{display:flex;align-items:center;gap:10px}
+.circle-prayer-form textarea{min-height:100px;resize:vertical}.circle-prayer-form :is(input:not([type=checkbox]),select,textarea){width:100%;min-width:0}
+.circle-prayer-safety{border-left:3px solid var(--accent-cyan);padding:8px 20px;margin-block:24px;color:var(--muted)}
+.circle-prayer-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:16px;margin-block:20px}
+.circle-prayer-detail>section{margin-block:24px}.circle-prayer-detail .chat-markdown{max-width:78ch}
+.circle-prayer-comment{padding:20px 0;border-bottom:1px solid var(--border);overflow-wrap:anywhere}.circle-prayer-comment>a{display:flex;align-items:center;gap:10px}
+.circle-comment-avatar{display:inline-grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--surface-raised);color:var(--foreground-primary)}
+@media(max-width:700px){.circle-prayer-form{max-width:100%}.circle-prayer-detail .button-row{align-items:stretch;flex-direction:column}.circle-prayer-form button{min-height:44px}.circle-prayer-safety{padding-inline:12px}.faith-circles-page:has(.circle-prayer-detail){padding-bottom:calc(140px + env(safe-area-inset-bottom))}}
+
+.circle-comment-avatar img{border-radius:50%;object-fit:cover}

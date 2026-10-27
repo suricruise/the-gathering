@@ -159,6 +159,7 @@ test("real voice exchanges decoded audio, persists navigation, mutes, reconnects
       [community, channel, otherId],
     );
     await db.query("insert into public.channels(id,community_id,name,kind,is_private) values($1,$3,'voice-text-one','text',false),($2,$3,'voice-text-two','text',false)",[textOne,textTwo,community]);
+    await db.query('update public.faith_circles set discussion_channel_id=$1 where community_id=$2',[textOne,community]);
     await signIn(other, email, password);
     const denied = await other.request.post("/api/voice/token", {
       data: { channel: restricted },
@@ -314,6 +315,15 @@ test("real voice exchanges decoded audio, persists navigation, mutes, reconnects
     await page.getByRole('button',{name:'Mark session complete',exact:true}).click();
     await expect(page.getByRole('button',{name:'Mark as incomplete',exact:true})).toBeVisible();
     await expect.poll(()=>audioEnergy(other)).toBeGreaterThan(0.00001);
+    // Study conversation and its protected return link keep the same live media.
+    if(test.info().project.name==='mobile')await page.getByRole('button',{name:'Show discussion panel',exact:true}).click();
+    await page.getByRole('button',{name:'Open session conversation',exact:true}).click();
+    await expect(page).toHaveURL(new RegExp(`/channels/${textOne}[?]message=`));
+    await expect.poll(()=>audioEnergy(other)).toBeGreaterThan(0.00001);
+    await page.getByRole('link',{name:'Open study session',exact:true}).click();
+    await expect(page).toHaveURL(new RegExp(`/sessions/${roomLesson}$`));
+    await expect(page.getByRole('heading',{name:'Read together while connected',exact:true})).toBeVisible();
+    await expect.poll(()=>audioEnergy(other)).toBeGreaterThan(0.00001);
 
 
     await expect(other.getByRole('heading',{name:'Connected participants (2)'})).toBeVisible();
@@ -321,9 +331,13 @@ test("real voice exchanges decoded audio, persists navigation, mutes, reconnects
     await page.locator('a[aria-label="Open voice lounge"]:visible').first().click();
     await expect(page.getByRole('region',{name:'Recently joined rooms',exact:true}).locator(`[data-hangout-id="${channel}"]`)).toBeVisible();
     await page.getByRole('region',{name:'Rooms in my communities',exact:true}).getByRole('link',{name:'Open room',exact:true}).and(page.locator(`a[href="/channels/${channel}"]`)).click();
-    if(test.info().project.name==='mobile')await page.getByRole('button',{name:'Open channels',exact:true}).click();
-    const returnDirectory=test.info().project.name==='mobile'?page.getByRole('dialog',{name:'Channels',exact:true}):page.getByRole('complementary',{name:'Channel directory',exact:true});
-    await returnDirectory.locator(`a[href="/channels/${channel}"]`).click();
+    // The room panel is absent on the Hangouts directory; seeing it confirms
+    // the destination has committed before interrupting the mounted transport.
+    // Do not click the already-active channel again or wait for network idle:
+    // voice heartbeats deliberately keep background network traffic alive.
+    await expect(page).toHaveURL(new RegExp(`/channels/${channel}$`));
+    await expect(panel(page)).toBeVisible();
+    await expect(panel(page).getByRole('heading',{name:'Connected participants (2)',exact:true})).toBeVisible();
     await expect(connected(page)).toHaveText("Voice connected");
     // Exercise the SDK's actual transport reconnect path by closing signaling.
     await page.context().setOffline(true);

@@ -1,5 +1,7 @@
 # Faith Circles foundation
 
+Phase 5 discussion/prayer extension: [current implementation, audiences and setup](FAITH_CIRCLES_DISCUSSION_PRAYER.md). New Circle prayers default to author-only; legacy prayer audiences are preserved. Session conversations reuse existing real-time chat.
+
 “Grow in the Word. Grow Together.”
 
 ## Phase 4 update

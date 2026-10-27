@@ -1,17 +1,18 @@
 "use client";
+import Link from "next/link";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { safeHref } from "../../lib/chat/validation";
+import { safeHref, safeStudyHref } from "../../lib/chat/validation";
 export function SafeMarkdown({ text }: { text: string }) {
   return (
     <div className="chat-markdown">
       <Markdown
         skipHtml
         remarkPlugins={[remarkGfm]}
-        urlTransform={(value) => safeHref(value) ?? ""}
+        urlTransform={(value) => safeStudyHref(value) ?? safeHref(value) ?? ""}
         components={{
           a: ({ href, children }) =>
-            href ? (
+            href && safeStudyHref(href) ? <Link href={href} prefetch={false}>{children}</Link> : href ? (
               <a
                 href={href}
                 target="_blank"

@@ -76,3 +76,9 @@ export function messageLinks(body: string) {
     ),
   ].slice(0, 3);
 }
+
+// A narrow internal study route, never an arbitrary relative URL or redirect.
+export function safeStudyHref(value: string) {
+  const m = /^\/faith-circles\/([^/]+)\/studies\/([^/]+)\/sessions\/([^/]+)$/.exec(value);
+  return m && m.slice(1).every(part => idSchema.safeParse(part).success) ? value : undefined;
+}

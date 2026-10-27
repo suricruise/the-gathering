@@ -1,5 +1,7 @@
 # Faith Circles — Phase 2 backend
 
+**Phase 4 update:** the interactive room, answer editing, private application/prayer reflections, explicit completion and server-saved resume are now connected. See [the study-room guide](FAITH_STUDY_ROOM.md). Historical scope/test results below describe their original phase; full curriculum authoring, licensed Scripture and mapped inline answer threads remain separate work.
+
 This stage implements authenticated database/service operations. The existing initial Circle UI remains intact. Guided study authoring, question/answer/progress screens and leader approval dashboards are **not implemented UI features** in this stage.
 
 ## Integration and schema mapping

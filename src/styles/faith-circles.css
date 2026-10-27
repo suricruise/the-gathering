@@ -88,3 +88,47 @@
 .study-curation label{display:flex;gap:12px;align-items:center;min-height:44px;line-height:1.6;flex-wrap:wrap;}
 .study-curation input[type=checkbox]{width:22px;height:22px;flex:none;}
 .study-curation select{min-height:44px;max-width:100%;}
+/* Interactive room: one bounded session, comfortable independent reading pane. */
+.study-room-mode .workspace-layout{grid-template-columns:minmax(0,1fr);}
+.faith-study-room{display:grid;grid-template-columns:180px minmax(0,1fr) 250px;gap:16px;padding:16px;align-items:start;min-width:0;}
+.room-toolbar{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;min-width:0;}
+.room-toolbar>a{overflow-wrap:anywhere;}
+.room-session-nav,.room-context{padding:18px;position:sticky;top:88px;max-height:calc(100dvh - 120px);overflow:auto;min-width:0;}
+.room-session-nav h2,.room-context h2{font-size:18px;line-height:1.5;margin-top:0;}
+.room-session-nav p,.room-context p{color:var(--foreground-secondary);font-size:13px;line-height:1.7;}
+.room-session-nav nav,.room-shortcuts{display:grid;gap:8px;}
+.room-session-nav nav a,.room-shortcuts a{min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px;border-radius:var(--radius-control);overflow-wrap:anywhere;}
+.room-session-nav a[aria-current]{background:var(--surface-selected);box-shadow:inset 3px 0 var(--accent-cyan);}
+.room-shortcuts{border-top:1px solid var(--border-subtle);margin-top:16px;padding-top:12px;}
+.room-session-nav summary{cursor:pointer;min-height:44px;}
+.room-reading{min-width:0;display:grid;gap:20px;max-height:calc(100dvh - 145px);overflow:auto;padding:0 4px 32px;scroll-padding-top:16px;}
+.room-reading .padded{padding:clamp(20px,2.2vw,32px);overflow-wrap:anywhere;}
+.room-reading h1{font-size:clamp(28px,3vw,38px);line-height:1.2;}
+.room-reading h2{font-size:24px;margin-top:0;}
+.room-reading h3{font-size:18px;line-height:1.6;}
+.room-reading p,.room-reading li{line-height:1.85;}
+.room-reading section{scroll-margin-top:16px;}
+.room-scripture{background:var(--gradient-card),var(--surface-overlay);border-left:3px solid var(--accent-cyan);}
+.room-section-links{display:flex;flex-wrap:wrap;gap:8px;}
+.room-section-links a{min-height:44px;display:flex;align-items:center;text-transform:capitalize;padding:8px;background:var(--surface-overlay);border-radius:var(--radius-control);font-size:13px;}
+.room-question{padding-block:20px;border-top:1px solid var(--border-subtle);scroll-margin-top:20px;}
+.room-question form,.room-private-note{display:grid;gap:14px;}
+.room-question label,.room-private-note label,.room-scripture label{display:grid;gap:10px;font-size:14px;line-height:1.6;}
+.room-question textarea,.room-private-note textarea,.room-question select,.room-scripture select{width:100%;max-width:100%;box-sizing:border-box;min-height:44px;}
+.room-question textarea,.room-private-note textarea{resize:vertical;min-height:130px;line-height:1.8;}
+.room-private-note{margin-block:24px;padding-top:20px;border-top:1px solid var(--border-subtle);}
+.room-context section{border-top:1px solid var(--border-subtle);margin-top:20px;padding-top:16px;}
+.room-context h3{font-size:15px;}
+.room-context small,.room-context time{display:block;color:var(--foreground-secondary);font-size:12px;line-height:1.6;}
+.room-shared-list article{padding-block:18px;border-bottom:1px solid var(--border-subtle);overflow-wrap:anywhere;}
+.room-text-button{min-height:44px;background:none;border:0;color:var(--foreground-link);text-align:left;cursor:pointer;padding:8px 0;}
+.room-right-collapsed{grid-template-columns:180px minmax(0,1fr);}
+.room-completion nav{margin-top:24px;}
+@media(max-width:1200px){.faith-study-room{grid-template-columns:160px minmax(0,1fr);}.room-context{grid-column:1/-1;position:static;max-height:none;}.room-reading{max-height:none;overflow:visible;}.room-right-collapsed{grid-template-columns:160px minmax(0,1fr);}}
+@media(max-width:760px){.faith-study-room,.room-right-collapsed{grid-template-columns:minmax(0,1fr);padding:8px;}.room-session-nav{position:static;max-height:none;}.room-reading{padding-inline:0;}.room-toolbar .button{font-size:13px;}.room-context{grid-column:auto;}.room-session-nav nav{max-height:250px;overflow:auto;}.room-reading .padded{padding:20px;}}
+.room-discussion-dialog{color:var(--foreground-primary);background:var(--surface-base);border:1px solid var(--border-control);border-radius:var(--radius-panel);padding:24px;width:min(520px,calc(100vw - 24px));max-height:calc(100dvh - 100px);overflow:auto;}
+.room-discussion-dialog::backdrop{background:var(--scrim);}
+.room-discussion-dialog .room-shared-list article{margin-block:16px;}
+.room-discussion-dialog small,.room-discussion-dialog time{display:block;}
+
+@media(max-width:760px){.faith-study-room{padding-bottom:calc(180px + env(safe-area-inset-bottom));}}

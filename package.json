@@ -84,7 +84,9 @@
     "test:faith:backend": "node scripts/test-faith-circles-backend.mjs",
     "test:faith:backend:setup": "node scripts/test-faith-circles-backend-setup.mjs",
     "test:faith:discovery": "node scripts/test-faith-discovery.mjs",
-    "test:faith:discovery:setup": "node scripts/test-faith-discovery-setup.mjs"
+    "test:faith:discovery:setup": "node scripts/test-faith-discovery-setup.mjs",
+    "test:faith:room": "node scripts/test-faith-room.mjs",
+    "test:faith:room:setup": "node scripts/test-faith-room-setup.mjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",

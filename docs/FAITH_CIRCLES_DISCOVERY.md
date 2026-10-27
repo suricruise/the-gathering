@@ -1,5 +1,7 @@
 # Faith Circles — Phase 3 homepage and discovery
 
+**Phase 4 update:** the interactive room, answer editing, private application/prayer reflections, explicit completion and server-saved resume are now connected. See [the study-room guide](FAITH_STUDY_ROOM.md). Historical scope/test results below describe their original phase; full curriculum authoring, licensed Scripture and mapped inline answer threads remain separate work.
+
 **Grow in the Word. Grow Together.**
 
 The homepage now uses published study records and the current member’s actual saved progress. Existing communities, membership, messages, prayers, accounts and LiveKit infrastructure are preserved. No production content was created, migrated or seeded by this task.

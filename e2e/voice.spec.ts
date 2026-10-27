@@ -82,6 +82,7 @@ test("real voice exchanges decoded audio, persists navigation, mutes, reconnects
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   other.on("pageerror", (e) => errors.push(e.message));
+  const roomStudy=randomUUID(),roomLesson=randomUUID();
   const connected = (p: typeof page) => p.locator(".voice-live-state");
   const panel = (p: typeof page) =>
     p.getByRole("region", { name: "test-voice voice room" });
@@ -144,6 +145,11 @@ test("real voice exchanges decoded audio, persists navigation, mutes, reconnects
       "insert into public.community_members(community_id,user_id,role_id) values($1,$2,'owner'),($1,$3,'member')",
       [community, member.id, otherId],
     );
+    await db.query('insert into private.faith_circle_leaders(user_id,approved)values($1,true)',[member.id]);
+    await db.query('insert into public.faith_circles(community_id,leader_id)values($1,$2)',[community,member.id]);
+    await db.query("insert into public.bible_studies(id,circle_id,title,created_by,status,rights_confirmed)values($1,$2,'Voice reading study',$3,'published',true)",[roomStudy,community,member.id]);
+    await db.query("insert into public.bible_study_sessions(id,study_id,session_number,title,scripture_reference,teaching_content,application_challenge,prayer_prompt)values($1,$2,1,'Read together while connected','John 15:1-8','Original study overview.','Encourage one another.','Pray for wisdom.')",[roomLesson,roomStudy]);
+    await db.query("insert into public.study_questions(id,session_id,question_text,display_order)values($1,$2,'How will you apply this?',0)",[randomUUID(),roomLesson]);
     await db.query(
       "insert into public.channels(id,community_id,name,kind,is_private) values($1,$2,'test-voice','voice',true),($3,$2,'restricted-voice','voice',true)",
       [channel, community, restricted],
@@ -301,6 +307,14 @@ test("real voice exchanges decoded audio, persists navigation, mutes, reconnects
       await page.getByRole('dialog',{name:'All pages',exact:true}).getByRole('link',{name:'Faith Circles',exact:true}).click();
     }else await page.getByRole('link',{name:'Faith Circles',exact:true}).click();
     await expect(page).toHaveURL(/\/faith-circles$/);
+    await page.getByRole('region',{name:'My Circles',exact:true}).getByRole('link',{name:'Continue Study',exact:true}).click();
+    await expect(page).toHaveURL(new RegExp(`/sessions/${roomLesson}$`));
+    await expect(page.getByRole('heading',{name:'Read together while connected',exact:true})).toBeVisible();
+    await expect.poll(()=>audioEnergy(other)).toBeGreaterThan(0.00001);
+    await page.getByRole('button',{name:'Mark session complete',exact:true}).click();
+    await expect(page.getByRole('button',{name:'Mark as incomplete',exact:true})).toBeVisible();
+    await expect.poll(()=>audioEnergy(other)).toBeGreaterThan(0.00001);
+
 
     await expect(other.getByRole('heading',{name:'Connected participants (2)'})).toBeVisible();
     await expect.poll(()=>audioEnergy(other)).toBeGreaterThan(0.00001);
@@ -394,6 +408,7 @@ test("real voice exchanges decoded audio, persists navigation, mutes, reconnects
   } finally {
     await ctx.close();
     await db.query("delete from public.communities where id=$1", [community]);
+    await db.query("delete from private.faith_circle_leaders where user_id=$1",[member.id]);
     if (otherId) await adminClient().auth.admin.deleteUser(otherId);
     await db.end();
   }

@@ -2,6 +2,10 @@
 
 “Grow in the Word. Grow Together.”
 
+## Phase 4 update
+
+Study sessions now open the interactive six-section room with editable private/shared answers, separate private personal/prayer reflections, private completion, resume bookmarks and responsive discussion/navigation. See [the study-room guide](FAITH_STUDY_ROOM.md) for the new additive migration, permissions and remaining integrations.
+
 ## Phase 3 update
 
 The published-study homepage, topic discovery, joined-Circle/current-study cards, private progress/continuation and released study/session reading are now connected. Approved leaders can curate discovery metadata on published study overviews. See [homepage/discovery guide](FAITH_CIRCLES_DISCOVERY.md) for the new migration and exact scope. Full authoring and reflection-answer editing remain later work.

@@ -14,6 +14,9 @@ test('lounge refinement preserves responsive navigation, covers and accessible v
    await page.setViewportSize({width,height:1000});
    for(const [name,route]of [['home','/home'],['explore','/communities'],['community',`/communities/${slug}`]]){
     await page.goto(route);await expect(page.locator('main h1')).toBeVisible();await page.evaluate(()=>document.fonts.ready);
+    // SSR starts with a compact shell; wait for the real responsive panel before comparing geometry.
+    if(width>=1400)await expect(page.getByRole('complementary',{name:'Community activity',exact:true})).toBeVisible();
+    else await expect(page.getByRole('complementary',{name:'Community activity',exact:true})).toHaveCount(0);
     expect(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),`${name} overflow at ${width}`).toBe(false);
     const scan=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(scan.violations.map(v=>({id:v.id,targets:v.nodes.map(n=>n.target)}))).toEqual([]);
     if(phase!=='regression')await page.screenshot({path:`${output}/${width}-${name}.jpg`,type:'jpeg',quality:82,animations:'disabled'});

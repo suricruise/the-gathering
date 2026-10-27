@@ -1,5 +1,7 @@
 # Faith Circles — Phase 4 interactive study room
 
+**Phase 7 update:** the [visual Bible Study Builder](FAITH_STUDY_BUILDER.md) now supports draft authoring, safe member previews, independent review, publication and private covers. Public featuring requires platform approval; historical phase results below remain dated evidence.
+
 Faith Circles live study scheduling uses the existing voice system: see [Study Hangouts](FAITH_STUDY_HANGOUTS.md) for the separate `202611220001` update and privacy/operating instructions.
 
 Phase 5 discussion/prayer extension: [current implementation, audiences and setup](FAITH_CIRCLES_DISCUSSION_PRAYER.md). New Circle prayers default to author-only; legacy prayer audiences are preserved. Session conversations reuse existing real-time chat.

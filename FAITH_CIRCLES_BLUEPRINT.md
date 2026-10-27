@@ -134,3 +134,7 @@ See `docs/FAITH_CIRCLES_DISCUSSION_PRAYER.md`. Circle discussion-purpose and rel
 ## Phase 6 — live Study Hangouts
 
 Approved leaders schedule published sessions using existing events/RSVPs and dedicated community voice definitions. Existing LiveKit admission, microphone-only grants, persistent manager and independent enforcement remain authoritative; new audience/window/release checks narrow only study rooms. Scoped host controls, selected-member rosters and fail-closed channel/event classifications preserve privacy through revocation and account/study deletion. Reading and associated real chat use the existing session/message system. Additive version `202611220001` and `docs/FAITH_STUDY_HANGOUTS.md` cover roles, setup, worker/token limitations, privacy, rollback and acceptance. No production SQL or deployment is authorized by implementation alone.
+
+## Phase 7 implementation extension
+
+Visual study authoring reuses existing studies, sessions, questions and membership. See `docs/FAITH_STUDY_BUILDER.md` for the protected revision-aware draft editor, independent review policy, platform feature approval, private cover uploads/cleanup, safe member preview and preserved published editions. New version `202611230001` is additive and does not migrate production data automatically.

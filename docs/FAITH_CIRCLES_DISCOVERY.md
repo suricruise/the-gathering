@@ -1,5 +1,7 @@
 # Faith Circles — Phase 3 homepage and discovery
 
+**Phase 7 update:** the [visual Bible Study Builder](FAITH_STUDY_BUILDER.md) now supports draft authoring, safe member previews, independent review, publication and private covers. Public featuring requires platform approval; historical phase results below remain dated evidence.
+
 **Phase 4 update:** the interactive room, answer editing, private application/prayer reflections, explicit completion and server-saved resume are now connected. See [the study-room guide](FAITH_STUDY_ROOM.md). Historical scope/test results below describe their original phase; full curriculum authoring, licensed Scripture and mapped inline answer threads remain separate work.
 
 **Grow in the Word. Grow Together.**
@@ -27,11 +29,11 @@ Existing published studies are **not automatically exposed to nonmembers**. The 
 - `discovery_featured`: editorial featured status for otherwise permitted viewers.
 - `discovery_topic`: one of the eight persisted topic categories, or unset.
 
-An approved current study leader/editor can open a **published** study and expand **Study discovery settings**. Select the topic, optionally opt into nonmember discovery, choose featured status, and save. Membership/privacy restrictions still apply; enabling discovery never opens a private Circle or its lesson content. A study can be featured only for current members when nonmember discovery remains off.
+An approved current study leader/editor can open a **published** study and expand **Study discovery settings**. Select the topic and optionally opt into nonmember discovery. Platform administrators approve public featuring; leaders may withdraw discovery consent. Membership/privacy restrictions still apply; enabling discovery never opens a private Circle or its lesson content. A study can be featured only for current members when nonmember discovery remains off.
 
 The server/database reauthorize every change and record a minimized audit event. Ordinary members cannot curate, self-approve or publish a draft. These settings change discovery metadata, not the immutable teaching in a published edition. They share existing per-user write limits.
 
-Creating/editing/publishing complete study curricula still uses the approved Phase 2 backend; a full authoring dashboard is a future stage. An empty featured section is expected until actual published studies are curated. This release does not insert sample studies or present the older current-reference field as a published curriculum.
+Creating/editing/publishing curricula is now available through the approved Phase 7 Study Builder. An empty featured section is expected until actual published studies are curated. This release does not insert sample studies or present the older current-reference field as a published curriculum.
 
 ## Required database update — production approval still needed
 

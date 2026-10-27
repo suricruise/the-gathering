@@ -21,6 +21,7 @@ describe('authorized premium shell projections',()=>{
  it('resolves Circle context only through current joined memberships',async()=>{
   m.from.mockImplementation(()=>{const q={in:()=>Promise.resolve({data:[]}),eq:()=>q,order:()=>q,limit:()=>Promise.resolve({data:[]})};return{select:()=>q};});
   expect((await shellNavigation('/faith-circles/'+id)).data?.selected).toBe(id);
+  expect((await shellNavigation('/faith-circles/'+id+'/studies/'+id)).data?.selected).toBe(id);
   expect((await shellNavigation('/faith-circles/22222222-2222-4222-8222-222222222222')).data?.selected).toBeNull();
  });
  it('does not fabricate recent members when the additive projection is missing',async()=>{m.rpc.mockImplementation((name:string)=>Promise.resolve(name==='lounge_new_members'?{error:{code:'PGRST202'}}:{data:{items:[]}}));expect((await suggestedMembers()).data).toEqual({items:[],newMembers:null});});

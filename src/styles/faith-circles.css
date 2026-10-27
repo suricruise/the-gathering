@@ -50,3 +50,41 @@
 .circle-connection-grid .button {white-space:normal;overflow-wrap:anywhere;}
 .faith-circles-page .button-row {flex-wrap:wrap;}
 @media(max-width:760px){.faith-circle-grid,.circle-connection-grid{grid-template-columns:minmax(0,1fr);}.faith-hero-art{right:0;top:80px;opacity:.15;}.faith-care{gap:12px;}.faith-care>svg{width:20px;}.faith-section{margin-block:24px;}.circle-link-list>li>a{padding:16px;}}
+/* Faith Circles discovery uses existing semantic lounge tokens. */
+.faith-discovery-hero{min-height:330px;}
+.faith-discovery-hero>div{max-width:510px;}
+.faith-hero-illustration{position:absolute;right:-12%;bottom:-10%;width:70%;height:110%;object-fit:cover;opacity:.48;mix-blend-mode:screen;pointer-events:none;}
+.faith-study-card{overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow-card);transition:transform .18s ease,box-shadow .18s ease;}
+.faith-study-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-card);}
+.faith-study-art{display:block;position:relative;overflow:hidden;aspect-ratio:720/320;background:var(--surface-overlay);}
+.faith-study-art img{display:block;width:100%;height:100%;object-fit:cover;}
+.faith-study-art .pill{position:absolute;left:18px;bottom:14px;background:var(--surface-rail);color:var(--foreground-primary);border:1px solid var(--border-subtle);}
+.faith-study-card>.padded{display:flex;flex-direction:column;gap:14px;flex:1;min-width:0;}
+.faith-study-card h3{font-size:22px;line-height:1.3;margin:0;overflow-wrap:anywhere;}
+.faith-study-card p{line-height:1.7;color:var(--foreground-secondary);margin:0;overflow-wrap:anywhere;}
+.faith-study-card .study-description{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.study-circle-name,.study-length,.study-activity{font-size:13px;color:var(--foreground-secondary);}
+.study-length{display:flex;align-items:center;gap:8px;}
+.study-card-actions{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.study-card-actions .text-link{display:inline-flex;align-items:center;gap:8px;min-height:44px;}
+.study-progress{display:grid;gap:8px;color:var(--foreground-secondary);font-size:13px;}
+.study-progress progress{display:block;width:100%;height:10px;accent-color:var(--action-primary);}
+.study-action{max-width:100%;}
+.study-action p{font-size:13px;line-height:1.6;}
+.faith-topics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:20px 0 24px;}
+.faith-topics a{padding:16px;min-height:52px;display:flex;align-items:center;border:1px solid var(--border-subtle);background:var(--surface-base);border-radius:var(--radius-control);font-size:14px;transition:background .18s ease;}
+.faith-topics a:hover{background:var(--surface-hover);}
+.faith-topics a[aria-current]{background:var(--surface-selected);border-color:var(--accent-cyan);color:var(--foreground-primary);}
+.faith-load-more{margin-top:20px;}
+.faith-circles-entry{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:24px clamp(16px,3vw,40px) 0;}
+.faith-circles-entry p{color:var(--foreground-secondary);margin:6px 0 0;}
+.faith-session-page .panel{overflow-wrap:anywhere;}
+.faith-session-page li{line-height:1.8;margin-block:12px;}
+.faith-session-page .button+.button{margin-left:12px;}
+@media(max-width:760px){.faith-topics{grid-template-columns:repeat(2,minmax(0,1fr));}.faith-hero-illustration{right:-45%;width:110%;opacity:.23;}.faith-study-card h3{font-size:21px;}.faith-circles-entry{margin-inline:16px;}.faith-session-page .button+.button{margin:12px 0 0;}}
+@media(prefers-reduced-motion:reduce){.faith-study-card,.faith-topics a{transition:none;}.faith-study-card:hover{transform:none;}}
+.study-curation summary{cursor:pointer;min-height:44px;font-weight:600;}
+.study-curation form{display:grid;gap:16px;}
+.study-curation label{display:flex;gap:12px;align-items:center;min-height:44px;line-height:1.6;flex-wrap:wrap;}
+.study-curation input[type=checkbox]{width:22px;height:22px;flex:none;}
+.study-curation select{min-height:44px;max-width:100%;}

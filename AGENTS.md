@@ -61,3 +61,6 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 - For Faith Circles Phase 2+, read `docs/FAITH_CIRCLES_BACKEND.md` and run `test:faith:backend` and `test:faith:backend:setup` alongside foundation/community/Spaces regressions. Preserve revision/release gates, published-edition immutability and the one authoritative community membership source.
 - Study responses default to private. Leaders/moderators must never gain private reflection/progress access merely through their role; shared-answer moderation records a reason without forging authorship or copying private bodies to audit/notifications. New guided-study UIs must use these typed services and safe text rendering.
+
+- Faith Circles discovery must keep nonmember study summaries opt-in (`discovery_enabled` defaults false), published/approved/visibility gates intact, and lesson/progress/response data member-protected. Use the safe summary RPCs rather than widening raw-table RLS. Never fabricate featured studies, topic classifications, activity or completion.
+- For discovery/continuation UI changes, read `docs/FAITH_CIRCLES_DISCOVERY.md` and run `test:faith:discovery`, `test:faith:discovery:setup` and the actual desktop/mobile discovery scenarios. Preserve the first released incomplete session, own-user progress, existing prayer/chat/voice links and persistent member layout.

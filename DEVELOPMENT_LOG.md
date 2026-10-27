@@ -2,6 +2,19 @@
 
 
 
+
+## 2026-10-26 — Faith Circles Phase 3 homepage and discovery
+
+Connected the Premium Digital Lounge Faith Circles homepage to persisted published studies, joined Circles, editorial topics/features and private member completion. Added original book-and-landscape SVG artwork, requested hero/subtitle, large study cards, My Faith Circles/current study and actual study-update time, active-study continuation, eight topic filters, existing authorized scheduled Hangouts and prayer routes. Faith & Life now links directly to discovery. No production studies, activity statistics, users or communities were seeded or invented.
+
+Added additive version `202611190001` with opt-in nonmember summary discovery (default off), featured/topic metadata, bounded authorized listing/detail projections and approved-leader metadata curation with audit/rate controls. Existing member-only table RLS and private/unreleased lesson boundaries remain intact; nonmember summaries contain no lessons, questions, personal progress/responses or session IDs. Published study overviews and released session routes reuse Phase 2 reading/completion services, safe Markdown, existing discussions/Hangouts/prayers and persistent voice. Circle pages link actual published studies; nested study routes retain authorized community context. Empty/error/loading/retry, pending membership and failed-save states are honest. Full curriculum authoring and answer editing remain later UI work.
+
+Executed verification: optimized production build/start, lint, typecheck, bundle-secret check and **409 unit tests / 70 files** passed. **16 new discovery database checks** and three installer parity/rerun/ambiguous-state checks passed, plus **32 backend + 20 foundation + 32 community + 26 Spaces + 24 messaging** regression checks and **11 real Realtime/API messaging checks**. The final production-build Playwright run passed **6/6 in 3.1 minutes**, covering actual desktop/mobile discovery, leader curation, topics, join/request, private/future denials, own progress and correct next-session URLs; existing Circle/private-chat behavior; and two-account decoded LiveKit audio during navigation, mute, reconnect and access revocation. No private response/progress disclosure or voice-provider replacement was introduced.
+
+Captured and inspected actual local screenshots at **1440/1024/390/320** widths; the final homepage scans had zero targeted axe WCAG A/AA violations, loaded images and no horizontal overflow. Initial checks caught a topic label including its options, an unnamed Circle image link and an overbroad status locator; these were fixed and rerun without weakening privacy or assertions. Private study/topic links disable eager prefetch to avoid unnecessary authenticated reads. See `docs/FAITH_CIRCLES_DISCOVERY.md` and `docs/qa/faith-discovery/README.md`.
+
+Only the isolated local database was migrated; fixtures rolled back or removed only their generated records. No production SQL, push or deployment performed. Full authoring/answer UI, licensed Bible API, study notifications/reporting, live cross-device progress and hosted-scale/physical-device/Safari acceptance remain open; no production-readiness claim is made.
+
 ## 2026-10-26 — Faith Circles Phase 2 backend and database
 
 Extended the explicit community-backed foundation through additive migration `202611180001` and a guarded Phase-2-only installer. Community UUIDs, names/images/privacy, memberships, channels, Auth and LiveKit remain authoritative. Added normalized studies, ordered/released sessions, questions, private-by-default structured answers, owner-only completion, unique join requests and a restricted co-leader overlay/view. Existing prayers gain a bounded title and safe removal lifecycle; no duplicate prayer/chat/user/voice infrastructure, historical reclassification or seed.

@@ -2,6 +2,10 @@
 
 “Grow in the Word. Grow Together.”
 
+## Phase 3 update
+
+The published-study homepage, topic discovery, joined-Circle/current-study cards, private progress/continuation and released study/session reading are now connected. Approved leaders can curate discovery metadata on published study overviews. See [homepage/discovery guide](FAITH_CIRCLES_DISCOVERY.md) for the new migration and exact scope. Full authoring and reflection-answer editing remain later work.
+
 ## Phase 2 update
 
 The study backend now exists: approved authoring/publishing, released sessions/questions, private progress, owner-private or explicitly shared structured answers, join requests/co-leaders and existing prayer integration. See [the backend guide](FAITH_CIRCLES_BACKEND.md). The foundation UI still needs the later guided-study and authoring screens. Earlier foundation-only scope/verification below describes that release, not a claim that the new backend is absent.

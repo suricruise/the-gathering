@@ -12,7 +12,7 @@ export async function shellNavigation(path:string,limit=30):Promise<Result<Shell
   const all=joined.data as {id:string;name:string;slug:string}[];
   const channel=/^\/channels\/([0-9a-f-]{36})$/i.exec(path)?.[1];
   const selectedChannel=channel?await client.from('channels').select('community_id').eq('id',channel).maybeSingle():null;
-  const circle=/^\/faith-circles\/([0-9a-f-]{36})$/i.exec(path)?.[1];
+  const circle=/^\/faith-circles\/([0-9a-f-]{36})(?:\/|$)/i.exec(path)?.[1];
   const slug=/^\/communities\/([^/]+)/.exec(path)?.[1];
   const active=all.find(c=>channel?c.id===selectedChannel?.data?.community_id:c.slug===slug||c.id===slug||c.id===circle);
   const items=all.slice(0,limit);if(active&&!items.some(c=>c.id===active.id))items.push(active);

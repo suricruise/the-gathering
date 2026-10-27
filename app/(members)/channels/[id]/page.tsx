@@ -93,6 +93,7 @@ export default async function ChannelPage({
   } catch {
     /* Missing infrastructure keeps joining disabled. */
   }
+  if(channel.kind==='voice'){const link=await client.from('faith_study_hangouts').select('event_id').eq('channel_id',id).maybeSingle();if(link.data)redirect(`/faith-circles/${channel.community_id}/hangouts/${link.data.event_id}`);}
   const shared = (await searchParams).message;
   return (
     <ChannelWorkspaceLayout key={community.id} community={community} channel={channel} initial={navigation.data}>

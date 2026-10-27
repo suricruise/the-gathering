@@ -1,5 +1,7 @@
 # Phase 6: real LiveKit voice
 
+Faith Circles live study scheduling uses the existing voice system: see [Study Hangouts](FAITH_STUDY_HANGOUTS.md) for the separate `202611220001` update and privacy/operating instructions.
+
 Voice uses actual WebRTC media through LiveKit, not simulated participants or a Supabase audio transport. Persistent rooms are existing community channels of kind `voice`. Text messaging, authentication, and community controls retain their existing services.
 
 ## Production setup: Supabase, LiveKit, Vercel, and one worker

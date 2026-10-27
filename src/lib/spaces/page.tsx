@@ -17,6 +17,7 @@ export async function spacePage(
         ? "/events"
         : "/notifications",
   );
+  if(view === 'event' && resource){const link=await client.from('faith_study_hangouts').select('event_id').eq('event_id',resource).maybeSingle();if(link.data){const e=await client.from('events').select('community_id').eq('id',resource).maybeSingle();if(e.data)redirect(`/faith-circles/${e.data.community_id}/hangouts/${resource}`);}}
   if(view === 'prayer' && resource){
     const prayer=await client.from('prayer_requests').select('id,community_id,circle_scope').eq('id',resource).maybeSingle();
     if(prayer.data?.circle_scope)redirect(`/faith-circles/${prayer.data.community_id}/prayers/${resource}`);

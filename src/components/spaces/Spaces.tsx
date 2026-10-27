@@ -78,9 +78,9 @@ function DailyScripture() {
   const verse = dailyScripture(day);
   return (
     <blockquote>
-      “{verse.text}”
+      Read and reflect on {verse.reference}. <Link href={`/faith-circles/scripture?reference=${encodeURIComponent(verse.reference)}`}>Open reference reader</Link>
       <cite>
-        {verse.reference} · KJV · Curated public-domain Scripture
+        {verse.reference} · Curated reading reference
         {day ? ` · ${day} UTC` : ""}
       </cite>
     </blockquote>

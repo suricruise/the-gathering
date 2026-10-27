@@ -1,3 +1,4 @@
+import type { WebSocketRoute } from '@playwright/test';
 import {
   test,
   expect,
@@ -83,6 +84,10 @@ test("real voice exchanges decoded audio, persists navigation, mutes, reconnects
   page.on("pageerror", (e) => errors.push(e.message));
   other.on("pageerror", (e) => errors.push(e.message));
   const roomStudy=randomUUID(),roomLesson=randomUUID();
+  const livekitEndpoint=new URL(process.env.LIVEKIT_URL!);
+  if(!['localhost','127.0.0.1'].includes(livekitEndpoint.hostname))throw Error('Isolated local LiveKit required');
+  const signalSockets:WebSocketRoute[]=[];
+  await page.routeWebSocket(url=>url.hostname===livekitEndpoint.hostname&&url.port===livekitEndpoint.port&&/^\/rtc(?:\/|$)/.test(url.pathname),route=>{route.connectToServer();signalSockets.push(route);});
   const connected = (p: typeof page) => p.locator(".voice-live-state");
   const panel = (p: typeof page) =>
     p.getByRole("region", { name: "test-voice voice room" });
@@ -213,6 +218,16 @@ test("real voice exchanges decoded audio, persists navigation, mutes, reconnects
     console.log(
       "PASS real decoded audio energy in both authenticated browsers",
     );
+    // Terminate only the actual LiveKit signaling socket. RTP/server/Auth remain real,
+    // and HTTP navigation is untouched: this proves SDK reconnect independently of PWA reloads.
+    const signalCount=signalSockets.length;
+    expect(signalCount).toBeGreaterThan(0);
+    await signalSockets.at(-1)!.close({code:1012,reason:'Local QA signaling restart'});
+    await expect.poll(()=>signalSockets.length,{timeout:30000}).toBeGreaterThan(signalCount);
+    await expect(connected(page)).toHaveText('Voice connected',{timeout:30000});
+    await expect(panel(page).getByRole('heading',{name:'Connected participants (2)',exact:true})).toBeVisible();
+    for(const participant of[page,other])await expect.poll(()=>audioEnergy(participant),{timeout:25000}).toBeGreaterThan(0.00001);
+    console.log('PASS real LiveKit signaling reconnect with bidirectional decoded audio');
     const persistent = test.info().project.name === 'mobile' ? page.locator('.mobile-voice-status') : page.getByRole('complementary',{name:'Channel directory',exact:true}).locator('.workspace-voice-connection .voice-connection');
     await expect(persistent).toContainText('Voice connected');
     await persistent.getByRole('button',{name:'Deafen audio',exact:true}).click();
@@ -343,9 +358,20 @@ test("real voice exchanges decoded audio, persists navigation, mutes, reconnects
     await page.context().setOffline(true);
     await page.waitForTimeout(1800);
     await page.context().setOffline(false);
-    await expect(connected(page)).toHaveText("Voice connected", {
-      timeout: 30000,
-    });
+    // An interrupted document/RSC navigation may intentionally enter the uncached
+    // PWA offline document. That unloads the room; recover explicitly through Auth,
+    // rather than claiming a live connection survived a page reload.
+    const offlinePage=page.getByRole('heading',{name:'Your people will be here.',exact:true});
+    await expect(connected(page).or(offlinePage)).toBeVisible({timeout:30000});
+    if(await offlinePage.isVisible()){
+      await page.getByRole('button',{name:'Try again',exact:true}).click();
+      await expect(panel(page)).toBeVisible();
+      await expect.poll(async()=>Number((await db.query('select count(*)from private.voice_sessions where user_id=$1 and expires_at>now()',[member.id])).rows[0].count),{timeout:25000}).toBe(0);
+      await panel(page).getByRole('button',{name:'Join with microphone',exact:true}).click();
+      console.log('PASS offline document recovery uses an explicit authorized voice rejoin');
+    }
+    await expect(connected(page)).toHaveText("Voice connected", {timeout:30000});
+    await expect.poll(()=>audioEnergy(page),{timeout:20000}).toBeGreaterThan(0.00001);
     await expect
       .poll(() => audioEnergy(other), { timeout: 20000 })
       .toBeGreaterThan(0.00001);

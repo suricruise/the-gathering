@@ -93,7 +93,9 @@
     "test:faith:hangouts:setup": "node scripts/test-faith-hangouts-setup.mjs",
     "test:faith:builder": "node scripts/test-faith-builder.mjs",
     "test:faith:builder:setup": "node scripts/test-faith-builder-setup.mjs",
-    "faith:covers:cleanup": "node scripts/cleanup-faith-covers.mjs"
+    "faith:covers:cleanup": "node scripts/cleanup-faith-covers.mjs",
+    "test:faith:scripture": "node scripts/test-scripture.mjs",
+    "test:faith:scripture:setup": "node scripts/test-scripture-setup.mjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",

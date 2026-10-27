@@ -138,3 +138,7 @@ Approved leaders schedule published sessions using existing events/RSVPs and ded
 ## Phase 7 implementation extension
 
 Visual study authoring reuses existing studies, sessions, questions and membership. See `docs/FAITH_STUDY_BUILDER.md` for the protected revision-aware draft editor, independent review policy, platform feature approval, private cover uploads/cleanup, safe member preview and preserved published editions. New version `202611230001` is additive and does not migrate production data automatically.
+
+## Phase 8 Scripture and final QA
+
+The reusable reference reader and private reference-only bookmarks reuse member Auth and existing discussion/voice. The gated YouVersion REST adapter follows the current official SDK contract; actual project/translation/display rights and live upstream delivery remain separately verified requirements. See `docs/SCRIPTURE_INTEGRATION.md` and `FAITH_CIRCLES_COMPLETION.md`. New version `202611240001` contains no Bible text and does not alter production automatically.

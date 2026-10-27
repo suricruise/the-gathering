@@ -1,5 +1,7 @@
 # Faith Circles Phase 7 — visual Bible Study Builder
 
+**Phase 8:** see [Scripture integration](SCRIPTURE_INTEGRATION.md) for the reference reader, private bookmarks and gated YouVersion setup, and the [completion/QA report](../FAITH_CIRCLES_COMPLETION.md) for verified results and remaining acceptance.
+
 ## Access and navigation
 
 Open **Faith Circles → Leader Study Builder**, choose an authorized Circle, then **Create New Study**. Circle pages also show **Bible Study Builder** to current authorized teachers. Dashboard filters cover My Studies, Draft, Published and Archived; the workspace shows collaborative studies in the selected Circle with bounded pagination.

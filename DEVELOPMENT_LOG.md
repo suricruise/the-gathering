@@ -1,5 +1,9 @@
 # Development log
 
+## 2026-10-27 — Show avatars on every channel message
+
+Updated the shared channel/thread message row to always display the author avatar (or initials fallback), name and timestamp, including consecutive messages from the same member. Existing compact spacing, message actions, ownership and delivery remain unchanged. No database migration is required. Lint, typecheck and production build passed. The initial unit run passed 476/477 with an unrelated asynchronous study-progress assertion failure; the unchanged full-suite rerun passed 477/477 across 84 files. No live deployment performed.
+
 ## 2026-10-27 — Faith Circles Phase 8 Scripture and final QA
 
 Final reader verification: desktop/mobile **2/2 passed in 41.6 seconds**; refreshed both captured screenshots after the final UI changes.

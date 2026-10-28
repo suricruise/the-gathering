@@ -9,7 +9,7 @@ import { setMessagePin } from "../../lib/chat/pins";
 import { loadLinkPreviews } from "../../lib/chat/preview-action";
 import { messageLinks } from "../../lib/chat/validation";
 import { reactionEmoji, type ChatMessage } from "../../lib/chat/types";
-import { messageTime, messageDateLabel } from "../../lib/chat/presentation";
+import { messageTime } from "../../lib/chat/presentation";
 import { SafeMarkdown } from "./SafeMarkdown";
 export const MessageItem = memo(function MessageItem({
   message: m,
@@ -129,7 +129,7 @@ export const MessageItem = memo(function MessageItem({
       aria-label={`Message from ${m.author_name}`}
     >
       <div className="chat-message-avatar">
-        {grouped ? <time className="chat-group-time" dateTime={m.created_at} title={`${messageDateLabel(m.created_at, localTime)}, ${messageTime(m.created_at, localTime)}`}>{messageTime(m.created_at, localTime)}</time> : m.author_avatar && m.author_id ? (
+        {m.author_avatar && m.author_id ? (
           <img
             src={`/api/avatars/${m.author_id}`}
             alt={m.author_name}
@@ -141,14 +141,13 @@ export const MessageItem = memo(function MessageItem({
         )}
       </div>
       <div className="chat-message-content">
-        {!grouped && <header>
+        <header>
           <strong>{m.author_id ? <Link href={`/members/${m.author_id}`}>{m.author_name}</Link> : m.author_name}</strong>
           <time dateTime={m.created_at} title={m.created_at}>
             {messageTime(m.created_at, localTime)}
           </time>
           {m.edited_at && !m.deleted_at && <small>edited</small>}
-        </header>}
-        {grouped && m.edited_at && !m.deleted_at && <small>edited</small>}
+        </header>
         {mentioned&&<small className="message-mention-label">Mentioned you</small>}
         {m.pinned_at && !m.deleted_at && <small className="message-pin-label"><Pin size={12} aria-hidden="true" /> Pinned</small>}
         {scope === "channel" && !m.deleted_at && m.reply_count > 0 && <button type="button" className="message-thread-summary chat-text-button" disabled={replyDisabled} onClick={() => onReply(m)}>{m.reply_count} replies{m.thread_latest_at && <span> · Latest <time dateTime={m.thread_latest_at}>{messageTime(m.thread_latest_at, localTime)}</time></span>}</button>}

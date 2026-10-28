@@ -1,3 +1,5 @@
+import {ProfileCoverEditor} from "@/src/components/profiles/ProfileCoverEditor";
+import {readProfileCover,coverVersion} from "@/src/lib/profiles/covers";
 import {ProfileCover} from "@/src/components/profiles/ProfilePresentation";
 import Link from "next/link";
 import { requireUser } from "@/src/lib/auth/session";
@@ -10,7 +12,7 @@ import { PageHeading } from "@/src/components/ui";
 export const metadata = { title: "Your profile" };
 export default async function ProfilePage() {
   const { client, user } = await requireUser("/profile");
-  const data = await loadMyProfile(client, user.id);
+  const [data,cover] = await Promise.all([loadMyProfile(client,user.id),readProfileCover(client,user.id)]);
   return (
     <div className="page premium-profile-page">
       <PageHeading
@@ -27,7 +29,8 @@ export default async function ProfilePage() {
           </Link>
         )}
       </PageHeading>
-      <ProfileCover name={data.profile.display_name || "Member"}/>
+      <ProfileCover name={data.profile.display_name || "Member"} id={user.id} version={coverVersion(cover.path)}/>
+      <ProfileCoverEditor hasCover={!!cover.path} available={cover.available}/>
       <Link href="/messages?tab=privacy" className="button secondary">Presence, discovery & messaging privacy</Link>
       <AvatarEditor
         version={data.profile.avatar_path}

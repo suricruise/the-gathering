@@ -1,0 +1,14 @@
+'use client';
+import{useActionState,useEffect,useRef,useState}from'react';
+import{uploadProfileCover,removeProfileCover}from'../../lib/profiles/cover-actions';
+import type{ActionState}from'../../lib/auth/state';
+export function ProfileCoverEditor({hasCover,available}:{hasCover:boolean;available:boolean}){
+ const[file,setFile]=useState<File|null>(null),[preview,setPreview]=useState(''),[validation,setValidation]=useState('');
+ const input=useRef<HTMLInputElement>(null);
+ const[uploaded,upload,pending]=useActionState(async(previous:ActionState,data:FormData)=>{if(file)data.set('cover',file);return uploadProfileCover(previous,data);},{});
+ const[removed,remove,removing]=useActionState(removeProfileCover,{});
+ useEffect(()=>{if(!file){setPreview('');return;}const url=URL.createObjectURL(file);setPreview(url);return()=>URL.revokeObjectURL(url);},[file]);
+ useEffect(()=>{if(uploaded.notice){setFile(null);if(input.current)input.current.value='';}},[uploaded]);
+ const busy=pending||removing;
+ return <section className="panel padded profile-cover-editor" aria-labelledby="profile-cover-title"><h2 id="profile-cover-title">Profile cover image</h2><p>Add a background above your avatar. It appears on your profile and your member card. Other members can view it only when your profile privacy permits.</p><p className="muted">JPG, PNG or WebP · up to 2 MB. Landscape images work best; the center is cropped to fit.</p>{!available&&<p role="status">Cover uploads need the profile-cover database setup. Your profile and default background still work.</p>}<form action={upload}><label>Choose profile cover<input ref={input} type="file" name="cover" accept="image/jpeg,image/png,image/webp" disabled={!available||busy} onChange={e=>{const next=e.target.files?.[0]??null;if(next&&(next.size>2*1024*1024||!['image/jpeg','image/png','image/webp'].includes(next.type))){setValidation('Choose a JPG, PNG or WebP image no larger than 2 MB.');setFile(null);e.target.value='';}else{setValidation('');setFile(next);}}}/></label>{preview&&<figure className="profile-cover-preview"><img src={preview} alt="Selected cover preview"/><figcaption>Preview · not saved yet</figcaption></figure>}<button className="button primary" disabled={!available||busy||!file}>{pending?'Uploading cover…':'Upload cover image'}</button>{validation&&<p role="alert">{validation}</p>}{uploaded.error&&<p role="alert">{uploaded.error}</p>}{uploaded.notice&&hasCover&&!file&&<p role="status">{uploaded.notice}</p>}</form>{hasCover&&<form action={remove} onSubmit={e=>{if(!window.confirm('Remove your cover image and restore the default background?'))e.preventDefault();}}><button className="button secondary" disabled={!available||busy}>{removing?'Removing cover…':'Remove cover image'}</button></form>}{removed.error&&<p role="alert">{removed.error}</p>}{removed.notice&&!hasCover&&<p role="status">{removed.notice}</p>}</section>;
+}

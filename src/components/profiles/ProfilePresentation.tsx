@@ -1,12 +1,13 @@
+import { ProfileCoverImage } from "./ProfileCoverImage";
 import Link from "next/link";
 import { ProfileAvatar } from "../ui";
 import { interestLabels } from "../../lib/profiles/interests";
 import type { ProfileDetails } from "../../lib/profiles/lounge";
-export function ProfileCover({name}:{name:string}) {
- return <div className="premium-profile-cover" aria-hidden="true"><span>THE GATHERING</span><i/><b>{name.slice(0,1).toUpperCase()}</b></div>;
+export function ProfileCover({name,id,version}:{name:string;id?:string;version?:string|null}) {
+ return <div className="premium-profile-cover" aria-hidden="true">{id&&version?<ProfileCoverImage key={version} id={id} version={version}/>:<><span>THE GATHERING</span><i/><b>{name.slice(0,1).toUpperCase()}</b></>}</div>;
 }
-export function MiniProfileCard({id,name,username,avatar}:{id?:string;name:string;username:string;avatar:boolean}) {
- return <Link href={id?`/members/${id}`:"/profile"} className="premium-mini-profile"><div className="premium-mini-cover" aria-hidden="true"/>{avatar&&id?<img src={`/api/avatars/${id}`} width={64} height={64} alt=""/>:<ProfileAvatar name={name} size="large"/>}<strong>{name}</strong><span>@{username}</span><small>Find Your People. Find Your Place.</small></Link>;
+export function MiniProfileCard({id,name,username,avatar,coverVersion}:{id?:string;name:string;username:string;avatar:boolean;coverVersion?:string|null}) {
+ return <Link href={id?`/members/${id}`:"/profile"} className="premium-mini-profile"><div className="premium-mini-cover" aria-hidden="true">{id&&coverVersion&&<ProfileCoverImage key={coverVersion} id={id} version={coverVersion}/>}</div>{avatar&&id?<img src={`/api/avatars/${id}`} width={64} height={64} alt=""/>:<ProfileAvatar name={name} size="large"/>}<strong>{name}</strong><span>@{username}</span><small>Find Your People. Find Your Place.</small></Link>;
 }
 export function ProfileConnections({details,error}:{details?:ProfileDetails;error?:string}) {
  if(!details)return <p className="muted" role="status">{error||"Community connections unavailable."}</p>;

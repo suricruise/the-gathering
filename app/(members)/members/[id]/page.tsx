@@ -1,3 +1,4 @@
+import {readProfileCover,coverVersion} from "@/src/lib/profiles/covers";
 import {ProfileCover,ProfileConnections} from "@/src/components/profiles/ProfilePresentation";
 import {profileDetails} from "@/src/lib/profiles/lounge";
 import Link from "next/link";
@@ -14,8 +15,9 @@ export default async function MemberProfile({params}:{params:Promise<{id:string}
   const {client}=await requireUser();
   const visible=await client.rpc("visible_profile",{p_username:person.username});
   const profile=!visible.error?visible.data?.[0]:null;
+  const cover=await readProfileCover(client,id);
   const details=profile?await profileDetails(person.username):{};
-  return <div className="page premium-profile-page"><Link className="back-link" href="/members">← Community members</Link><section className="panel padded member-contact-profile"><ProfileCover name={person.name}/>
+  return <div className="page premium-profile-page"><Link className="back-link" href="/members">← Community members</Link><section className="panel padded member-contact-profile"><ProfileCover name={person.name} id={id} version={coverVersion(cover.path)}/>
     {person.avatar?<img className="member-avatar-image" src={`/api/avatars/${person.id}`} width={96} height={96} alt=""/>:<ProfileAvatar name={person.name} size="large"/>}
     <h1>{person.name}</h1><p className="muted">@{person.username}</p>
     <p className="muted">{person.online===null?"Status private":person.online?"Online":"Offline"}</p>{person.self&&<Link className="button secondary" href="/profile">Edit profile</Link>}

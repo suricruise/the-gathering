@@ -7,6 +7,7 @@ export type MemberIdentity = {
   username: string | null;
   avatar: boolean;
   avatarVersion?: string | null;
+  coverVersion?: string | null;
 };
 const Context = createContext<MemberIdentity | null>(null);
 export function MemberProvider({

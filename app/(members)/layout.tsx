@@ -21,6 +21,7 @@ export default async function MemberLayout({
         username: profile.username,
         avatar: !!profile.avatar_path,
         avatarVersion: profile.avatar_path,
+        coverVersion: profile.coverVersion,
       }}
     >
       <VoiceProvider>

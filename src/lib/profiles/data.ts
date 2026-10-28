@@ -1,4 +1,5 @@
 import "server-only";
+import {readProfileCover,coverVersion} from "./covers";
 import type { SupabaseClient } from "@supabase/supabase-js";
 export type MemberProfile = {
   id: string;
@@ -15,7 +16,8 @@ export async function loadMemberIdentity(client: SupabaseClient, id: string) {
   const { data, error } = await client.from("profiles")
     .select("id,username,display_name,avatar_path").eq("id", id).single();
   if (error || !data) throw new Error("Your member identity is unavailable. Please retry.");
-  return data as Pick<MemberProfile, "id" | "username" | "display_name" | "avatar_path">;
+  const cover=await readProfileCover(client,id);
+  return {...data,coverVersion:coverVersion(cover.path)} as Pick<MemberProfile, "id" | "username" | "display_name" | "avatar_path"> & {coverVersion:string|null};
 }
 export async function loadMyProfile(client: SupabaseClient, id: string) {
   const [profile, preferences, games, platforms, gameCatalog, platformCatalog] =

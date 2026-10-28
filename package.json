@@ -94,6 +94,8 @@
     "test:faith:builder": "node scripts/test-faith-builder.mjs",
     "test:faith:builder:setup": "node scripts/test-faith-builder-setup.mjs",
     "faith:covers:cleanup": "node scripts/cleanup-faith-covers.mjs",
+    "test:profiles:covers": "node scripts/test-profile-covers.mjs",
+    "test:profiles:covers:setup": "node scripts/test-profile-covers-setup.mjs",
     "test:faith:scripture": "node scripts/test-scripture.mjs",
     "test:faith:scripture:setup": "node scripts/test-scripture-setup.mjs"
   },

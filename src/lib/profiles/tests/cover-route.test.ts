@@ -1,0 +1,9 @@
+import{beforeEach,expect,it,vi}from'vitest';
+const m=vi.hoisted(()=>({auth:vi.fn(),rpc:vi.fn(),download:vi.fn()}));vi.mock('../../supabase/server',()=>({createClient:async()=>({auth:{getUser:m.auth},rpc:m.rpc})}));vi.mock('../../supabase/admin',()=>({createAdminClient:()=>({storage:{from:()=>({download:m.download})}})}));
+import{GET}from'../../../../app/api/profile-covers/[id]/route';
+const id='a3000000-0000-4000-8000-000000000001',path=`${id}/cover-a3000000-0000-4000-8000-000000000002.webp`;
+function read(target=id){return GET(new Request(`http://localhost/api/profile-covers/${target}`),{params:Promise.resolve({id:target})});}
+beforeEach(()=>{vi.resetAllMocks();m.auth.mockResolvedValue({data:{user:{id:'viewer',email_confirmed_at:'now'}},error:null});m.rpc.mockResolvedValue({data:path,error:null});m.download.mockResolvedValue({data:new Blob(['encoded webp']),error:null});});
+it('authorizes with verified Auth and fresh profile visibility before private download',async()=>{const r=await read();expect(r.status).toBe(200);expect(r.headers.get('Cache-Control')).toBe('private, no-store');expect(r.headers.get('X-Content-Type-Options')).toBe('nosniff');expect(m.rpc).toHaveBeenCalledWith('visible_profile_cover',{p_id:id});expect(m.download).toHaveBeenCalledWith(path);});
+it('hides unavailable and unauthorized covers without downloading',async()=>{m.rpc.mockResolvedValue({data:null,error:null});expect((await read()).status).toBe(404);m.auth.mockResolvedValue({data:{user:null},error:null});expect((await read()).status).toBe(404);expect(m.download).not.toHaveBeenCalled();});
+it('rejects malformed IDs and foreign returned storage paths',async()=>{expect((await read('../other')).status).toBe(404);m.rpc.mockResolvedValue({data:'another-user/cover-file.webp',error:null});expect((await read()).status).toBe(404);expect(m.download).not.toHaveBeenCalled();});
